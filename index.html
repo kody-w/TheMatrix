@@ -622,6 +622,25 @@
             .terminal {
                 padding: 1rem;
             }
+
+            .content-tabs {
+                gap: 0.5rem;
+            }
+
+            .tab-button {
+                padding: 0.6rem 1rem;
+                font-size: 0.75rem;
+                letter-spacing: 0.05rem;
+            }
+
+            .prompt-library-tabs {
+                gap: 0.5rem;
+            }
+
+            .prompt-tab-button {
+                padding: 0.5rem 1rem;
+                font-size: 0.7rem;
+            }
         }
 
         /* Glitch Effect */
@@ -655,6 +674,64 @@
         @keyframes breathing {
             0%, 100% { opacity: 1; }
             50% { opacity: 0.6; }
+        }
+
+        /* Tab System */
+        .content-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin: 2rem 0;
+        }
+
+        .tab-button, .prompt-tab-button {
+            padding: 0.8rem 2rem;
+            font-size: 0.95rem;
+            font-family: 'Courier New', Consolas, monospace;
+            background: transparent;
+            color: var(--matrix-green);
+            border: 2px solid var(--glass-border);
+            border-radius: 5px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.1rem;
+            transition: all 0.3s ease;
+        }
+
+        .tab-button:hover, .prompt-tab-button:hover {
+            border-color: var(--matrix-green);
+            background: var(--glass-bg);
+            box-shadow: 0 0 10px var(--glow-green);
+        }
+
+        .tab-button.active, .prompt-tab-button.active {
+            background: var(--matrix-green);
+            color: var(--deep-black);
+            border-color: var(--matrix-green);
+            box-shadow: 0 0 20px var(--glow-green);
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .prompt-library-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 0.8rem;
+            flex-wrap: wrap;
+            margin: 1rem 0;
+        }
+
+        .prompt-tab-button {
+            padding: 0.6rem 1.5rem;
+            font-size: 0.85rem;
         }
 
         /* Wake Up Neo Easter Egg */
@@ -743,8 +820,24 @@
             </button>
         </div>
 
-        <!-- Capabilities Section -->
+        <!-- Content Navigator Section -->
         <section class="capabilities-section">
+            <h2 class="section-title breathing">MATRIX CONTENT LIBRARY</h2>
+            <p style="text-align: center; opacity: 0.8; margin-bottom: 2rem; font-size: 1.1rem;">
+                Explore demonstrations, documentation, and mind-blowing orchestration prompts
+            </p>
+
+            <!-- Tab Navigation -->
+            <div class="content-tabs">
+                <button class="tab-button active" onclick="switchTab('prompts')">MIND-BLOWING PROMPTS</button>
+                <button class="tab-button" onclick="switchTab('demos')">INTERACTIVE DEMOS</button>
+                <button class="tab-button" onclick="switchTab('docs')">DOCUMENTATION</button>
+                <button class="tab-button" onclick="switchTab('library')">PROMPT LIBRARY</button>
+            </div>
+        </section>
+
+        <!-- Tab Content: Mind-Blowing Prompts -->
+        <section class="tab-content active" id="prompts-tab">
             <h2 class="section-title breathing">10 MIND-BLOWING ORCHESTRATION PROMPTS</h2>
             <p style="text-align: center; opacity: 0.8; margin-bottom: 3rem; font-size: 1.1rem;">
                 These prompts showcase The Matrix's power to orchestrate parallel agents across any domain
@@ -909,6 +1002,143 @@
                         <span>18 Minutes</span>
                     </div>
                 </div>
+            </div>
+        </section>
+
+        <!-- Tab Content: Interactive Demos -->
+        <section class="tab-content" id="demos-tab">
+            <h2 class="section-title">INTERACTIVE DEMONSTRATIONS</h2>
+            <p style="text-align: center; opacity: 0.8; margin-bottom: 3rem; font-size: 1.1rem;">
+                Experience The Matrix through interactive HTML demonstrations
+            </p>
+            <div class="capabilities-grid">
+                <div class="capability-card" onclick="window.open('Pokemon Battle Assistant.html', '_blank')">
+                    <div class="capability-header">
+                        <div class="capability-title">Pokemon Battle Assistant</div>
+                        <div class="capability-status ready">LIVE</div>
+                    </div>
+                    <div class="capability-description">
+                        Interactive Pokemon battle assistant with real-time type effectiveness calculations, team building, and strategic recommendations.
+                    </div>
+                    <div class="capability-stats">
+                        <span>Interactive Demo</span>
+                        <span>Pure HTML/CSS/JS</span>
+                    </div>
+                </div>
+
+                <div class="capability-card" onclick="window.open('windows95-emulator.html', '_blank')">
+                    <div class="capability-header">
+                        <div class="capability-title">Windows 95 Emulator</div>
+                        <div class="capability-status ready">LIVE</div>
+                    </div>
+                    <div class="capability-description">
+                        Nostalgic Windows 95 experience built entirely in HTML/CSS/JS. Experience the classic UI with functional windows, start menu, and apps.
+                    </div>
+                    <div class="capability-stats">
+                        <span>Interactive Demo</span>
+                        <span>Retro Experience</span>
+                    </div>
+                </div>
+
+                <div class="capability-card" onclick="openModal('coming-soon-demo')">
+                    <div class="capability-header">
+                        <div class="capability-title">Cathedral Showcase</div>
+                        <div class="capability-status coming-soon">COMING SOON</div>
+                    </div>
+                    <div class="capability-description">
+                        Explore working demonstrations of The Matrix's orchestration capabilities through interactive visualizations.
+                    </div>
+                    <div class="capability-stats">
+                        <span>Future Release</span>
+                        <span>Orchestration Demos</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tab Content: Documentation -->
+        <section class="tab-content" id="docs-tab">
+            <h2 class="section-title">DOCUMENTATION</h2>
+            <p style="text-align: center; opacity: 0.8; margin-bottom: 3rem; font-size: 1.1rem;">
+                Comprehensive guides and documentation for The Matrix orchestration system
+            </p>
+            <div class="capabilities-grid">
+                <div class="capability-card" onclick="openDocModal('README.md')">
+                    <div class="capability-header">
+                        <div class="capability-title">Framework Overview</div>
+                        <div class="capability-status ready">AVAILABLE</div>
+                    </div>
+                    <div class="capability-description">
+                        Complete overview of The Matrix AI orchestration framework, architecture, and capabilities.
+                    </div>
+                    <div class="capability-stats">
+                        <span>README.md</span>
+                        <span>Core Documentation</span>
+                    </div>
+                </div>
+
+                <div class="capability-card" onclick="openDocModal('CLAUDE.md')">
+                    <div class="capability-header">
+                        <div class="capability-title">Orchestrator Guide</div>
+                        <div class="capability-status ready">AVAILABLE</div>
+                    </div>
+                    <div class="capability-description">
+                        Detailed workflow and instructions for Claude Code orchestrator. Learn how to coordinate parallel agents.
+                    </div>
+                    <div class="capability-stats">
+                        <span>CLAUDE.md</span>
+                        <span>Workflow Guide</span>
+                    </div>
+                </div>
+
+                <div class="capability-card" onclick="openDocModal('CATHEDRAL_EXECUTIVE_SUMMARY.md')">
+                    <div class="capability-header">
+                        <div class="capability-title">Cathedral Executive Summary</div>
+                        <div class="capability-status ready">AVAILABLE</div>
+                    </div>
+                    <div class="capability-description">
+                        High-level overview of the Cathedral demonstration project showcasing orchestration capabilities.
+                    </div>
+                    <div class="capability-stats">
+                        <span>Executive Summary</span>
+                        <span>Cathedral Project</span>
+                    </div>
+                </div>
+
+                <div class="capability-card" onclick="alert('View more documentation files in the repository')">
+                    <div class="capability-header">
+                        <div class="capability-title">More Documentation</div>
+                        <div class="capability-status ready">17 FILES</div>
+                    </div>
+                    <div class="capability-description">
+                        Additional documentation including strategy guides, metrics, visual guides, and recommendations.
+                    </div>
+                    <div class="capability-stats">
+                        <span>17 Markdown Files</span>
+                        <span>Various Topics</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tab Content: Prompt Library -->
+        <section class="tab-content" id="library-tab">
+            <h2 class="section-title">PROMPT LIBRARY</h2>
+            <p style="text-align: center; opacity: 0.8; margin-bottom: 2rem; font-size: 1.1rem;">
+                Curated collection of orchestration prompts across different domains
+            </p>
+
+            <!-- Prompt Library Sub-tabs -->
+            <div class="prompt-library-tabs">
+                <button class="prompt-tab-button active" onclick="switchPromptCategory('scale')">SCALE-FIRST</button>
+                <button class="prompt-tab-button" onclick="switchPromptCategory('ux')">USER EXPERIENCE</button>
+                <button class="prompt-tab-button" onclick="switchPromptCategory('creative')">CREATIVE</button>
+                <button class="prompt-tab-button" onclick="switchPromptCategory('business')">BUSINESS IMPACT</button>
+            </div>
+
+            <!-- Prompt library content will be dynamically loaded -->
+            <div id="prompt-library-content" class="capabilities-grid" style="margin-top: 2rem;">
+                <!-- Dynamically populated by JavaScript -->
             </div>
         </section>
 
@@ -1445,6 +1675,34 @@ You take the red pill - you stay in Wonderland and I show you how deep the rabbi
                     <h3>Domain</h3>
                     <p>Creative Content - Game Design</p>
                 `
+            },
+            'coming-soon-demo': {
+                title: 'Cathedral Showcase',
+                content: `
+                    <h3>Overview</h3>
+                    <p>The Cathedral Showcase is a collection of interactive demonstrations visualizing The Matrix's orchestration power in action.</p>
+
+                    <h3>What's Coming</h3>
+                    <ul>
+                        <li>Interactive visualizations of parallel agent execution</li>
+                        <li>Real-time demonstrations of work breakdown structures</li>
+                        <li>Live metrics showing orchestration performance</li>
+                        <li>Side-by-side comparisons: sequential vs parallel execution</li>
+                        <li>Gallery of completed orchestration outcomes</li>
+                    </ul>
+
+                    <h3>Features</h3>
+                    <ul>
+                        <li>Visual representation of N×M outcome generation</li>
+                        <li>Agent activity timelines and coordination views</li>
+                        <li>Context usage visualization</li>
+                        <li>Integration synthesis demonstration</li>
+                        <li>Interactive exploration of generated artifacts</li>
+                    </ul>
+
+                    <h3>Status</h3>
+                    <p>The Cathedral Showcase is currently in development. Check back soon for interactive demonstrations of orchestration in action!</p>
+                `
             }
         };
 
@@ -1489,6 +1747,234 @@ You take the red pill - you stay in Wonderland and I show you how deep the rabbi
                 }, 50);
             }
         }, 2000);
+
+        // Tab Switching
+        function switchTab(tabName) {
+            // Hide all tab content
+            const tabContents = document.querySelectorAll('.tab-content');
+            tabContents.forEach(content => content.classList.remove('active'));
+
+            // Remove active class from all tab buttons
+            const tabButtons = document.querySelectorAll('.tab-button');
+            tabButtons.forEach(button => button.classList.remove('active'));
+
+            // Show selected tab content
+            document.getElementById(tabName + '-tab').classList.add('active');
+
+            // Add active class to clicked button
+            event.target.classList.add('active');
+
+            // If library tab, load initial prompt category
+            if (tabName === 'library') {
+                switchPromptCategory('scale');
+            }
+        }
+
+        // Prompt Library Data
+        const promptLibrary = {
+            ux: [
+                {
+                    title: "The Complete SaaS Dashboard",
+                    description: "Build 50 fully interactive metric tiles across 10 dashboard sections with real-time data displays, filters, and custom themes.",
+                    stats: ["10 Agents", "50 Components", "8 Minutes"]
+                },
+                {
+                    title: "The E-Commerce Experience",
+                    description: "Create complete storefront with 100 products, 500 reviews, shopping cart, checkout flow, and recommendation engine.",
+                    stats: ["10 Agents", "100 Products", "10 Minutes"]
+                },
+                {
+                    title: "The Knowledge Portal",
+                    description: "Transform scattered knowledge into 150 organized articles with learning paths, search, glossary, and topic visualization.",
+                    stats: ["15 Agents", "150 Articles", "12 Minutes"]
+                },
+                {
+                    title: "The Marketing Asset Factory",
+                    description: "Generate 60 marketing assets across 6 campaigns: emails, landing pages, social posts, ad copy, blogs, and resources.",
+                    stats: ["6 Agents", "60 Assets", "9 Minutes"]
+                },
+                {
+                    title: "The Mobile App Suite",
+                    description: "Build 80 mobile app screens covering 8 user journeys with iOS/Android compliance, dark mode, and accessibility.",
+                    stats: ["8 Agents", "80 Screens", "11 Minutes"]
+                }
+            ],
+            creative: [
+                {
+                    title: "Immersive World Builder",
+                    description: "Generate 100 interconnected locations for interactive fiction with atmospheric descriptions, NPCs, secrets, and emergent gameplay.",
+                    stats: ["10 Agents", "100 Locations", "14 Minutes"]
+                },
+                {
+                    title: "Character Generation Engine",
+                    description: "Create 500 unique character profiles with backstories, relationships, psychological profiles, and 15,000+ dialogue lines.",
+                    stats: ["10 Agents", "500 Characters", "18 Minutes"]
+                },
+                {
+                    title: "Musical Universe Creator",
+                    description: "Generate 250-track concept album across 5 acts with lyrics, chord progressions, instrumentation, and character leitmotifs.",
+                    stats: ["5 Agents", "250 Songs", "25 Minutes"]
+                },
+                {
+                    title: "Fantasy Ecosystem Generator",
+                    description: "Create 400 alien species across 8 biomes with evolutionary history, food webs, and realistic ecological relationships.",
+                    stats: ["8 Agents", "400 Species", "20 Minutes"]
+                },
+                {
+                    title: "Mythological Pantheon",
+                    description: "Generate 400 gods across 8 divine families with relationships, origin myths, powers, and cosmic drama.",
+                    stats: ["8 Agents", "400 Deities", "16 Minutes"]
+                }
+            ],
+            scale: [
+                {
+                    title: "The Great Migration",
+                    description: "Transform 2,500 legacy PHP files into modern React/TypeScript with 100% test coverage.",
+                    stats: ["250 Agents", "2,500 Files", "15 Minutes"]
+                },
+                {
+                    title: "The Documentation Engine",
+                    description: "Generate comprehensive docs for 3,500 codebase files across 50 microservices with API references and tutorials.",
+                    stats: ["350 Agents", "400 Pages", "18 Minutes"]
+                },
+                {
+                    title: "The Infinite API",
+                    description: "Generate 10,000 RESTful endpoints across 200 microservices with OpenAPI specs, tests, and SDKs in 8 languages.",
+                    stats: ["200 Agents", "25,000+ Artifacts", "22 Minutes"]
+                },
+                {
+                    title: "Data Warehouse Genesis",
+                    description: "Design 2,000 ETL pipelines, 5,000 dbt models, 500 data quality frameworks from 100 source systems.",
+                    stats: ["100 Agents", "8,500 Artifacts", "25 Minutes"]
+                },
+                {
+                    title: "Test Cathedral",
+                    description: "Generate 16,000 comprehensive tests: 10,000 unit, 5,000 integration, 1,000 E2E with CI/CD integration.",
+                    stats: ["200 Agents", "16,000 Tests", "16 Minutes"]
+                }
+            ],
+            business: [
+                {
+                    title: "The Automation Orchestrator",
+                    description: "Design 50 business processes with 300 automation scripts, 150 integrations, 500 validation rules, and monitoring.",
+                    stats: ["50 Agents", "950 Artifacts", "10 Minutes"]
+                },
+                {
+                    title: "The API Gateway Authority",
+                    description: "Generate 60 production-ready API endpoints across 6 service domains with OpenAPI specs, auth, and SDKs.",
+                    stats: ["6 Agents", "60 Endpoints", "8 Minutes"]
+                },
+                {
+                    title: "Product Roadmap Visualizer",
+                    description: "Build interactive roadmap with 120 features across 12 quarters including stories, wireframes, metrics, and dependencies.",
+                    stats: ["12 Agents", "120 Features", "14 Minutes"]
+                },
+                {
+                    title: "The System Designer",
+                    description: "Convert requirements into 100 API specs, 500 database schemas, 200 service blueprints, 1,000 deployment configs.",
+                    stats: ["100 Agents", "1,800 Specs", "14 Minutes"]
+                },
+                {
+                    title: "Content Migration Engine",
+                    description: "Transform 2,500 source documents into 500 organized targets with semantic enrichment and cross-referencing.",
+                    stats: ["50 Agents", "500 Documents", "12 Minutes"]
+                }
+            ]
+        };
+
+        // Switch Prompt Category
+        function switchPromptCategory(category) {
+            // Remove active class from all prompt tab buttons
+            const promptTabButtons = document.querySelectorAll('.prompt-tab-button');
+            promptTabButtons.forEach(button => button.classList.remove('active'));
+
+            // Add active class to clicked button (if event exists)
+            if (event && event.target) {
+                event.target.classList.add('active');
+            } else {
+                // On initial load, activate the first button (scale-first)
+                const firstButton = document.querySelector('.prompt-tab-button');
+                if (firstButton) firstButton.classList.add('active');
+            }
+
+            // Load prompts for selected category
+            const promptContent = document.getElementById('prompt-library-content');
+            promptContent.innerHTML = '';
+
+            const prompts = promptLibrary[category] || [];
+            prompts.forEach(prompt => {
+                const card = document.createElement('div');
+                card.className = 'capability-card';
+                card.onclick = () => openPromptModal(prompt);
+
+                card.innerHTML = `
+                    <div class="capability-header">
+                        <div class="capability-title">${prompt.title}</div>
+                        <div class="capability-status ready">READY</div>
+                    </div>
+                    <div class="capability-description">
+                        ${prompt.description}
+                    </div>
+                    <div class="capability-stats">
+                        ${prompt.stats.map(stat => `<span>${stat}</span>`).join('')}
+                    </div>
+                `;
+
+                promptContent.appendChild(card);
+            });
+        }
+
+        // Open Prompt Modal
+        function openPromptModal(prompt) {
+            const modal = document.getElementById('modal');
+            const modalTitle = document.getElementById('modal-title');
+            const modalBody = document.getElementById('modal-body');
+
+            modalTitle.textContent = prompt.title;
+            modalBody.innerHTML = `
+                <h3>Description</h3>
+                <p>${prompt.description}</p>
+
+                <h3>Orchestration Stats</h3>
+                <ul>
+                    ${prompt.stats.map(stat => `<li>${stat}</li>`).join('')}
+                </ul>
+
+                <h3>How to Use</h3>
+                <p>Copy this prompt concept and adapt it to your specific project needs. The Matrix orchestrator will analyze your codebase, generate a work breakdown structure, and spawn parallel agents to generate all required artifacts.</p>
+            `;
+
+            modal.classList.add('active');
+        }
+
+        // Open Documentation Modal (placeholder - would load actual markdown in production)
+        function openDocModal(filename) {
+            const modal = document.getElementById('modal');
+            const modalTitle = document.getElementById('modal-title');
+            const modalBody = document.getElementById('modal-body');
+
+            modalTitle.textContent = filename;
+            modalBody.innerHTML = `
+                <h3>Documentation File</h3>
+                <p>This would display the contents of <strong>${filename}</strong> in a production environment.</p>
+                <p>To view this file:</p>
+                <ul>
+                    <li>Open the file directly from your IDE</li>
+                    <li>View it on GitHub in your repository</li>
+                    <li>Use a markdown viewer in your terminal</li>
+                </ul>
+                <p style="margin-top: 1rem; opacity: 0.7;">
+                    <em>Note: In a deployed version, this modal would fetch and render the markdown content dynamically.</em>
+                </p>
+            `;
+
+            modal.classList.add('active');
+        }
+
+        // Initialize: Load scale-first prompts on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            switchPromptCategory('scale');
+        });
 
         // Console Easter Egg
         console.log('%c WAKE UP, NEO... ', 'background: #000; color: #00ff41; font-size: 20px; font-family: monospace; padding: 10px;');

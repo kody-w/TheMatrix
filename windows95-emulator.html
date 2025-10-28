@@ -14861,44 +14861,120 @@ ${JSON.stringify(state, null, 2)}
             }
 
             showHelp() {
-                window.dialogManager.info(`Windows 95 Desktop Simulator Help
+                const helpContent = `
+                    <div style="padding: 20px; max-height: 500px; overflow-y: auto; font-family: 'MS Sans Serif', Arial, sans-serif;">
+                        <h2 style="margin: 0 0 16px 0; color: #000080; font-size: 18px; border-bottom: 2px solid #000080; padding-bottom: 8px;">
+                            📖 Windows 95 Simulator - Complete Guide
+                        </h2>
 
-DESKTOP INTERACTIONS:
-• Single-click icons to select them
-• Double-click icons to open programs
-• Right-click desktop for context menu
-• Click Start button to open program menu
+                        <div style="margin-bottom: 20px;">
+                            <h3 style="margin: 0 0 8px 0; color: #000080; font-size: 14px;">🖱️ DESKTOP INTERACTIONS</h3>
+                            <div style="margin-left: 16px; line-height: 1.6;">
+                                <div><strong>•</strong> Single-click icons to select them</div>
+                                <div><strong>•</strong> Double-click icons to open programs</div>
+                                <div><strong>•</strong> Right-click desktop for context menu</div>
+                                <div><strong>•</strong> Click Start button or press <kbd style="background: #f0f0f0; border: 1px solid #999; padding: 2px 6px; border-radius: 3px; font-family: monospace;">Ctrl+Esc</kbd> for program menu</div>
+                            </div>
+                        </div>
 
-WINDOWS:
-• Drag windows by their title bars
-• Click minimize (_) to minimize to taskbar
-• Click maximize (□) to toggle full screen
-• Click close (X) to close windows
-• Click taskbar buttons to restore windows
+                        <div style="margin-bottom: 20px;">
+                            <h3 style="margin: 0 0 8px 0; color: #000080; font-size: 14px;">🪟 WINDOW MANAGEMENT</h3>
+                            <div style="margin-left: 16px; line-height: 1.6;">
+                                <div><strong>•</strong> Drag windows by their title bars to move</div>
+                                <div><strong>•</strong> Click minimize <kbd>_</kbd> to minimize to taskbar</div>
+                                <div><strong>•</strong> Click maximize <kbd>□</kbd> to toggle full screen</div>
+                                <div><strong>•</strong> Click close <kbd>×</kbd> to close windows</div>
+                                <div><strong>•</strong> Click taskbar buttons to restore minimized windows</div>
+                                <div><strong>•</strong> Use <kbd style="background: #f0f0f0; border: 1px solid #999; padding: 2px 6px; border-radius: 3px; font-family: monospace;">Alt+Tab</kbd> to cycle through open windows</div>
+                                <div><strong>•</strong> Use <kbd style="background: #f0f0f0; border: 1px solid #999; padding: 2px 6px; border-radius: 3px; font-family: monospace;">Alt+F4</kbd> to close active window</div>
+                            </div>
+                        </div>
 
-KEYBOARD SHORTCUTS:
-• F11 - Toggle fullscreen mode
-• Ctrl+H - Toggle control toolbar
-• Ctrl+P - Pause/Resume desktop
-• Ctrl+R - Restart desktop
-• Ctrl+S - Take screenshot
-• ESC - Release mouse cursor (if locked)
+                        <div style="margin-bottom: 20px; background: #ffffee; padding: 12px; border: 2px solid #000080;">
+                            <h3 style="margin: 0 0 12px 0; color: #000080; font-size: 14px;">⌨️ KEYBOARD SHORTCUTS - MASTER LIST</h3>
+                            <div style="display: grid; grid-template-columns: auto 1fr; gap: 8px 16px; margin-left: 8px; font-size: 11px;">
+                                <div><strong>F1</strong></div><div>Show this help screen</div>
+                                <div><strong>F11</strong></div><div>Toggle fullscreen mode</div>
+                                <div><strong>ESC</strong></div><div>Release locked mouse cursor</div>
 
-PROGRAMS:
-• Internet Explorer - Real web browser (loads live sites!)
-• Notepad - Text editor with basic functionality
-• Calculator - Working calculator with basic operations
-• Minesweeper - Classic game (right-click to flag)
-• About - Information about this simulator
+                                <div style="grid-column: 1/-1; margin-top: 8px; font-weight: bold; color: #000080;">System Controls:</div>
+                                <div><strong>Ctrl+Esc</strong></div><div>Open/close Start menu</div>
+                                <div><strong>Ctrl+H</strong></div><div>Toggle control toolbar visibility</div>
+                                <div><strong>Ctrl+P</strong></div><div>Pause/Resume desktop</div>
+                                <div><strong>Ctrl+R</strong></div><div>Restart desktop</div>
+                                <div><strong>Ctrl+S</strong></div><div>Take screenshot</div>
 
-FEATURES:
-• All interactions happen locally in your browser
-• No data is sent to any server
-• State persists in browser storage
-• Works completely offline
-• Authentic Windows 95 look and feel
+                                <div style="grid-column: 1/-1; margin-top: 8px; font-weight: bold; color: #000080;">Window Management:</div>
+                                <div><strong>Alt+Tab</strong></div><div>Cycle through open windows</div>
+                                <div><strong>Alt+F4</strong></div><div>Close active window</div>
 
-TIP: Try opening multiple windows and arranging them!`, 'Help');
+                                <div style="grid-column: 1/-1; margin-top: 8px; font-weight: bold; color: #000080;">Quick Actions:</div>
+                                <div><strong>Ctrl+N</strong></div><div>Open new Notepad window</div>
+                                <div><strong>Ctrl+Shift+S</strong></div><div>Quick save state (virtual floppy)</div>
+                                <div><strong>Ctrl+Shift+O</strong></div><div>Quick load state (virtual floppy)</div>
+                            </div>
+                        </div>
+
+                        <div style="margin-bottom: 20px;">
+                            <h3 style="margin: 0 0 8px 0; color: #000080; font-size: 14px;">💾 AVAILABLE PROGRAMS</h3>
+                            <div style="margin-left: 16px; line-height: 1.6;">
+                                <div><strong>🌐 Internet Explorer</strong> - Real web browser (loads live sites!)</div>
+                                <div><strong>📝 Notepad</strong> - Text editor with basic functionality</div>
+                                <div><strong>🔢 Calculator</strong> - Working calculator with all basic operations</div>
+                                <div><strong>💣 Minesweeper</strong> - Classic game (right-click to flag mines)</div>
+                                <div><strong>🎮 Solitaire</strong> - Authentic Windows Solitaire card game</div>
+                                <div><strong>🎨 Paint</strong> - Drawing program with tools and colors</div>
+                                <div><strong>📁 My Computer</strong> - System information and file browser</div>
+                                <div><strong>⚙️ Control Panel</strong> - System settings and customization</div>
+                            </div>
+                        </div>
+
+                        <div style="margin-bottom: 20px; background: #f0f0f0; padding: 12px; border: 1px solid #999;">
+                            <h3 style="margin: 0 0 8px 0; color: #000080; font-size: 14px;">🎁 EASTER EGGS & HIDDEN FEATURES</h3>
+                            <div style="margin-left: 16px; line-height: 1.6; font-size: 11px;">
+                                <div><strong>•</strong> Type <code style="background: #fff; padding: 2px 6px; border: 1px solid #999;">konami</code> for a surprise</div>
+                                <div><strong>•</strong> Type <code style="background: #fff; padding: 2px 6px; border: 1px solid #999;">win95</code> for fun facts about Windows 95</div>
+                                <div><strong>•</strong> Type <code style="background: #fff; padding: 2px 6px; border: 1px solid #999;">bsod</code> for a nostalgic blue screen (harmless!)</div>
+                                <div><strong>•</strong> Triple-click the taskbar to see a hidden message</div>
+                                <div><strong>•</strong> Type <code style="background: #fff; padding: 2px 6px; border: 1px solid #999;">advanced</code> to unlock developer mode</div>
+                                <div><strong>•</strong> Clippy has multiple personalities - try different interactions!</div>
+                            </div>
+                        </div>
+
+                        <div style="margin-bottom: 20px;">
+                            <h3 style="margin: 0 0 8px 0; color: #000080; font-size: 14px;">✨ FEATURES</h3>
+                            <div style="margin-left: 16px; line-height: 1.6;">
+                                <div>✓ All interactions happen locally in your browser</div>
+                                <div>✓ No data is sent to any server</div>
+                                <div>✓ State persists in browser storage</div>
+                                <div>✓ Works completely offline</div>
+                                <div>✓ Authentic Windows 95 look, feel, and sounds</div>
+                                <div>✓ Fully responsive and touch-friendly</div>
+                                <div>✓ Accessibility features built-in</div>
+                            </div>
+                        </div>
+
+                        <div style="background: #008080; color: white; padding: 12px; margin-top: 16px; text-align: center; font-size: 12px;">
+                            <strong>💡 PRO TIP:</strong> Try opening multiple windows and use <kbd style="background: #006060; border: 1px solid #004040; padding: 2px 6px;">Alt+Tab</kbd> to switch between them like a true Windows 95 power user!
+                        </div>
+                    </div>
+                    <div style="padding: 12px 20px; border-top: 2px groove #d4d0c8; text-align: right; background: #d4d0c8;">
+                        <button class="btn primary" onclick="this.closest('.window').querySelector('.window-close').click()" style="min-width: 100px;">Got it!</button>
+                    </div>
+                `;
+
+                const helpWindow = this.windowManager.createWindow(
+                    'Windows 95 Simulator Help',
+                    helpContent,
+                    700,
+                    600
+                );
+
+                // Center the help window
+                if (helpWindow) {
+                    helpWindow.style.left = `${(window.innerWidth - 700) / 2}px`;
+                    helpWindow.style.top = `${(window.innerHeight - 600) / 2}px`;
+                }
             }
 
             loadDisk() {
@@ -15015,6 +15091,283 @@ TIP: Try opening multiple windows and arranging them!`, 'Help');
                 }
             }
         };
+
+        // HTML Sanitization utility to prevent XSS attacks
+        const HTMLSanitizer = {
+            /**
+             * Sanitizes HTML string by escaping potentially dangerous characters
+             * @param {string} html - The HTML string to sanitize
+             * @returns {string} Sanitized HTML
+             */
+            sanitize(html) {
+                if (typeof html !== 'string') return '';
+                const div = document.createElement('div');
+                div.textContent = html;
+                return div.innerHTML;
+            },
+
+            /**
+             * Sanitizes user input for display in text content
+             * @param {string} text - The text to sanitize
+             * @returns {string} Sanitized text
+             */
+            sanitizeText(text) {
+                if (typeof text !== 'string') return '';
+                return text
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;')
+                    .replace(/'/g, '&#x27;')
+                    .replace(/\//g, '&#x2F;');
+            },
+
+            /**
+             * Validates and sanitizes URLs to prevent javascript: protocol injection
+             * @param {string} url - The URL to validate
+             * @returns {string|null} Sanitized URL or null if invalid
+             */
+            sanitizeURL(url) {
+                if (typeof url !== 'string') return null;
+                url = url.trim();
+
+                // Block javascript:, data:, and vbscript: protocols
+                const dangerousProtocols = /^(javascript|data|vbscript):/i;
+                if (dangerousProtocols.test(url)) {
+                    console.warn('[Security] Blocked dangerous URL protocol:', url.substring(0, 50));
+                    return null;
+                }
+
+                // Allow http, https, and relative URLs
+                if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('/') || url.startsWith('./')) {
+                    return url;
+                }
+
+                // Default to https for URLs without protocol
+                if (!url.includes('://') && !url.startsWith('/')) {
+                    return 'https://' + url;
+                }
+
+                return url;
+            }
+        };
+
+        // ============================================
+        // WINDOWS 95 SOUND EFFECTS SYSTEM
+        // ============================================
+        class SoundManager {
+            constructor() {
+                this.enabled = true;
+                this.volume = 0.3; // Default volume (30%)
+                this.audioContext = null;
+
+                // Load sound preference from storage
+                const savedEnabled = SafeStorage.getItem('win95_sounds_enabled');
+                if (savedEnabled !== null) {
+                    this.enabled = savedEnabled === 'true';
+                }
+
+                const savedVolume = SafeStorage.getItem('win95_sounds_volume');
+                if (savedVolume !== null) {
+                    this.volume = parseFloat(savedVolume);
+                }
+            }
+
+            /**
+             * Initialize Audio Context (must be called after user interaction)
+             */
+            init() {
+                if (!this.audioContext) {
+                    try {
+                        this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    } catch (e) {
+                        console.warn('Web Audio API not supported:', e);
+                    }
+                }
+            }
+
+            /**
+             * Play a beep tone with specified frequency and duration
+             * @param {number} frequency - Frequency in Hz
+             * @param {number} duration - Duration in milliseconds
+             * @param {string} type - Oscillator type ('sine', 'square', 'sawtooth', 'triangle')
+             */
+            beep(frequency, duration, type = 'square') {
+                if (!this.enabled || !this.audioContext) return;
+
+                try {
+                    const oscillator = this.audioContext.createOscillator();
+                    const gainNode = this.audioContext.createGain();
+
+                    oscillator.connect(gainNode);
+                    gainNode.connect(this.audioContext.destination);
+
+                    oscillator.frequency.value = frequency;
+                    oscillator.type = type;
+
+                    // Envelope for smoother sound
+                    const now = this.audioContext.currentTime;
+                    gainNode.gain.setValueAtTime(0, now);
+                    gainNode.gain.linearRampToValueAtTime(this.volume, now + 0.01);
+                    gainNode.gain.linearRampToValueAtTime(this.volume, now + duration / 1000 - 0.01);
+                    gainNode.gain.linearRampToValueAtTime(0, now + duration / 1000);
+
+                    oscillator.start(now);
+                    oscillator.stop(now + duration / 1000);
+                } catch (e) {
+                    console.warn('Error playing beep:', e);
+                }
+            }
+
+            /**
+             * Play Windows 95 startup chord (simplified version)
+             */
+            playStartup() {
+                if (!this.enabled) return;
+                this.init();
+
+                // Classic Windows 95 startup chord (simplified to a few key notes)
+                const chordNotes = [
+                    { freq: 523.25, time: 0 },      // C5
+                    { freq: 659.25, time: 100 },    // E5
+                    { freq: 783.99, time: 200 },    // G5
+                    { freq: 1046.50, time: 300 }    // C6
+                ];
+
+                chordNotes.forEach(note => {
+                    setTimeout(() => this.beep(note.freq, 600, 'sine'), note.time);
+                });
+            }
+
+            /**
+             * Play click sound (like button press)
+             */
+            playClick() {
+                if (!this.enabled) return;
+                this.init();
+                this.beep(800, 30, 'square');
+            }
+
+            /**
+             * Play window open sound
+             */
+            playWindowOpen() {
+                if (!this.enabled) return;
+                this.init();
+                this.beep(800, 50, 'sine');
+                setTimeout(() => this.beep(1000, 50, 'sine'), 50);
+            }
+
+            /**
+             * Play window close sound
+             */
+            playWindowClose() {
+                if (!this.enabled) return;
+                this.init();
+                this.beep(1000, 50, 'sine');
+                setTimeout(() => this.beep(800, 50, 'sine'), 50);
+            }
+
+            /**
+             * Play minimize sound
+             */
+            playMinimize() {
+                if (!this.enabled) return;
+                this.init();
+                this.beep(1200, 40, 'sine');
+                setTimeout(() => this.beep(900, 40, 'sine'), 40);
+                setTimeout(() => this.beep(600, 60, 'sine'), 80);
+            }
+
+            /**
+             * Play maximize sound
+             */
+            playMaximize() {
+                if (!this.enabled) return;
+                this.init();
+                this.beep(600, 40, 'sine');
+                setTimeout(() => this.beep(900, 40, 'sine'), 40);
+                setTimeout(() => this.beep(1200, 60, 'sine'), 80);
+            }
+
+            /**
+             * Play error sound (critical stop beep)
+             */
+            playError() {
+                if (!this.enabled) return;
+                this.init();
+                this.beep(400, 200, 'square');
+            }
+
+            /**
+             * Play warning sound
+             */
+            playWarning() {
+                if (!this.enabled) return;
+                this.init();
+                this.beep(600, 100, 'square');
+                setTimeout(() => this.beep(600, 100, 'square'), 150);
+            }
+
+            /**
+             * Play information/notification sound
+             */
+            playInfo() {
+                if (!this.enabled) return;
+                this.init();
+                this.beep(800, 80, 'sine');
+            }
+
+            /**
+             * Play menu open sound
+             */
+            playMenuOpen() {
+                if (!this.enabled) return;
+                this.init();
+                this.beep(1000, 30, 'sine');
+            }
+
+            /**
+             * Play shutdown sound
+             */
+            playShutdown() {
+                if (!this.enabled) return;
+                this.init();
+
+                // Descending chord for shutdown
+                const shutdownNotes = [
+                    { freq: 1046.50, time: 0 },    // C6
+                    { freq: 783.99, time: 150 },   // G5
+                    { freq: 659.25, time: 300 },   // E5
+                    { freq: 523.25, time: 450 }    // C5
+                ];
+
+                shutdownNotes.forEach(note => {
+                    setTimeout(() => this.beep(note.freq, 400, 'sine'), note.time);
+                });
+            }
+
+            /**
+             * Toggle sound on/off
+             */
+            toggle() {
+                this.enabled = !this.enabled;
+                SafeStorage.setItem('win95_sounds_enabled', this.enabled.toString());
+                return this.enabled;
+            }
+
+            /**
+             * Set volume level
+             * @param {number} vol - Volume from 0.0 to 1.0
+             */
+            setVolume(vol) {
+                this.volume = Math.max(0, Math.min(1, vol));
+                SafeStorage.setItem('win95_sounds_volume', this.volume.toString());
+            }
+        }
+
+        // Create global sound manager instance
+        window.soundManager = new SoundManager();
 
         // Initialize emulator - make it globally accessible immediately
         window.emulator = null;
@@ -15283,14 +15636,15 @@ TIP: Try opening multiple windows and arranging them!`, 'Help');
             }
 
             cmdExecuteScript(params) {
-                // Allow AI to execute arbitrary JavaScript (with caution)
+                // SECURITY: Arbitrary script execution has been disabled for safety
+                // This feature was deemed too dangerous for a public-facing application
+                // If needed for development, enable in a controlled environment only
+                console.warn('[Security] Script execution blocked - Feature disabled for safety');
+                this.log('Script execution is disabled for security reasons');
+
+                // Log what was attempted (but don't execute)
                 if (params.code) {
-                    try {
-                        const func = new Function('emulator', params.code);
-                        func(this.emulator);
-                    } catch (error) {
-                        this.log(`Script execution error: ${error.message}`);
-                    }
+                    console.warn('[Security] Blocked script attempt:', params.code.substring(0, 100));
                 }
             }
 
