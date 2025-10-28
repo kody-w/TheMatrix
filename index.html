@@ -1619,9 +1619,24 @@
         <!-- Tab Content: Prompt Library -->
         <section class="tab-content" id="library-tab">
             <h2 class="section-title">PROMPT LIBRARY</h2>
-            <p style="text-align: center; opacity: 0.8; margin-bottom: 2rem; font-size: 1.1rem;">
+            <p style="text-align: center; opacity: 0.8; margin-bottom: 1rem; font-size: 1.1rem;">
                 Curated collection of orchestration prompts across different domains
             </p>
+
+            <!-- Data Status and Refresh -->
+            <div style="text-align: center; margin-bottom: 1.5rem;">
+                <button onclick="refreshPromptData()"
+                        style="background: rgba(0, 255, 65, 0.1); color: var(--matrix-green); border: 1px solid var(--matrix-green);
+                               padding: 0.5rem 1rem; font-family: 'Courier New', Consolas, monospace;
+                               font-size: 0.8rem; cursor: pointer; border-radius: 3px; transition: all 0.3s ease;"
+                        onmouseover="this.style.background='var(--matrix-green)'; this.style.color='var(--deep-black)';"
+                        onmouseout="this.style.background='rgba(0, 255, 65, 0.1)'; this.style.color='var(--matrix-green)';">
+                    🔄 REFRESH DATA FROM GITHUB
+                </button>
+                <div id="data-status" style="margin-top: 0.5rem; font-size: 0.75rem; opacity: 0.6;">
+                    Loading data from repository...
+                </div>
+            </div>
 
             <!-- Prompt Library Sub-tabs -->
             <div class="prompt-library-tabs">
@@ -2772,11 +2787,21 @@ You take the red pill - you stay in Wonderland and I show you how deep the rabbi
 
             if (dataLoadedSuccessfully) {
                 console.log(`✅ Successfully loaded ${successCount}/${categories.length} categories`);
+                updateDataStatus(`✅ Loaded ${successCount}/${categories.length} categories from GitHub`);
             } else {
                 console.error('❌ Failed to load any data from GitHub');
+                updateDataStatus('❌ Failed to load data');
             }
 
             return dataLoadedSuccessfully;
+        }
+
+        // Update data status indicator
+        function updateDataStatus(message) {
+            const statusElement = document.getElementById('data-status');
+            if (statusElement) {
+                statusElement.textContent = message;
+            }
         }
 
         // Refresh data (clear cache and reload)
