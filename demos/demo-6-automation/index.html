@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Automation Orchestrator - Matrix Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1f2e 0%, #2d3748 100%);
+            color: #e2e8f0;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+            border-radius: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 40px rgba(59, 130, 246, 0.4);
+        }
+
+        .header h1 {
+            font-size: 3.5em;
+            margin-bottom: 10px;
+            color: #fff;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .header p {
+            font-size: 1.4em;
+            color: #dbeafe;
+        }
+
+        .tagline {
+            font-size: 1.1em;
+            color: #bfdbfe;
+            margin-top: 10px;
+        }
+
+        /* ROI Dashboard */
+        .roi-dashboard {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            padding: 40px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 40px rgba(16, 185, 129, 0.4);
+            border: 2px solid #34d399;
+        }
+
+        .roi-title {
+            text-align: center;
+            font-size: 2em;
+            color: #fff;
+            margin-bottom: 30px;
+            text-transform: uppercase;
+        }
+
+        .roi-metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .roi-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .roi-value {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #fff;
+            margin-bottom: 10px;
+        }
+
+        .roi-label {
+            color: #d1fae5;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Metrics */
+        .metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .metric-card {
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            border: 2px solid #475569;
+            transition: all 0.3s ease;
+        }
+
+        .metric-card:hover {
+            border-color: #3b82f6;
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.3);
+        }
+
+        .metric-value {
+            font-size: 2.5em;
+            font-weight: bold;
+            background: linear-gradient(135deg, #60a5fa, #34d399);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .metric-label {
+            color: #94a3b8;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 8px;
+        }
+
+        /* Progress */
+        .progress-container {
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            padding: 30px;
+            border-radius: 15px;
+            border: 2px solid #475569;
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            color: #60a5fa;
+            text-align: center;
+        }
+
+        .progress-bar-container {
+            background: #0f172a;
+            height: 40px;
+            border-radius: 20px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #3b82f6, #10b981);
+            transition: width 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.6);
+        }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #64748b, #475569);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: linear-gradient(135deg, #475569, #334155);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .speed-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .speed-btn {
+            padding: 8px 16px;
+            background: #334155;
+            border: 2px solid #475569;
+            color: #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .speed-btn.active {
+            background: #3b82f6;
+            border-color: #3b82f6;
+        }
+
+        /* Agents Grid */
+        .agents-section {
+            margin-bottom: 30px;
+        }
+
+        .agents-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .agent-card {
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            padding: 20px;
+            border-radius: 12px;
+            border: 2px solid #475569;
+            transition: all 0.3s ease;
+        }
+
+        .agent-card.active {
+            border-color: #10b981;
+            box-shadow: 0 0 25px rgba(16, 185, 129, 0.5);
+            animation: glow 2s infinite;
+        }
+
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 0 25px rgba(16, 185, 129, 0.5); }
+            50% { box-shadow: 0 0 35px rgba(16, 185, 129, 0.7); }
+        }
+
+        .agent-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .agent-name {
+            font-weight: bold;
+            color: #60a5fa;
+        }
+
+        .agent-type {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: 600;
+            background: #10b981;
+            color: white;
+        }
+
+        .agent-progress {
+            background: #0f172a;
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .agent-progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #3b82f6, #10b981);
+            transition: width 0.3s ease;
+        }
+
+        .agent-stats {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85em;
+            color: #94a3b8;
+        }
+
+        /* Automation Stream */
+        .automation-stream {
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            padding: 30px;
+            border-radius: 15px;
+            border: 2px solid #475569;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .automation-item {
+            padding: 15px;
+            margin-bottom: 10px;
+            background: #0f172a;
+            border-radius: 10px;
+            border-left: 4px solid #10b981;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .automation-name {
+            font-weight: bold;
+            color: #60a5fa;
+            margin-bottom: 5px;
+        }
+
+        .automation-details {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9em;
+            color: #94a3b8;
+        }
+
+        .automation-savings {
+            color: #10b981;
+            font-weight: bold;
+        }
+
+        /* Categories */
+        .categories {
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            padding: 30px;
+            border-radius: 15px;
+            border: 2px solid #475569;
+            margin-bottom: 30px;
+        }
+
+        .categories-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .category-card {
+            background: #0f172a;
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .category-card:hover {
+            border-color: #3b82f6;
+        }
+
+        .category-name {
+            font-weight: bold;
+            color: #60a5fa;
+            margin-bottom: 10px;
+        }
+
+        .category-count {
+            font-size: 2em;
+            color: #10b981;
+            font-weight: bold;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #1e293b;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #3b82f6;
+            border-radius: 5px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.5em;
+            }
+            .agents-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>⚡ Automation Orchestrator</h1>
+            <p>Transform Business Processes at Scale</p>
+            <div class="tagline">50 Automation Agents • 300 Processes • 20 Minutes</div>
+        </div>
+
+        <!-- ROI Dashboard -->
+        <div class="roi-dashboard">
+            <div class="roi-title">💰 Return on Investment</div>
+            <div class="roi-metrics">
+                <div class="roi-card">
+                    <div class="roi-value" id="hoursSaved">0</div>
+                    <div class="roi-label">Hours Saved / Week</div>
+                </div>
+                <div class="roi-card">
+                    <div class="roi-value" id="costSavings">$0</div>
+                    <div class="roi-label">Annual Cost Savings</div>
+                </div>
+                <div class="roi-card">
+                    <div class="roi-value" id="errorReduction">0%</div>
+                    <div class="roi-label">Error Reduction</div>
+                </div>
+                <div class="roi-card">
+                    <div class="roi-value" id="roiPercent">0%</div>
+                    <div class="roi-label">ROI</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Metrics -->
+        <div class="metrics">
+            <div class="metric-card">
+                <div class="metric-value" id="automationsCreated">0</div>
+                <div class="metric-label">Automations Created</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value" id="agentsActive">0</div>
+                <div class="metric-label">Agents Active</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value" id="processesOptimized">0</div>
+                <div class="metric-label">Processes Optimized</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value" id="integrations">0</div>
+                <div class="metric-label">Integrations</div>
+            </div>
+        </div>
+
+        <!-- Progress -->
+        <div class="progress-container">
+            <h3 class="section-title">Automation Progress</h3>
+            <div class="progress-bar-container">
+                <div class="progress-bar" id="mainProgress" style="width: 0%">0%</div>
+            </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="controls">
+            <button class="btn btn-primary" id="startBtn" onclick="startAutomation()">▶ Start Automation</button>
+            <button class="btn btn-secondary" id="pauseBtn" onclick="pauseAutomation()" disabled>⏸ Pause</button>
+            <button class="btn btn-secondary" id="resetBtn" onclick="resetAutomation()">🔄 Reset</button>
+
+            <div class="speed-control">
+                <span style="color: #94a3b8;">Speed:</span>
+                <button class="speed-btn active" onclick="setSpeed(1)">1x</button>
+                <button class="speed-btn" onclick="setSpeed(2)">2x</button>
+                <button class="speed-btn" onclick="setSpeed(4)">4x</button>
+            </div>
+        </div>
+
+        <!-- Categories -->
+        <div class="categories">
+            <h3 class="section-title">Automation Categories</h3>
+            <div class="categories-grid" id="categoriesGrid"></div>
+        </div>
+
+        <!-- Agents Grid -->
+        <div class="agents-section">
+            <h3 class="section-title">Automation Agents (Showing 25 of 50)</h3>
+            <div class="agents-grid" id="agentsGrid"></div>
+        </div>
+
+        <!-- Automation Stream -->
+        <div class="agents-section">
+            <h3 class="section-title">Recent Automations</h3>
+            <div class="automation-stream" id="automationStream"></div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration
+        const TOTAL_AGENTS = 50;
+        const DISPLAY_AGENTS = 25;
+        const AUTOMATIONS_PER_AGENT = 6;
+        const TOTAL_AUTOMATIONS = TOTAL_AGENTS * AUTOMATIONS_PER_AGENT;
+
+        // Categories
+        const categories = {
+            'Workflows': { count: 0, icon: '🔄', automations: ['Approval workflows', 'Document routing', 'Task assignment', 'Notification chains', 'Status updates', 'Review cycles'] },
+            'Integrations': { count: 0, icon: '🔗', automations: ['API connections', 'Data sync', 'Webhook handlers', 'Event bridges', 'Message queues', 'Service mesh'] },
+            'Reports': { count: 0, icon: '📊', automations: ['Daily reports', 'Analytics dashboards', 'Executive summaries', 'KPI tracking', 'Trend analysis', 'Forecasting'] },
+            'Data Processing': { count: 0, icon: '💾', automations: ['ETL pipelines', 'Data validation', 'Batch processing', 'Stream processing', 'Data cleansing', 'Aggregation'] },
+            'Notifications': { count: 0, icon: '🔔', automations: ['Email alerts', 'SMS notifications', 'Push notifications', 'Slack messages', 'Teams alerts', 'In-app messages'] },
+            'Security': { count: 0, icon: '🔒', automations: ['Access control', 'Audit logging', 'Threat detection', 'Compliance checks', 'Backup automation', 'Key rotation'] }
+        };
+
+        // State
+        let agents = [];
+        let isRunning = false;
+        let isPaused = false;
+        let speed = 1;
+        let automationsCreated = 0;
+        let processesOptimized = 0;
+        let integrations = 0;
+        let activeAgents = 0;
+        let hoursSaved = 0;
+        let costSavings = 0;
+
+        // Initialize
+        function init() {
+            createAgents();
+            renderCategories();
+            updateUI();
+        }
+
+        function createAgents() {
+            agents = [];
+            const categoryKeys = Object.keys(categories);
+            for (let i = 0; i < TOTAL_AGENTS; i++) {
+                const category = categoryKeys[i % categoryKeys.length];
+                agents.push({
+                    id: i + 1,
+                    name: `${category} Agent ${Math.floor(i / categoryKeys.length) + 1}`,
+                    category: category,
+                    status: 'WAITING',
+                    progress: 0,
+                    automationsCreated: 0,
+                    isActive: false
+                });
+            }
+            renderAgentsGrid();
+        }
+
+        function renderCategories() {
+            const grid = document.getElementById('categoriesGrid');
+            grid.innerHTML = '';
+
+            Object.entries(categories).forEach(([name, data]) => {
+                const card = document.createElement('div');
+                card.className = 'category-card';
+                card.innerHTML = `
+                    <div class="category-name">${data.icon} ${name}</div>
+                    <div class="category-count" id="category-${name}">${data.count}</div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function renderAgentsGrid() {
+            const grid = document.getElementById('agentsGrid');
+            grid.innerHTML = '';
+
+            for (let i = 0; i < DISPLAY_AGENTS; i++) {
+                const agent = agents[i];
+                const card = document.createElement('div');
+                card.className = 'agent-card';
+                card.id = `agent-${agent.id}`;
+                card.innerHTML = `
+                    <div class="agent-header">
+                        <div class="agent-name">${agent.name}</div>
+                        <div class="agent-type">${agent.category}</div>
+                    </div>
+                    <div class="agent-progress">
+                        <div class="agent-progress-bar" style="width: ${agent.progress}%"></div>
+                    </div>
+                    <div class="agent-stats">
+                        <span>Created: <span id="agent-${agent.id}-count">${agent.automationsCreated}</span>/${AUTOMATIONS_PER_AGENT}</span>
+                        <span id="agent-${agent.id}-status">${agent.status}</span>
+                    </div>
+                `;
+                grid.appendChild(card);
+            }
+        }
+
+        async function startAutomation() {
+            if (isRunning) return;
+
+            isRunning = true;
+            isPaused = false;
+
+            document.getElementById('startBtn').disabled = true;
+            document.getElementById('pauseBtn').disabled = false;
+
+            const agentPromises = agents.map((agent, index) =>
+                automateWithAgent(agent, index * 15 / speed)
+            );
+
+            await Promise.all(agentPromises);
+
+            isRunning = false;
+            document.getElementById('startBtn').disabled = false;
+            document.getElementById('pauseBtn').disabled = true;
+        }
+
+        async function automateWithAgent(agent, delay) {
+            await sleep(delay);
+
+            agent.status = 'ACTIVE';
+            agent.isActive = true;
+            activeAgents++;
+            updateAgentCard(agent);
+
+            const automationTypes = categories[agent.category].automations;
+
+            for (let i = 0; i < AUTOMATIONS_PER_AGENT; i++) {
+                if (!isRunning) break;
+
+                while (isPaused) {
+                    await sleep(100);
+                }
+
+                const automationType = automationTypes[i % automationTypes.length];
+                const timeSaved = Math.floor(Math.random() * 10) + 5; // 5-15 hours/week
+                const costPerHour = 50; // $50/hour
+                const annualSavings = timeSaved * 52 * costPerHour;
+
+                addAutomationToStream(automationType, agent.category, timeSaved, annualSavings);
+
+                agent.automationsCreated++;
+                agent.progress = (agent.automationsCreated / AUTOMATIONS_PER_AGENT) * 100;
+
+                automationsCreated++;
+                categories[agent.category].count++;
+                processesOptimized++;
+                integrations += Math.random() > 0.7 ? 1 : 0;
+                hoursSaved += timeSaved;
+                costSavings += annualSavings;
+
+                updateAgentCard(agent);
+                updateMetrics();
+                updateProgress();
+                updateCategories();
+                updateROI();
+
+                await sleep(100 / speed);
+            }
+
+            agent.status = 'COMPLETE';
+            agent.isActive = false;
+            activeAgents--;
+            updateAgentCard(agent);
+        }
+
+        function addAutomationToStream(name, category, hours, savings) {
+            const stream = document.getElementById('automationStream');
+            const item = document.createElement('div');
+            item.className = 'automation-item';
+            item.innerHTML = `
+                <div class="automation-name">${categories[category].icon} ${name}</div>
+                <div class="automation-details">
+                    <span>${category}</span>
+                    <span class="automation-savings">💰 ${hours} hrs/wk • $${savings.toLocaleString()}/yr</span>
+                </div>
+            `;
+            stream.insertBefore(item, stream.firstChild);
+
+            while (stream.children.length > 50) {
+                stream.removeChild(stream.lastChild);
+            }
+        }
+
+        function updateAgentCard(agent) {
+            const index = agent.id - 1;
+            if (index >= DISPLAY_AGENTS) return;
+
+            const card = document.getElementById(`agent-${agent.id}`);
+            if (!card) return;
+
+            if (agent.isActive) {
+                card.classList.add('active');
+            } else {
+                card.classList.remove('active');
+            }
+
+            const progressBar = card.querySelector('.agent-progress-bar');
+            progressBar.style.width = `${agent.progress}%`;
+
+            const countEl = document.getElementById(`agent-${agent.id}-count`);
+            if (countEl) countEl.textContent = agent.automationsCreated;
+
+            const statusEl = document.getElementById(`agent-${agent.id}-status`);
+            if (statusEl) statusEl.textContent = agent.status;
+        }
+
+        function updateMetrics() {
+            document.getElementById('automationsCreated').textContent = automationsCreated;
+            document.getElementById('agentsActive').textContent = activeAgents;
+            document.getElementById('processesOptimized').textContent = processesOptimized;
+            document.getElementById('integrations').textContent = integrations;
+        }
+
+        function updateProgress() {
+            const progress = (automationsCreated / TOTAL_AUTOMATIONS) * 100;
+            const progressBar = document.getElementById('mainProgress');
+            progressBar.style.width = `${progress}%`;
+            progressBar.textContent = `${progress.toFixed(1)}%`;
+        }
+
+        function updateCategories() {
+            Object.entries(categories).forEach(([name, data]) => {
+                const el = document.getElementById(`category-${name}`);
+                if (el) el.textContent = data.count;
+            });
+        }
+
+        function updateROI() {
+            document.getElementById('hoursSaved').textContent = hoursSaved.toLocaleString();
+            document.getElementById('costSavings').textContent = `$${costSavings.toLocaleString()}`;
+
+            const errorReduction = Math.min(95, Math.floor((automationsCreated / TOTAL_AUTOMATIONS) * 95));
+            document.getElementById('errorReduction').textContent = `${errorReduction}%`;
+
+            // Assume implementation cost of $100k, calculate ROI
+            const implementationCost = 100000;
+            const roi = Math.floor(((costSavings - implementationCost) / implementationCost) * 100);
+            document.getElementById('roiPercent').textContent = `${Math.max(0, roi)}%`;
+        }
+
+        function pauseAutomation() {
+            isPaused = !isPaused;
+            const btn = document.getElementById('pauseBtn');
+            btn.textContent = isPaused ? '▶ Resume' : '⏸ Pause';
+        }
+
+        function resetAutomation() {
+            isRunning = false;
+            isPaused = false;
+            automationsCreated = 0;
+            processesOptimized = 0;
+            integrations = 0;
+            activeAgents = 0;
+            hoursSaved = 0;
+            costSavings = 0;
+
+            Object.keys(categories).forEach(key => {
+                categories[key].count = 0;
+            });
+
+            createAgents();
+            renderCategories();
+            updateMetrics();
+            updateProgress();
+            updateROI();
+
+            document.getElementById('startBtn').disabled = false;
+            document.getElementById('pauseBtn').disabled = true;
+            document.getElementById('pauseBtn').textContent = '⏸ Pause';
+            document.getElementById('automationStream').innerHTML = '';
+        }
+
+        function setSpeed(newSpeed) {
+            speed = newSpeed;
+            document.querySelectorAll('.speed-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+        }
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        function updateUI() {
+            updateMetrics();
+            updateProgress();
+            updateCategories();
+            updateROI();
+        }
+
+        init();
+    </script>
+</body>
+</html>

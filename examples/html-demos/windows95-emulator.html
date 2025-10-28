@@ -584,6 +584,57 @@
             100% { background-position: 20px 0; }
         }
 
+        @keyframes flash {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.05); background: rgba(0,255,0,0.3); }
+        }
+
+        /* CRT Terminal Effects */
+        .crt-terminal {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .crt-terminal::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                0deg,
+                rgba(0, 0, 0, 0.15),
+                rgba(0, 0, 0, 0.15) 1px,
+                transparent 1px,
+                transparent 2px
+            );
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .crt-terminal::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                rgba(18, 16, 16, 0) 50%,
+                rgba(0, 0, 0, 0.25) 50%
+            );
+            background-size: 100% 4px;
+            pointer-events: none;
+            z-index: 11;
+            animation: crt-scanline 8s linear infinite;
+        }
+
+        @keyframes crt-scanline {
+            0% { background-position: 0 0; }
+            100% { background-position: 0 100%; }
+        }
+
         .info-panel {
             position: absolute;
             bottom: 20px;
@@ -11500,66 +11551,782 @@ Swap:             0           0           0`;
 
             // Demo 1: The Great Migration (2,500 files)
             runMigrationDemo() {
-                const demos = [
-                    {
-                        title: '🎨 Theme Generator',
-                        message: 'Launching 10 parallel agents to generate 150 Windows 95 themes...\n\nThis would spawn:\n• 10 outcome-generator agents\n• Each creating 15 complete themes\n• 1 integrator agent to build theme browser\n\nResult: 150 installable themes with wallpapers, sounds, and cursors!'
-                    },
-                    {
-                        title: '🌌 Screensaver Studio',
-                        message: 'Launching 8 parallel agents to create 80 screensavers...\n\nThis would spawn:\n• 8 outcome-generator agents\n• Each building 10 screensavers\n• 1 integrator agent for screensaver picker\n\nResult: 80 animated screensavers visualizing AI, blockchain, quantum computing in 90s style!'
-                    },
-                    {
-                        title: '🎯 Icon Factory',
-                        message: 'Launching 10 parallel agents to generate 250 icons...\n\nThis would spawn:\n• 10 outcome-generator agents\n• Each creating 25 retro-futuristic icons\n• 1 integrator agent for icon library\n\nResult: 250 pixel-perfect icons blending Windows 95 aesthetic with modern apps!'
-                    },
-                    {
-                        title: '⚠️ Error Message Generator',
-                        message: 'Launching 8 parallel agents to create 200 error messages...\n\nThis would spawn:\n• 8 outcome-generator agents\n• Each writing 25 humorous error messages\n• 1 integrator agent for error gallery\n\nResult: 200 meme-worthy error messages for modern tech frustrations!'
-                    },
-                    {
-                        title: '📚 Tutorial Engine',
-                        message: 'Launching 10 parallel agents to build 100 tutorials...\n\nThis would spawn:\n• 10 outcome-generator agents\n• Each creating 10 educational tutorials\n• 1 integrator agent for tutorial navigator\n\nResult: 100 "Windows 95 explains modern tech" guides with Clippy-style help!'
-                    },
-                    {
-                        title: '🎭 Visual Cascade',
-                        message: 'Launching 5 parallel agents for 50-window choreography...\n\nThis would spawn:\n• 5 outcome-generator agents\n• Each designing 10-window patterns\n• 1 integrator agent for synchronized playback\n\nResult: Mesmerizing cascade of 50 windows forming artwork and messages!'
-                    },
-                    {
-                        title: '🖼️ Desktop Art Gallery',
-                        message: 'Launching 10 parallel agents to generate 300 artworks...\n\nThis would spawn:\n• 10 outcome-generator agents\n• Each creating 30 generative art pieces\n• 1 integrator agent for gallery viewer\n\nResult: 300 pieces of retro pixel art, patterns, and nostalgic graphics!'
-                    },
-                    {
-                        title: '🎮 Game Generator',
-                        message: 'Launching 6 parallel agents to create 30 game variants...\n\nThis would spawn:\n• 6 outcome-generator agents\n• Each building 5 unique game variations\n• 1 integrator agent for game launcher\n\nResult: 30 playable variants of Minesweeper, Solitaire, and classic games!'
-                    },
-                    {
-                        title: '🔊 Startup Sound Composer',
-                        message: 'Launching 10 parallel agents to compose 100 sounds...\n\nThis would spawn:\n• 10 outcome-generator agents\n• Each generating 10 sound variations\n• 1 integrator agent for sound browser\n\nResult: 100 nostalgic startup sounds in lo-fi, synthwave, orchestral styles!'
-                    },
-                    {
-                        title: '🧠 Desktop Personality System',
-                        message: 'Launching 5 parallel agents to create 50 personalities...\n\nThis would spawn:\n• 5 outcome-generator agents\n• Each analyzing usage and creating 10 configs\n• 1 integrator agent for AI personality engine\n\nResult: 50 personalized desktop configurations adapting to your work style!'
+                const content = `
+                    <div class="crt-terminal" style="padding: 15px; background: #000; color: #0f0; font-family: 'Courier New', monospace; font-size: 11px;">
+                        <div style="background: linear-gradient(90deg, #1a1a2e, #16213e); padding: 10px; margin-bottom: 15px; border: 2px solid #0f0;">
+                            <div style="text-align: center; font-size: 14px; font-weight: bold; color: #0f0;">
+                                🔄 THE GREAT MIGRATION
+                            </div>
+                            <div style="text-align: center; font-size: 10px; margin-top: 5px; color: #0a0;">
+                                Legacy Monolith → 50 Microservices | 2,500 Files | 50 Parallel Agents
+                            </div>
+                        </div>
+
+                        <div id="migration-stats" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 15px;">
+                            <div style="background: #1a1a2e; padding: 8px; border: 1px solid #0f0;">
+                                <div style="font-size: 9px; opacity: 0.7;">FILES MIGRATED</div>
+                                <div style="font-size: 18px; font-weight: bold;" id="migration-files">0</div>
+                                <div style="font-size: 8px; opacity: 0.5;">/2,500 total</div>
+                            </div>
+                            <div style="background: #1a1a2e; padding: 8px; border: 1px solid #0f0;">
+                                <div style="font-size: 9px; opacity: 0.7;">ACTIVE AGENTS</div>
+                                <div style="font-size: 18px; font-weight: bold;" id="migration-agents">0</div>
+                                <div style="font-size: 8px; opacity: 0.5;">/50 agents</div>
+                            </div>
+                            <div style="background: #1a1a2e; padding: 8px; border: 1px solid #0f0;">
+                                <div style="font-size: 9px; opacity: 0.7;">SERVICES CREATED</div>
+                                <div style="font-size: 18px; font-weight: bold;" id="migration-services">0</div>
+                                <div style="font-size: 8px; opacity: 0.5;">/50 services</div>
+                            </div>
+                        </div>
+
+                        <div style="background: #1a1a2e; padding: 10px; margin-bottom: 15px; border: 1px solid #0f0; max-height: 150px; overflow-y: auto;" id="migration-log">
+                            <div style="font-size: 9px; opacity: 0.7;">[00:00:00] Initializing orchestration...</div>
+                        </div>
+
+                        <div style="background: #1a1a2e; padding: 10px; border: 1px solid #0f0;">
+                            <div style="font-size: 9px; margin-bottom: 8px; opacity: 0.7;">AGENT ACTIVITY (50 agents):</div>
+                            <div id="migration-agent-grid" style="display: grid; grid-template-columns: repeat(10, 1fr); gap: 2px;">
+                                ${Array(50).fill(0).map((_, i) => `
+                                    <div id="agent-${i}" style="width: 20px; height: 20px; background: #333; border: 1px solid #555; font-size: 8px; display: flex; align-items: center; justify-content: center;" title="Agent ${i+1}">
+                                        ${i+1}
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 15px;">
+                            <label style="font-size: 9px; opacity: 0.8; color: #0f0;">⚡ SPEED:</label>
+                            <input type="range" id="migration-speed" min="0.25" max="3" step="0.25" value="1" style="width: 100%; margin-top: 4px;">
+                            <div style="display: flex; justify-content: space-between; font-size: 8px; opacity: 0.6; color: #0a0; margin-top: 2px;">
+                                <span>🐢 0.25x</span><span id="migration-speed-label">1.0x</span><span>🚀 3.0x</span>
+                            </div>
+                        </div>
+                        <div style="margin-top: 10px; display: flex; gap: 8px;">
+                            <button id="migration-start" style="flex: 1; padding: 8px; background: linear-gradient(180deg, #0f0, #0a0); border: 2px outset #0f0; color: #000; font-weight: bold; cursor: pointer;">
+                                ▶️ START
+                            </button>
+                            <button id="migration-pause" style="flex: 1; padding: 8px; background: linear-gradient(180deg, #ff0, #cc0); border: 2px outset #ff0; color: #000; font-weight: bold; cursor: pointer;" disabled>
+                                ⏸️ PAUSE
+                            </button>
+                            <button id="migration-reset" style="flex: 1; padding: 8px; background: linear-gradient(180deg, #f00, #a00); border: 2px outset #f00; color: #fff; font-weight: bold; cursor: pointer;" disabled>
+                                🔄 RESET
+                            </button>
+                        </div>
+                        <div id="migration-score" style="margin-top: 10px; padding: 10px; background: rgba(0,255,0,0.1); border: 2px solid #0f0; text-align: center; display: none; border-radius: 4px;">
+                            <div style="font-size: 9px; opacity: 0.8; color: #0f0;">✨ FINAL SCORE ✨</div>
+                            <div style="font-size: 28px; font-weight: bold; color: #0f0; margin: 5px 0;" id="migration-score-value">0</div>
+                            <div style="font-size: 14px; margin-top: 4px;" id="migration-rating">⭐⭐⭐⭐⭐</div>
+                        </div>
+                    </div>
+                `;
+
+                const win = this.windowManager.createWindow('🔄 The Great Migration', content, {
+                    width: 640,
+                    height: 520
+                });
+
+                // Wait for window to be created, then start simulation
+                setTimeout(() => {
+                    const startBtn = document.getElementById('migration-start');
+                    const pauseBtn = document.getElementById('migration-pause');
+                    const resetBtn = document.getElementById('migration-reset');
+                    const speedSlider = document.getElementById('migration-speed');
+                    const speedLabel = document.getElementById('migration-speed-label');
+
+                    let running = false;
+                    let paused = false;
+                    let filesProcessed = 0;
+                    let servicesCreated = 0;
+                    let activeAgents = new Set();
+                    let startTime = Date.now();
+                    let simulationSpeed = 1.0;
+                    let animationFrameId = null;
+
+                    const logMessage = (msg) => {
+                        const log = document.getElementById('migration-log');
+                        if (!log) return;
+                        const elapsed = Math.floor((Date.now() - startTime) / 1000);
+                        const time = `${String(Math.floor(elapsed/3600)).padStart(2,'0')}:${String(Math.floor((elapsed%3600)/60)).padStart(2,'0')}:${String(elapsed%60).padStart(2,'0')}`;
+                        const entry = document.createElement('div');
+                        entry.style.fontSize = '9px';
+                        entry.style.marginBottom = '2px';
+                        entry.textContent = `[${time}] ${msg}`;
+                        log.appendChild(entry);
+                        log.scrollTop = log.scrollHeight;
+                    };
+
+                    const updateStats = () => {
+                        const filesEl = document.getElementById('migration-files');
+                        const agentsEl = document.getElementById('migration-agents');
+                        const servicesEl = document.getElementById('migration-services');
+
+                        if (filesEl) filesEl.textContent = filesProcessed.toLocaleString();
+                        if (agentsEl) agentsEl.textContent = activeAgents.size;
+                        if (servicesEl) servicesEl.textContent = servicesCreated;
+                    };
+
+                    const updateAgent = (agentId, status) => {
+                        const agentEl = document.getElementById(`agent-${agentId}`);
+                        if (!agentEl) return;
+
+                        const colors = {
+                            idle: '#333',
+                            working: '#0f0',
+                            complete: '#00f',
+                            integrating: '#ff0'
+                        };
+
+                        agentEl.style.background = colors[status] || '#333';
+                        agentEl.style.boxShadow = status === 'working' ? '0 0 8px #0f0' : 'none';
+                    };
+
+                    const simulateMigration = () => {
+                        if (!running) return;
+
+                        // Spawn agents gradually
+                        if (activeAgents.size < 50 && filesProcessed < 2500) {
+                            const agentId = activeAgents.size;
+                            activeAgents.add(agentId);
+                            updateAgent(agentId, 'working');
+                            logMessage(`Agent ${agentId + 1} spawned - analyzing legacy code...`);
+                        }
+
+                        // Process files (respect speed multiplier)
+                        if (filesProcessed < 2500) {
+                            const batchSize = Math.min(Math.ceil(50 * simulationSpeed), 2500 - filesProcessed);
+                            filesProcessed += batchSize;
+
+                            // Random log messages
+                            const messages = [
+                                `Migrating UserService.java → user-microservice/`,
+                                `Converting OrderController → order-service/api/`,
+                                `Extracting ProductRepository → product-service/`,
+                                `Generating Docker config for payment-service`,
+                                `Creating API tests for inventory-service`,
+                                `Building notification-service from EmailSender`,
+                                `Splitting AuthModule → auth-microservice/`
+                            ];
+                            if (Math.random() > 0.7) {
+                                logMessage(messages[Math.floor(Math.random() * messages.length)]);
+                            }
+                        }
+
+                        // Create services
+                        if (servicesCreated < 50 && filesProcessed > servicesCreated * 50) {
+                            servicesCreated++;
+                            logMessage(`✓ Microservice ${servicesCreated}/50 created with API + tests + Docker!`);
+
+                            const completedAgent = servicesCreated - 1;
+                            if (completedAgent >= 0) {
+                                updateAgent(completedAgent, 'complete');
+                                activeAgents.delete(completedAgent);
+                            }
+                        }
+
+                        updateStats();
+
+                        // Random agent activity
+                        activeAgents.forEach(agentId => {
+                            if (Math.random() > 0.95) {
+                                updateAgent(agentId, Math.random() > 0.5 ? 'working' : 'integrating');
+                            }
+                        });
+
+                        // Complete
+                        if (filesProcessed >= 2500 && servicesCreated >= 50) {
+                            running = false;
+                            const completionTime = (Date.now() - startTime) / 1000;
+
+                            logMessage('');
+                            logMessage('═══════════════════════════════════════');
+                            logMessage('✓ MIGRATION COMPLETE!');
+                            logMessage('✓ 2,500 files migrated');
+                            logMessage('✓ 50 microservices created');
+                            logMessage(`✓ Time: ${completionTime.toFixed(1)}s`);
+                            logMessage('═══════════════════════════════════════');
+
+                            // Calculate score
+                            const baseScore = 10000;
+                            const timeBonus = Math.max(0, 5000 - (completionTime * 100));
+                            const efficiencyBonus = 3000;
+                            const finalScore = Math.round(baseScore + timeBonus + efficiencyBonus);
+
+                            // Determine rating
+                            let stars = '⭐⭐⭐⭐⭐';
+                            if (finalScore < 12000) stars = '⭐⭐⭐';
+                            else if (finalScore < 15000) stars = '⭐⭐⭐⭐';
+
+                            // Show score with celebration
+                            const scoreDiv = document.getElementById('migration-score');
+                            const scoreValue = document.getElementById('migration-score-value');
+                            const rating = document.getElementById('migration-rating');
+
+                            if (scoreDiv && scoreValue && rating) {
+                                scoreDiv.style.display = 'block';
+                                scoreValue.textContent = '0';
+                                rating.textContent = stars;
+
+                                // Animate score counting up
+                                let currentScore = 0;
+                                const scoreInterval = setInterval(() => {
+                                    currentScore += Math.ceil(finalScore / 50);
+                                    if (currentScore >= finalScore) {
+                                        currentScore = finalScore;
+                                        clearInterval(scoreInterval);
+
+                                        // Celebration flash
+                                        scoreDiv.style.animation = 'flash 0.5s ease-in-out 3';
+                                    }
+                                    scoreValue.textContent = currentScore.toLocaleString();
+                                }, 20);
+                            }
+
+                            if (startBtn) {
+                                startBtn.textContent = '✓ COMPLETE';
+                                startBtn.disabled = true;
+                            }
+                            if (pauseBtn) pauseBtn.disabled = true;
+
+                            return;
+                        }
+
+                        if (!paused) {
+                            animationFrameId = requestAnimationFrame(simulateMigration);
+                        }
+                    };
+
+                    // Speed slider control
+                    if (speedSlider && speedLabel) {
+                        speedSlider.oninput = () => {
+                            simulationSpeed = parseFloat(speedSlider.value);
+                            speedLabel.textContent = simulationSpeed.toFixed(2) + 'x';
+                        };
                     }
-                ];
 
-                const demo = demos[demoIndex];
+                    // Start button
+                    if (startBtn) {
+                        startBtn.onclick = () => {
+                            if (running) return;
+                            running = true;
+                            paused = false;
+                            startBtn.disabled = true;
+                            if (pauseBtn) pauseBtn.disabled = false;
+                            if (resetBtn) resetBtn.disabled = false;
+                            logMessage('Starting orchestration...');
+                            logMessage('Spawning 50 parallel agents...');
+                            startTime = Date.now();
+                            simulateMigration();
+                        };
+                    }
 
-                window.dialogManager.info(
-                    demo.message,
-                    demo.title,
-                    () => {
-                        window.dialogManager.confirm(
-                            'Would you like to learn more about The Matrix orchestration framework?\n\nThe Matrix enables parallel AI agent execution to generate hundreds or thousands of artifacts simultaneously.\n\nEach demo shows a real use case of orchestration power.',
-                            'About The Matrix',
-                            (confirmed) => {
-                                if (confirmed) {
-                                    this.showMatrixDocumentation();
+                    // Pause/Resume button
+                    if (pauseBtn) {
+                        pauseBtn.onclick = () => {
+                            paused = !paused;
+                            pauseBtn.textContent = paused ? '▶️ RESUME' : '⏸️ PAUSE';
+
+                            if (paused) {
+                                logMessage('⏸️ Paused by user');
+                                if (animationFrameId) cancelAnimationFrame(animationFrameId);
+                            } else {
+                                logMessage('▶️ Resumed');
+                                simulateMigration();
+                            }
+                        };
+                    }
+
+                    // Reset button
+                    if (resetBtn) {
+                        resetBtn.onclick = () => {
+                            running = false;
+                            paused = false;
+                            filesProcessed = 0;
+                            servicesCreated = 0;
+                            activeAgents.clear();
+
+                            // Reset UI
+                            if (startBtn) {
+                                startBtn.disabled = false;
+                                startBtn.textContent = '▶️ START';
+                            }
+                            if (pauseBtn) {
+                                pauseBtn.disabled = true;
+                                pauseBtn.textContent = '⏸️ PAUSE';
+                            }
+                            resetBtn.disabled = true;
+
+                            // Reset stats
+                            const filesEl = document.getElementById('migration-files');
+                            const agentsEl = document.getElementById('migration-agents');
+                            const servicesEl = document.getElementById('migration-services');
+                            if (filesEl) filesEl.textContent = '0';
+                            if (agentsEl) agentsEl.textContent = '0';
+                            if (servicesEl) servicesEl.textContent = '0';
+
+                            // Reset agent grid
+                            for (let i = 0; i < 50; i++) {
+                                const agentEl = document.getElementById(`agent-${i}`);
+                                if (agentEl) {
+                                    agentEl.style.background = '#333';
+                                    agentEl.style.boxShadow = 'none';
                                 }
                             }
-                        );
+
+                            // Hide score
+                            const scoreDiv = document.getElementById('migration-score');
+                            if (scoreDiv) scoreDiv.style.display = 'none';
+
+                            // Clear log
+                            const log = document.getElementById('migration-log');
+                            if (log) log.innerHTML = '<div style="font-size: 9px; opacity: 0.7;">[00:00:00] Ready to start...</div>';
+
+                            logMessage('🔄 Reset complete - ready to start');
+                        };
                     }
-                );
+                }, 100);
+            }
+
+            // Demo 2: Knowledge Synthesizer - 75 papers → 200 articles
+            runKnowledgeDemo() {
+                const content = `
+                    <div style="padding: 15px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; font-family: 'Segoe UI', Arial, sans-serif; font-size: 11px;">
+                        <div style="background: rgba(255,255,255,0.1); padding: 10px; margin-bottom: 15px; border: 2px solid rgba(255,255,255,0.3); border-radius: 4px;">
+                            <div style="text-align: center; font-size: 14px; font-weight: bold;">
+                                📚 KNOWLEDGE SYNTHESIZER
+                            </div>
+                            <div style="text-align: center; font-size: 10px; margin-top: 5px; opacity: 0.9;">
+                                75 Research Papers → 200 Blog Articles | 20 Parallel Agents
+                            </div>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 15px;">
+                            <div style="background: rgba(0,0,0,0.3); padding: 8px; border-radius: 4px;">
+                                <div style="font-size: 9px; opacity: 0.8;">PAPERS READ</div>
+                                <div style="font-size: 18px; font-weight: bold;" id="knowledge-papers">0</div>
+                                <div style="font-size: 8px; opacity: 0.6;">/75 papers</div>
+                            </div>
+                            <div style="background: rgba(0,0,0,0.3); padding: 8px; border-radius: 4px;">
+                                <div style="font-size: 9px; opacity: 0.8;">ARTICLES WRITTEN</div>
+                                <div style="font-size: 18px; font-weight: bold;" id="knowledge-articles">0</div>
+                                <div style="font-size: 8px; opacity: 0.6;">/200 articles</div>
+                            </div>
+                            <div style="background: rgba(0,0,0,0.3); padding: 8px; border-radius: 4px;">
+                                <div style="font-size: 9px; opacity: 0.8;">ACTIVE AGENTS</div>
+                                <div style="font-size: 18px; font-weight: bold;" id="knowledge-agents">0</div>
+                                <div style="font-size: 8px; opacity: 0.6;">/20 agents</div>
+                            </div>
+                        </div>
+
+                        <div style="background: rgba(0,0,0,0.3); padding: 10px; margin-bottom: 15px; border-radius: 4px; max-height: 120px; overflow-y: auto;" id="knowledge-log">
+                            <div style="font-size: 9px; opacity: 0.8;">[00:00] Initializing knowledge synthesis...</div>
+                        </div>
+
+                        <div style="background: rgba(0,0,0,0.3); padding: 10px; border-radius: 4px; margin-bottom: 10px;">
+                            <div style="font-size: 9px; margin-bottom: 8px; opacity: 0.8;">AGENT STATUS:</div>
+                            <div id="knowledge-agent-bars" style="display: flex; flex-direction: column; gap: 3px;">
+                                ${Array(20).fill(0).map((_, i) => `
+                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                        <div style="width: 60px; font-size: 9px; opacity: 0.8;">Agent ${i+1}</div>
+                                        <div style="flex: 1; background: rgba(255,255,255,0.2); height: 12px; border-radius: 6px; overflow: hidden;">
+                                            <div id="knowledge-bar-${i}" style="width: 0%; height: 100%; background: linear-gradient(90deg, #4ade80, #22c55e); transition: width 0.3s;"></div>
+                                        </div>
+                                        <div id="knowledge-status-${i}" style="width: 80px; font-size: 8px; opacity: 0.7;">Idle</div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+
+                        <button id="knowledge-start" style="width: 100%; padding: 10px; background: linear-gradient(180deg, #fff, #e0e0e0); border: 2px outset #fff; color: #000; font-weight: bold; cursor: pointer; border-radius: 4px; font-size: 12px;">
+                            ▶️ START SYNTHESIS
+                        </button>
+                    </div>
+                `;
+
+                this.windowManager.createWindow('📚 Knowledge Synthesizer', content, { width: 680, height: 580 });
+
+                setTimeout(() => {
+                    const startBtn = document.getElementById('knowledge-start');
+                    let running = false;
+                    let papersRead = 0;
+                    let articlesWritten = 0;
+                    let agentProgress = Array(20).fill(0);
+                    let startTime = Date.now();
+
+                    const papers = [
+                        'Attention Is All You Need', 'BERT: Pre-training of Deep Bidirectional Transformers',
+                        'GPT-3: Language Models are Few-Shot Learners', 'Constitutional AI',
+                        'Chain-of-Thought Prompting', 'Reinforcement Learning from Human Feedback',
+                        'Scaling Laws for Neural Language Models', 'InstructGPT', 'Anthropic\'s Harmlessness',
+                        'Red Teaming Language Models', 'AI Alignment Research', 'Emergent Abilities'
+                    ];
+
+                    const logMsg = (msg) => {
+                        const log = document.getElementById('knowledge-log');
+                        if (!log) return;
+                        const mins = Math.floor((Date.now() - startTime) / 60000);
+                        const secs = Math.floor(((Date.now() - startTime) % 60000) / 1000);
+                        const entry = document.createElement('div');
+                        entry.style.fontSize = '9px';
+                        entry.style.marginBottom = '2px';
+                        entry.textContent = `[${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}] ${msg}`;
+                        log.appendChild(entry);
+                        log.scrollTop = log.scrollHeight;
+                    };
+
+                    const updateStats = () => {
+                        const papersEl = document.getElementById('knowledge-papers');
+                        const articlesEl = document.getElementById('knowledge-articles');
+                        const agentsEl = document.getElementById('knowledge-agents');
+                        const activeCount = agentProgress.filter(p => p > 0 && p < 100).length;
+
+                        if (papersEl) papersEl.textContent = papersRead;
+                        if (articlesEl) articlesEl.textContent = articlesWritten;
+                        if (agentsEl) agentsEl.textContent = activeCount;
+                    };
+
+                    const simulate = () => {
+                        if (!running) return;
+
+                        // Read papers
+                        if (papersRead < 75 && Math.random() > 0.5) {
+                            papersRead++;
+                            if (papersRead <= 12) {
+                                logMsg(`📖 Reading: "${papers[papersRead-1]}"`);
+                            } else if (Math.random() > 0.85) {
+                                logMsg(`📖 Reading paper ${papersRead}/75...`);
+                            }
+                        }
+
+                        // Update agent progress
+                        agentProgress.forEach((progress, i) => {
+                            if (articlesWritten >= 200) return;
+
+                            const barEl = document.getElementById(`knowledge-bar-${i}`);
+                            const statusEl = document.getElementById(`knowledge-status-${i}`);
+
+                            if (progress === 0 && articlesWritten < 200 && Math.random() > 0.7) {
+                                agentProgress[i] = 5;
+                                if (statusEl) statusEl.textContent = 'Reading...';
+                            } else if (progress > 0 && progress < 100) {
+                                agentProgress[i] = Math.min(100, progress + Math.random() * 8);
+
+                                if (progress < 30 && statusEl) statusEl.textContent = 'Reading...';
+                                else if (progress < 70 && statusEl) statusEl.textContent = 'Synthesizing...';
+                                else if (progress < 100 && statusEl) statusEl.textContent = 'Writing...';
+
+                                if (agentProgress[i] >= 100) {
+                                    articlesWritten++;
+                                    agentProgress[i] = 0;
+                                    if (statusEl) statusEl.textContent = 'Idle';
+                                    if (Math.random() > 0.7) {
+                                        const topics = ['AI Safety', 'LLM Alignment', 'Constitutional AI', 'RLHF', 'Scaling Laws', 'Emergent Abilities'];
+                                        logMsg(`✍️ Article ${articlesWritten}/200 completed: "${topics[Math.floor(Math.random() * topics.length)]}"`);
+                                    }
+                                }
+                            }
+
+                            if (barEl) barEl.style.width = agentProgress[i] + '%';
+                        });
+
+                        updateStats();
+
+                        if (articlesWritten >= 200) {
+                            running = false;
+                            logMsg('');
+                            logMsg('✓ SYNTHESIS COMPLETE!');
+                            logMsg(`✓ ${papersRead} research papers analyzed`);
+                            logMsg('✓ 200 blog articles generated with citations');
+                            logMsg('✓ Ready for publication!');
+                            if (startBtn) {
+                                startBtn.textContent = '✓ COMPLETE';
+                                startBtn.disabled = true;
+                            }
+                            return;
+                        }
+
+                        setTimeout(simulate, 60);
+                    };
+
+                    if (startBtn) {
+                        startBtn.onclick = () => {
+                            if (running) return;
+                            running = true;
+                            startBtn.disabled = true;
+                            logMsg('Spawning 20 knowledge synthesis agents...');
+                            logMsg('Beginning research paper analysis...');
+                            simulate();
+                        };
+                    }
+                }, 100);
+            }
+
+            runTestingDemo() {
+                this.runUniversalDemo({
+                    title: '🧪 Testing Universe',
+                    agents: 20,
+                    outcomes: 1000,
+                    color: '#10b981',
+                    items: ['unit tests', 'integration tests', 'E2E tests', 'performance tests'],
+                    actions: ['Generating', 'Validating', 'Running'],
+                    completionMsg: '1,000 test cases ready for execution!'
+                });
+            }
+
+            runDocumentationDemo() {
+                this.runUniversalDemo({
+                    title: '📖 Documentation Engine',
+                    agents: 20,
+                    outcomes: 400,
+                    color: '#3b82f6',
+                    items: ['API docs', 'guides', 'tutorials', 'runbooks'],
+                    actions: ['Analyzing', 'Documenting', 'Formatting'],
+                    completionMsg: '400 documentation pages generated!'
+                });
+            }
+
+            runInfrastructureDemo() {
+                this.runUniversalDemo({
+                    title: '☁️ Cloud Infrastructure Galaxy',
+                    agents: 25,
+                    outcomes: 500,
+                    color: '#f59e0b',
+                    items: ['EC2 modules', 'S3 buckets', 'VPCs', 'security groups', 'load balancers'],
+                    actions: ['Planning', 'Provisioning', 'Validating'],
+                    completionMsg: '500 Terraform modules ready for deployment!'
+                });
+            }
+
+            runContentDemo() {
+                this.runUniversalDemo({
+                    title: '✍️ Content Empire',
+                    agents: 10,
+                    outcomes: 500,
+                    color: '#ec4899',
+                    items: ['SEO posts', 'landing pages', 'tutorials', 'case studies'],
+                    actions: ['Researching', 'Writing', 'Optimizing'],
+                    completionMsg: '500 blog posts ready for publication!'
+                });
+            }
+
+            runAPIDemo() {
+                this.runUniversalDemo({
+                    title: '🌐 API Universe',
+                    agents: 20,
+                    outcomes: 200,
+                    color: '#8b5cf6',
+                    items: ['GET endpoints', 'POST endpoints', 'PUT endpoints', 'DELETE endpoints'],
+                    actions: ['Designing', 'Implementing', 'Testing'],
+                    completionMsg: '200 RESTful endpoints with OpenAPI specs!'
+                });
+            }
+
+            runCrossPlatformDemo() {
+                this.runUniversalDemo({
+                    title: '📱 Cross-Platform App Suite',
+                    agents: 10,
+                    outcomes: 500,
+                    color: '#06b6d4',
+                    items: ['iOS features', 'Android features', 'Web features', 'Desktop features'],
+                    actions: ['Adapting', 'Building', 'Testing'],
+                    completionMsg: '500 platform-specific features implemented!'
+                });
+            }
+
+            runDataPipelineDemo() {
+                this.runUniversalDemo({
+                    title: '🔀 Data Pipeline Constellation',
+                    agents: 20,
+                    outcomes: 100,
+                    color: '#14b8a6',
+                    items: ['ETL jobs', 'transformations', 'quality checks', 'lineage docs'],
+                    actions: ['Extracting', 'Transforming', 'Loading'],
+                    completionMsg: '100 data pipelines ready for production!'
+                });
+            }
+
+            runUniverseArchitectDemo() {
+                this.runUniversalDemo({
+                    title: '🎭 Universe Architect',
+                    agents: 15,
+                    outcomes: 300,
+                    color: '#a855f7',
+                    items: ['characters', 'locations', 'histories', 'magic systems', 'cultures'],
+                    actions: ['Imagining', 'Creating', 'Connecting'],
+                    completionMsg: '300 world-building elements generated!'
+                });
+            }
+
+            runUniversalDemo(config) {
+                const content = `
+                    <div style="padding: 15px; background: ${config.color}; color: white; font-family: Arial, sans-serif;">
+                        <div style="background: rgba(0,0,0,0.2); padding: 10px; margin-bottom: 15px; border-radius: 4px;">
+                            <div style="text-align: center; font-size: 16px; font-weight: bold;">${config.title}</div>
+                            <div style="text-align: center; font-size: 10px; margin-top: 5px; opacity: 0.9;">
+                                ${config.agents} Parallel Agents → ${config.outcomes.toLocaleString()} Outcomes
+                            </div>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;">
+                            <div style="background: rgba(0,0,0,0.2); padding: 10px; border-radius: 4px;">
+                                <div style="font-size: 9px; opacity: 0.8;">OUTCOMES GENERATED</div>
+                                <div style="font-size: 24px; font-weight: bold;" id="univ-outcomes">0</div>
+                                <div style="font-size: 8px; opacity: 0.6;">/${config.outcomes.toLocaleString()} total</div>
+                            </div>
+                            <div style="background: rgba(0,0,0,0.2); padding: 10px; border-radius: 4px;">
+                                <div style="font-size: 9px; opacity: 0.8;">ACTIVE AGENTS</div>
+                                <div style="font-size: 24px; font-weight: bold;" id="univ-agents">0</div>
+                                <div style="font-size: 8px; opacity: 0.6;">/${config.agents} agents</div>
+                            </div>
+                        </div>
+
+                        <div style="background: rgba(0,0,0,0.2); padding: 10px; border-radius: 4px; height: 200px; overflow-y: auto; margin-bottom: 15px;" id="univ-log">
+                            <div style="font-size: 9px;">[00:00] Initializing orchestration...</div>
+                        </div>
+
+                        <div style="background: rgba(0,0,0,0.2); padding: 10px; border-radius: 4px; margin-bottom: 15px;">
+                            <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px;">
+                                ${Array(config.agents).fill(0).map((_, i) => `
+                                    <div id="univ-agent-${i}" style="height: 40px; background: rgba(255,255,255,0.2); border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: bold; transition: all 0.3s;">
+                                        ${i+1}
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+
+                        <button id="univ-start" style="width: 100%; padding: 12px; background: white; color: ${config.color}; border: none; font-weight: bold; cursor: pointer; border-radius: 4px; font-size: 14px;">
+                            ▶️ START ORCHESTRATION
+                        </button>
+                    </div>
+                `;
+
+                this.windowManager.createWindow(config.title, content, { width: 620, height: 560 });
+
+                setTimeout(() => {
+                    const startBtn = document.getElementById('univ-start');
+                    let running = false;
+                    let generated = 0;
+                    let agentStatus = Array(config.agents).fill('idle');
+                    let startTime = Date.now();
+
+                    const log = (msg) => {
+                        const logEl = document.getElementById('univ-log');
+                        if (!logEl) return;
+                        const secs = Math.floor((Date.now() - startTime) / 1000);
+                        const mins = Math.floor(secs / 60);
+                        const entry = document.createElement('div');
+                        entry.style.fontSize = '9px';
+                        entry.style.marginBottom = '2px';
+                        entry.textContent = `[${String(mins).padStart(2,'0')}:${String(secs%60).padStart(2,'0')}] ${msg}`;
+                        logEl.appendChild(entry);
+                        logEl.scrollTop = logEl.scrollHeight;
+                    };
+
+                    const simulate = () => {
+                        if (!running) return;
+
+                        // Activate idle agents
+                        agentStatus.forEach((status, i) => {
+                            if (status === 'idle' && generated < config.outcomes && Math.random() > 0.6) {
+                                agentStatus[i] = 'working';
+                                const agentEl = document.getElementById(`univ-agent-${i}`);
+                                if (agentEl) {
+                                    agentEl.style.background = 'rgba(255,255,255,0.9)';
+                                    agentEl.style.color = config.color;
+                                    agentEl.style.boxShadow = '0 0 10px rgba(255,255,255,0.5)';
+                                }
+                            }
+                        });
+
+                        // Generate outcomes
+                        const working = agentStatus.filter(s => s === 'working').length;
+                        if (working > 0 && generated < config.outcomes) {
+                            const toGenerate = Math.min(Math.ceil(Math.random() * working * 2), config.outcomes - generated);
+                            generated += toGenerate;
+
+                            if (Math.random() > 0.7) {
+                                const item = config.items[Math.floor(Math.random() * config.items.length)];
+                                const action = config.actions[Math.floor(Math.random() * config.actions.length)];
+                                log(`${action} ${item}... (${generated}/${config.outcomes})`);
+                            }
+
+                            // Complete some agents
+                            if (Math.random() > 0.5) {
+                                const workingIdx = agentStatus.findIndex(s => s === 'working');
+                                if (workingIdx >= 0) {
+                                    agentStatus[workingIdx] = 'complete';
+                                    const agentEl = document.getElementById(`univ-agent-${workingIdx}`);
+                                    if (agentEl) {
+                                        agentEl.style.background = 'rgba(255,255,255,0.4)';
+                                        agentEl.style.color = 'white';
+                                        agentEl.style.boxShadow = 'none';
+                                        agentEl.textContent = '✓';
+                                    }
+                                }
+                            }
+                        }
+
+                        const outcomesEl = document.getElementById('univ-outcomes');
+                        const agentsEl = document.getElementById('univ-agents');
+                        if (outcomesEl) outcomesEl.textContent = generated.toLocaleString();
+                        if (agentsEl) agentsEl.textContent = agentStatus.filter(s => s === 'working').length;
+
+                        if (generated >= config.outcomes) {
+                            running = false;
+                            log('');
+                            log('✓ ORCHESTRATION COMPLETE!');
+                            log(`✓ ${config.completionMsg}`);
+                            log(`✓ All ${config.agents} agents finished successfully`);
+                            if (startBtn) {
+                                startBtn.textContent = '✓ COMPLETE';
+                                startBtn.disabled = true;
+                            }
+                            return;
+                        }
+
+                        setTimeout(simulate, 80);
+                    };
+
+                    if (startBtn) {
+                        startBtn.onclick = () => {
+                            if (running) return;
+                            running = true;
+                            startBtn.disabled = true;
+                            log(`Spawning ${config.agents} parallel agents...`);
+                            log('Beginning orchestrated generation...');
+                            simulate();
+                        };
+                    }
+                }, 100);
+            }
+
+            showComingSoonDemo(title, description) {
+                const content = `
+                    <div style="padding: 40px; text-align: center;">
+                        <div style="font-size: 64px; margin-bottom: 20px;">🚧</div>
+                        <h2 style="margin: 0 0 10px 0; color: #000080;">${title}</h2>
+                        <p style="margin: 0 0 20px 0; font-size: 12px; color: #666;">
+                            ${description}
+                        </p>
+                        <div style="background: #ffffcc; border: 2px solid #ffcc00; padding: 15px; margin: 20px 0;">
+                            <strong>🎬 Interactive Demo Coming Soon!</strong>
+                            <p style="margin: 10px 0 0 0; font-size: 11px;">
+                                This demonstration will feature a fully interactive visualization
+                                of parallel agent orchestration with real-time progress tracking,
+                                agent activity monitoring, and outcome generation simulation.
+                            </p>
+                        </div>
+                        <div style="margin-top: 20px; font-size: 10px; color: #666;">
+                            For now, enjoy the fully working <strong>🔄 Great Migration</strong> demo!<br>
+                            Click the first demo in the showcase to see orchestration in action.
+                        </div>
+                    </div>
+                `;
+
+                this.windowManager.createWindow(title, content, {
+                    width: 480,
+                    height: 380
+                });
             }
 
             showMatrixDocumentation() {

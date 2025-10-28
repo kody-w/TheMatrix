@@ -2854,17 +2854,17 @@
                     </div>
                 </div>
 
-                <div class="capability-card" onclick="openModal('coming-soon-demo')">
+                <div class="capability-card" onclick="window.open('cathedral/index.html', '_blank')">
                     <div class="capability-header">
                         <div class="capability-title">Cathedral Showcase</div>
-                        <div class="capability-status coming-soon">COMING SOON</div>
+                        <div class="capability-status ready">LIVE</div>
                     </div>
                     <div class="capability-description">
-                        Explore working demonstrations of The Matrix's orchestration capabilities through interactive visualizations.
+                        Explore 6 working demonstrations of The Matrix's orchestration capabilities. Watch 600+ parallel agents generate 15,000+ outcomes in real-time.
                     </div>
                     <div class="capability-stats">
-                        <span>Future Release</span>
-                        <span>Orchestration Demos</span>
+                        <span>6 Interactive Demos</span>
+                        <span>Orchestration Showcase</span>
                     </div>
                 </div>
             </div>
@@ -4685,27 +4685,108 @@ You take the red pill - you stay in Wonderland and I show you how deep the rabbi
         }
 
         // Open Documentation Modal (placeholder - would load actual markdown in production)
-        function openDocModal(filename) {
+        async function openDocModal(filename) {
             const modal = document.getElementById('modal');
             const modalTitle = document.getElementById('modal-title');
             const modalBody = document.getElementById('modal-body');
 
             modalTitle.textContent = filename;
             modalBody.innerHTML = `
-                <h3>Documentation File</h3>
-                <p>This would display the contents of <strong>${filename}</strong> in a production environment.</p>
-                <p>To view this file:</p>
-                <ul>
-                    <li>Open the file directly from your IDE</li>
-                    <li>View it on GitHub in your repository</li>
-                    <li>Use a markdown viewer in your terminal</li>
-                </ul>
-                <p style="margin-top: 1rem; opacity: 0.7;">
-                    <em>Note: In a deployed version, this modal would fetch and render the markdown content dynamically.</em>
-                </p>
+                <div style="text-align: center; padding: 2rem;">
+                    <div style="font-size: 2rem; margin-bottom: 1rem;">⏳</div>
+                    <p>Loading documentation...</p>
+                </div>
             `;
 
             modal.classList.add('active');
+
+            // Fetch from GitHub raw content
+            const githubUrl = `https://raw.githubusercontent.com/kody-w/TheMatrix/main/${filename}`;
+
+            try {
+                const response = await fetch(githubUrl);
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                const markdown = await response.text();
+
+                // Simple markdown rendering
+                const html = renderMarkdown(markdown);
+                modalBody.innerHTML = html;
+            } catch (error) {
+                modalBody.innerHTML = `
+                    <div style="color: #ff6b6b;">
+                        <h3>❌ Error Loading Documentation</h3>
+                        <p>Could not fetch <strong>${filename}</strong> from GitHub.</p>
+                        <p style="opacity: 0.7; font-size: 0.9rem;">Error: ${error.message}</p>
+                        <hr style="margin: 1.5rem 0; border-color: rgba(255,255,255,0.1);">
+                        <p>Alternative viewing options:</p>
+                        <ul>
+                            <li><a href="${githubUrl}" target="_blank" style="color: var(--matrix-green);">View on GitHub</a></li>
+                            <li>Open the file directly from your IDE</li>
+                        </ul>
+                    </div>
+                `;
+            }
+        }
+
+        // Simple markdown renderer
+        function renderMarkdown(markdown) {
+            let html = markdown;
+
+            // Escape HTML first to prevent XSS
+            html = html.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+            // Code blocks (```language ... ```)
+            html = html.replace(/```(\w+)?\n([\s\S]*?)```/g, (match, lang, code) => {
+                return `<pre style="background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 8px; overflow-x: auto; border-left: 3px solid var(--matrix-green);"><code>${code.trim()}</code></pre>`;
+            });
+
+            // Headers
+            html = html.replace(/^### (.*$)/gim, '<h3 style="color: var(--matrix-green); margin-top: 1.5rem; margin-bottom: 0.5rem;">$1</h3>');
+            html = html.replace(/^## (.*$)/gim, '<h2 style="color: var(--matrix-green); margin-top: 2rem; margin-bottom: 0.75rem;">$1</h2>');
+            html = html.replace(/^# (.*$)/gim, '<h1 style="color: var(--matrix-green); margin-top: 2rem; margin-bottom: 1rem;">$1</h1>');
+
+            // Bold
+            html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+            html = html.replace(/__(.+?)__/g, '<strong>$1</strong>');
+
+            // Italic
+            html = html.replace(/\*(.+?)\*/g, '<em>$1</em>');
+            html = html.replace(/_(.+?)_/g, '<em>$1</em>');
+
+            // Inline code
+            html = html.replace(/`([^`]+)`/g, '<code style="background: rgba(0,255,0,0.1); padding: 0.2rem 0.4rem; border-radius: 4px; font-family: monospace;">$1</code>');
+
+            // Links
+            html = html.replace(/\[([^\]]+)\]\(([^\)]+)\)/g, '<a href="$2" target="_blank" style="color: var(--matrix-green); text-decoration: underline;">$1</a>');
+
+            // Unordered lists
+            html = html.replace(/^\* (.+)$/gim, '<li style="margin-left: 1.5rem;">$1</li>');
+            html = html.replace(/^- (.+)$/gim, '<li style="margin-left: 1.5rem;">$1</li>');
+
+            // Ordered lists
+            html = html.replace(/^\d+\. (.+)$/gim, '<li style="margin-left: 1.5rem;">$1</li>');
+
+            // Wrap consecutive list items in ul
+            html = html.replace(/(<li.*<\/li>\n)+/g, (match) => {
+                return '<ul style="margin: 0.5rem 0;">' + match + '</ul>';
+            });
+
+            // Horizontal rules
+            html = html.replace(/^---$/gim, '<hr style="border-color: rgba(0,255,0,0.3); margin: 1.5rem 0;">');
+
+            // Blockquotes
+            html = html.replace(/^&gt; (.+)$/gim, '<blockquote style="border-left: 3px solid var(--matrix-green); padding-left: 1rem; margin: 1rem 0; opacity: 0.8;">$1</blockquote>');
+
+            // Line breaks
+            html = html.replace(/\n\n/g, '</p><p style="margin: 0.75rem 0;">');
+            html = '<p style="margin: 0.75rem 0;">' + html + '</p>';
+
+            // Clean up empty paragraphs
+            html = html.replace(/<p[^>]*><\/p>/g, '');
+
+            return `<div style="line-height: 1.6; max-width: 100%; overflow-x: auto;">${html}</div>`;
         }
 
         // Global Search Function

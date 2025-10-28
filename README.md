@@ -399,10 +399,25 @@ TheMatrix/
 │   ├── CLAUDE.md                    # Orchestrator workflow
 │   └── agents/
 │       ├── outcome-generator.md     # Universal artifact generator
-│       └── integrator.md            # Universal synthesizer
+│       ├── integrator.md            # Universal synthesizer
+│       ├── mind-blower.md           # Meta-orchestrator for demos
+│       ├── demo-builder.md          # Interactive demo builder
+│       ├── cathedral-architect.md   # Demo showcase integrator
+│       └── strategy.md              # Strategic planning agent
+├── docs/
+│   ├── cathedral/                   # Cathedral demonstration docs
+│   ├── briefings/                   # Agent briefing documents
+│   └── guides/                      # Strategy, feature, and reference guides
+├── examples/
+│   ├── html-demos/                  # Interactive HTML demonstrations
+│   └── prompts/                     # JSON prompt collections
+├── agent-ecosystem/                 # Generated autonomous agent platform
+├── cathedral/                       # Interactive demo showcase gallery
+├── demos/                           # Additional demonstration artifacts
 ├── .mcp.json                        # MCP server configuration
 ├── CLAUDE.md                        # High-level guidance
 ├── README.md                        # This file
+├── index.html                       # Main gateway interface
 └── LICENSE                          # MIT License
 ```
 
@@ -455,17 +470,24 @@ Demonstrates advanced AI engineering principles:
 
 ## 📖 Learn More
 
-**Documentation:**
+**Core Documentation:**
 - [Architecture Deep Dive](CLAUDE.md)
 - [Orchestrator Workflow](.claude/CLAUDE.md)
 - [Outcome Generator Agent](.claude/agents/outcome-generator.md)
 - [Integrator Agent](.claude/agents/integrator.md)
+- [Quick Start Guide](docs/guides/QUICK_START_GUIDE.md)
 
-**Examples:**
-- Software Development: API generation, component libraries, microservices
-- Content Creation: Documentation sites, blog content, marketing pages
-- Data Engineering: ETL pipelines, data transformations, analytics
-- Infrastructure: IaC modules, deployment automation, monitoring
+**Advanced Resources:**
+- [Domain Templates](docs/guides/domain-templates.md)
+- [Integration Cookbook](docs/guides/integration-cookbook.md)
+- [Marketing Arsenal](docs/guides/marketing-arsenal.md)
+- [Measurement Framework](docs/guides/measurement-framework.md)
+
+**Examples & Demonstrations:**
+- [Interactive HTML Demos](examples/html-demos/) - Pokemon, Windows 95, and more
+- [Agent Ecosystem](agent-ecosystem/) - Complete autonomous agent platform
+- [Cathedral Showcase](cathedral/) - Interactive orchestration demonstrations
+- [Prompt Collections](examples/prompts/) - Ready-to-use orchestration prompts
 
 **Community:**
 - Share your use cases and implementations

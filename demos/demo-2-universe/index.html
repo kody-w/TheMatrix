@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Universe Architect - Matrix Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: radial-gradient(ellipse at center, #1a1a2e 0%, #0f0f1e 100%);
+            color: #e0e0e0;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, #4a148c 0%, #7b1fa2 50%, #9c27b0 100%);
+            border-radius: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 40px rgba(156, 39, 176, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="1" fill="white" opacity="0.3"/><circle cx="20" cy="30" r="0.5" fill="white" opacity="0.2"/><circle cx="80" cy="70" r="0.7" fill="white" opacity="0.3"/></svg>');
+            opacity: 0.3;
+        }
+
+        .header h1 {
+            font-size: 3.5em;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #ce93d8, #f3e5f5);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            position: relative;
+        }
+
+        .header p {
+            font-size: 1.4em;
+            color: #e1bee7;
+            position: relative;
+        }
+
+        .tagline {
+            font-size: 1.1em;
+            color: #ce93d8;
+            margin-top: 10px;
+            position: relative;
+        }
+
+        /* Metrics */
+        .metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .metric-card {
+            background: linear-gradient(135deg, #1a1a2e 0%, #2d2d44 100%);
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            border: 2px solid #7b1fa2;
+            transition: all 0.3s ease;
+        }
+
+        .metric-card:hover {
+            border-color: #ce93d8;
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(156, 39, 176, 0.3);
+        }
+
+        .metric-value {
+            font-size: 2.5em;
+            font-weight: bold;
+            background: linear-gradient(135deg, #ce93d8, #81d4fa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .metric-label {
+            color: #b39ddb;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 8px;
+        }
+
+        /* Galaxy Canvas */
+        .galaxy-container {
+            background: linear-gradient(135deg, #0a0a1a 0%, #1a1a2e 100%);
+            padding: 30px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            border: 2px solid #7b1fa2;
+            position: relative;
+        }
+
+        .galaxy-title {
+            text-align: center;
+            font-size: 1.8em;
+            color: #ce93d8;
+            margin-bottom: 20px;
+        }
+
+        #galaxyCanvas {
+            width: 100%;
+            height: 600px;
+            border-radius: 10px;
+            background: #000;
+            cursor: grab;
+        }
+
+        #galaxyCanvas:active {
+            cursor: grabbing;
+        }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #7b1fa2, #9c27b0);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #6a1b9a, #8e24aa);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(156, 39, 176, 0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #424242, #616161);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: linear-gradient(135deg, #303030, #424242);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Speed Control */
+        .speed-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .speed-btn {
+            padding: 8px 16px;
+            background: #2d2d44;
+            border: 2px solid #7b1fa2;
+            color: #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .speed-btn.active {
+            background: #7b1fa2;
+            border-color: #7b1fa2;
+        }
+
+        /* Agents Grid */
+        .agents-section {
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            color: #ce93d8;
+            text-align: center;
+        }
+
+        .agents-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .agent-card {
+            background: linear-gradient(135deg, #1a1a2e 0%, #2d2d44 100%);
+            padding: 20px;
+            border-radius: 12px;
+            border: 2px solid #7b1fa2;
+            transition: all 0.3s ease;
+        }
+
+        .agent-card.active {
+            border-color: #ce93d8;
+            box-shadow: 0 0 25px rgba(206, 147, 216, 0.5);
+            animation: glow 2s infinite;
+        }
+
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 0 25px rgba(206, 147, 216, 0.5); }
+            50% { box-shadow: 0 0 35px rgba(206, 147, 216, 0.7); }
+        }
+
+        .agent-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .agent-name {
+            font-weight: bold;
+            color: #ce93d8;
+        }
+
+        .agent-type {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: 600;
+            background: #7b1fa2;
+            color: white;
+        }
+
+        .agent-progress {
+            background: #0a0a1a;
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .agent-progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #7b1fa2, #ce93d8);
+            transition: width 0.3s ease;
+        }
+
+        .agent-stats {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85em;
+            color: #b39ddb;
+        }
+
+        /* Element Types Legend */
+        .legend {
+            background: linear-gradient(135deg, #1a1a2e 0%, #2d2d44 100%);
+            padding: 25px;
+            border-radius: 15px;
+            border: 2px solid #7b1fa2;
+            margin-bottom: 30px;
+        }
+
+        .legend-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .legend-label {
+            font-size: 0.9em;
+            color: #b39ddb;
+        }
+
+        /* Element Details Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #1a1a2e 0%, #2d2d44 100%);
+            padding: 40px;
+            border-radius: 20px;
+            max-width: 600px;
+            width: 90%;
+            border: 2px solid #ce93d8;
+            box-shadow: 0 10px 50px rgba(206, 147, 216, 0.5);
+        }
+
+        .modal-header {
+            font-size: 2em;
+            color: #ce93d8;
+            margin-bottom: 20px;
+        }
+
+        .modal-details {
+            color: #e0e0e0;
+            line-height: 1.8;
+        }
+
+        .modal-close {
+            margin-top: 30px;
+            text-align: center;
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            background: linear-gradient(135deg, #1a1a2e 0%, #2d2d44 100%);
+            padding: 30px;
+            border-radius: 15px;
+            border: 2px solid #7b1fa2;
+            margin-bottom: 30px;
+        }
+
+        .progress-bar-container {
+            background: #0a0a1a;
+            height: 40px;
+            border-radius: 20px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #7b1fa2, #ce93d8, #81d4fa);
+            transition: width 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            box-shadow: 0 0 20px rgba(206, 147, 216, 0.6);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.5em;
+            }
+            #galaxyCanvas {
+                height: 400px;
+            }
+            .agents-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🌌 Universe Architect</h1>
+            <p>Build Living, Breathing Worlds</p>
+            <div class="tagline">30 Parallel World-Builders • 300 Elements • 25 Minutes</div>
+        </div>
+
+        <!-- Metrics -->
+        <div class="metrics">
+            <div class="metric-card">
+                <div class="metric-value" id="agentsActive">0</div>
+                <div class="metric-label">Agents Active</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value" id="elementsCreated">0</div>
+                <div class="metric-label">Elements Created</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value" id="lorePages">0</div>
+                <div class="metric-label">Lore Pages</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value" id="speedup">0x</div>
+                <div class="metric-label">Speedup</div>
+            </div>
+        </div>
+
+        <!-- Progress -->
+        <div class="progress-container">
+            <h3 class="section-title">World Creation Progress</h3>
+            <div class="progress-bar-container">
+                <div class="progress-bar" id="mainProgress" style="width: 0%">0%</div>
+            </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="controls">
+            <button class="btn btn-primary" id="startBtn" onclick="startCreation()">▶ Start Creation</button>
+            <button class="btn btn-secondary" id="pauseBtn" onclick="pauseCreation()" disabled>⏸ Pause</button>
+            <button class="btn btn-secondary" id="resetBtn" onclick="resetCreation()">🔄 Reset</button>
+
+            <div class="speed-control">
+                <span style="color: #b39ddb;">Speed:</span>
+                <button class="speed-btn active" onclick="setSpeed(1)">1x</button>
+                <button class="speed-btn" onclick="setSpeed(2)">2x</button>
+                <button class="speed-btn" onclick="setSpeed(4)">4x</button>
+            </div>
+        </div>
+
+        <!-- Galaxy Visualization -->
+        <div class="galaxy-container">
+            <h3 class="galaxy-title">Universe Galaxy Map</h3>
+            <canvas id="galaxyCanvas"></canvas>
+        </div>
+
+        <!-- Element Types Legend -->
+        <div class="legend">
+            <h3 class="section-title">Element Types</h3>
+            <div class="legend-grid" id="legendGrid"></div>
+        </div>
+
+        <!-- Agents Grid -->
+        <div class="agents-section">
+            <h3 class="section-title">World-Building Agents</h3>
+            <div class="agents-grid" id="agentsGrid"></div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal" id="elementModal">
+        <div class="modal-content">
+            <div class="modal-header" id="modalTitle"></div>
+            <div class="modal-details" id="modalDetails"></div>
+            <div class="modal-close">
+                <button class="btn btn-secondary" onclick="closeModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration
+        const TOTAL_AGENTS = 30;
+        const ELEMENTS_PER_AGENT = 10;
+        const TOTAL_ELEMENTS = TOTAL_AGENTS * ELEMENTS_PER_AGENT;
+
+        // Element Types
+        const elementTypes = [
+            { name: 'Characters', color: '#ff6b6b', icon: '👤' },
+            { name: 'Locations', color: '#4ecdc4', icon: '🏛️' },
+            { name: 'Cultures', color: '#ffe66d', icon: '🎭' },
+            { name: 'Religions', color: '#a8dadc', icon: '⛪' },
+            { name: 'Magic Systems', color: '#9d4edd', icon: '✨' },
+            { name: 'Technologies', color: '#06ffa5', icon: '⚙️' },
+            { name: 'Creatures', color: '#f72585', icon: '🐉' },
+            { name: 'Factions', color: '#ffbe0b', icon: '⚔️' },
+            { name: 'Histories', color: '#8338ec', icon: '📜' },
+            { name: 'Artifacts', color: '#fb5607', icon: '💎' }
+        ];
+
+        // State
+        let agents = [];
+        let elements = [];
+        let isRunning = false;
+        let isPaused = false;
+        let speed = 1;
+        let elementsCreated = 0;
+        let lorePages = 0;
+        let activeAgents = 0;
+
+        // Canvas
+        let canvas, ctx;
+        let particles = [];
+
+        // Initialize
+        function init() {
+            initCanvas();
+            createAgents();
+            createLegend();
+            updateUI();
+            animateGalaxy();
+        }
+
+        function initCanvas() {
+            canvas = document.getElementById('galaxyCanvas');
+            ctx = canvas.getContext('2d');
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+        }
+
+        function resizeCanvas() {
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = rect.height;
+        }
+
+        function createAgents() {
+            agents = [];
+            for (let i = 0; i < TOTAL_AGENTS; i++) {
+                const type = elementTypes[i % elementTypes.length];
+                agents.push({
+                    id: i + 1,
+                    name: `${type.name} Builder ${Math.floor(i / elementTypes.length) + 1}`,
+                    type: type.name,
+                    color: type.color,
+                    status: 'waiting',
+                    progress: 0,
+                    elementsCreated: 0,
+                    isActive: false
+                });
+            }
+            renderAgentsGrid();
+        }
+
+        function createLegend() {
+            const grid = document.getElementById('legendGrid');
+            elementTypes.forEach(type => {
+                const item = document.createElement('div');
+                item.className = 'legend-item';
+                item.innerHTML = `
+                    <div class="legend-color" style="background: ${type.color}"></div>
+                    <div class="legend-label">${type.icon} ${type.name}</div>
+                `;
+                grid.appendChild(item);
+            });
+        }
+
+        function renderAgentsGrid() {
+            const grid = document.getElementById('agentsGrid');
+            grid.innerHTML = '';
+
+            agents.forEach(agent => {
+                const card = document.createElement('div');
+                card.className = 'agent-card';
+                card.id = `agent-${agent.id}`;
+                card.innerHTML = `
+                    <div class="agent-header">
+                        <div class="agent-name">${agent.name}</div>
+                        <div class="agent-type" style="background: ${agent.color}">${agent.type}</div>
+                    </div>
+                    <div class="agent-progress">
+                        <div class="agent-progress-bar" style="width: ${agent.progress}%; background: ${agent.color}"></div>
+                    </div>
+                    <div class="agent-stats">
+                        <span>Created: <span id="agent-${agent.id}-count">${agent.elementsCreated}</span>/${ELEMENTS_PER_AGENT}</span>
+                        <span id="agent-${agent.id}-status">${agent.status}</span>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        async function startCreation() {
+            if (isRunning) return;
+
+            isRunning = true;
+            isPaused = false;
+
+            document.getElementById('startBtn').disabled = true;
+            document.getElementById('pauseBtn').disabled = false;
+
+            // Start all agents in parallel
+            const agentPromises = agents.map((agent, index) =>
+                createWithAgent(agent, index * 30 / speed)
+            );
+
+            await Promise.all(agentPromises);
+
+            isRunning = false;
+            document.getElementById('startBtn').disabled = false;
+            document.getElementById('pauseBtn').disabled = true;
+        }
+
+        async function createWithAgent(agent, delay) {
+            await sleep(delay);
+
+            agent.status = 'active';
+            agent.isActive = true;
+            activeAgents++;
+            updateAgentCard(agent);
+
+            for (let i = 0; i < ELEMENTS_PER_AGENT; i++) {
+                if (!isRunning) break;
+
+                while (isPaused) {
+                    await sleep(100);
+                }
+
+                // Create element
+                const element = createWorldElement(agent);
+                elements.push(element);
+                addParticleToGalaxy(element);
+
+                agent.elementsCreated++;
+                agent.progress = (agent.elementsCreated / ELEMENTS_PER_AGENT) * 100;
+
+                elementsCreated++;
+                lorePages += Math.floor(Math.random() * 5) + 1;
+
+                updateAgentCard(agent);
+                updateMetrics();
+                updateProgress();
+
+                await sleep(100 / speed);
+            }
+
+            agent.status = 'complete';
+            agent.isActive = false;
+            activeAgents--;
+            updateAgentCard(agent);
+        }
+
+        function createWorldElement(agent) {
+            const typeInfo = elementTypes.find(t => t.name === agent.type);
+            const names = generateNameForType(agent.type);
+
+            return {
+                id: `${agent.type}-${agent.elementsCreated + 1}`,
+                type: agent.type,
+                name: names[Math.floor(Math.random() * names.length)],
+                color: agent.color,
+                agent: agent.name,
+                description: `A ${agent.type.toLowerCase().slice(0, -1)} in the universe`,
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                vx: (Math.random() - 0.5) * 0.5,
+                vy: (Math.random() - 0.5) * 0.5,
+                size: Math.random() * 3 + 2
+            };
+        }
+
+        function generateNameForType(type) {
+            const names = {
+                'Characters': ['Zara Moonwhisper', 'Theron Ironheart', 'Lyra Starweaver', 'Kael Shadowbane', 'Mira Dawnbringer'],
+                'Locations': ['Crystal Spire', 'Floating Isles', 'The Void Nexus', 'Eternal Gardens', 'Shadow Citadel'],
+                'Cultures': ['Sky Nomads', 'Deep Dwellers', 'Star Seekers', 'Void Walkers', 'Light Keepers'],
+                'Religions': ['Order of the Cosmos', 'Children of Stars', 'Void Disciples', 'Light Bearers', 'Shadow Faith'],
+                'Magic Systems': ['Stellar Weaving', 'Void Bending', 'Light Shaping', 'Chaos Channeling', 'Time Threads'],
+                'Technologies': ['Void Drives', 'Star Forges', 'Quantum Gates', 'Neural Lattice', 'Photon Engines'],
+                'Creatures': ['Star Dragons', 'Void Wraiths', 'Crystal Beasts', 'Shadow Stalkers', 'Light Phoenixes'],
+                'Factions': ['The Stellar Alliance', 'Void Collective', 'Free Traders', 'Shadow Council', 'Light Brigade'],
+                'Histories': ['The Great Sundering', 'Age of Stars', 'The Void War', 'Crystal Revolution', 'Dawn of Unity'],
+                'Artifacts': ['Stellar Crown', 'Void Blade', 'Crystal Heart', 'Shadow Cloak', 'Light Scepter']
+            };
+            return names[type] || ['Unknown'];
+        }
+
+        function addParticleToGalaxy(element) {
+            particles.push(element);
+        }
+
+        function animateGalaxy() {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Draw connections between nearby particles
+            particles.forEach((p1, i) => {
+                particles.slice(i + 1).forEach(p2 => {
+                    const dx = p2.x - p1.x;
+                    const dy = p2.y - p1.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+
+                    if (dist < 100) {
+                        ctx.strokeStyle = `rgba(206, 147, 216, ${0.2 * (1 - dist / 100)})`;
+                        ctx.lineWidth = 0.5;
+                        ctx.beginPath();
+                        ctx.moveTo(p1.x, p1.y);
+                        ctx.lineTo(p2.x, p2.y);
+                        ctx.stroke();
+                    }
+                });
+            });
+
+            // Draw and update particles
+            particles.forEach(particle => {
+                // Update position
+                particle.x += particle.vx;
+                particle.y += particle.vy;
+
+                // Wrap around edges
+                if (particle.x < 0) particle.x = canvas.width;
+                if (particle.x > canvas.width) particle.x = 0;
+                if (particle.y < 0) particle.y = canvas.height;
+                if (particle.y > canvas.height) particle.y = 0;
+
+                // Draw particle
+                ctx.fillStyle = particle.color;
+                ctx.beginPath();
+                ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Glow effect
+                const gradient = ctx.createRadialGradient(
+                    particle.x, particle.y, 0,
+                    particle.x, particle.y, particle.size * 3
+                );
+                gradient.addColorStop(0, particle.color + '80');
+                gradient.addColorStop(1, particle.color + '00');
+                ctx.fillStyle = gradient;
+                ctx.beginPath();
+                ctx.arc(particle.x, particle.y, particle.size * 3, 0, Math.PI * 2);
+                ctx.fill();
+            });
+
+            requestAnimationFrame(animateGalaxy);
+        }
+
+        function updateAgentCard(agent) {
+            const card = document.getElementById(`agent-${agent.id}`);
+            if (!card) return;
+
+            if (agent.isActive) {
+                card.classList.add('active');
+            } else {
+                card.classList.remove('active');
+            }
+
+            const progressBar = card.querySelector('.agent-progress-bar');
+            progressBar.style.width = `${agent.progress}%`;
+
+            const countEl = document.getElementById(`agent-${agent.id}-count`);
+            if (countEl) countEl.textContent = agent.elementsCreated;
+
+            const statusEl = document.getElementById(`agent-${agent.id}-status`);
+            if (statusEl) statusEl.textContent = agent.status;
+        }
+
+        function updateMetrics() {
+            document.getElementById('agentsActive').textContent = activeAgents;
+            document.getElementById('elementsCreated').textContent = elementsCreated;
+            document.getElementById('lorePages').textContent = lorePages.toLocaleString();
+
+            const speedup = Math.floor((elementsCreated / TOTAL_ELEMENTS) * 50);
+            document.getElementById('speedup').textContent = `${speedup}x`;
+        }
+
+        function updateProgress() {
+            const progress = (elementsCreated / TOTAL_ELEMENTS) * 100;
+            const progressBar = document.getElementById('mainProgress');
+            progressBar.style.width = `${progress}%`;
+            progressBar.textContent = `${progress.toFixed(1)}%`;
+        }
+
+        function pauseCreation() {
+            isPaused = !isPaused;
+            const btn = document.getElementById('pauseBtn');
+            btn.textContent = isPaused ? '▶ Resume' : '⏸ Pause';
+        }
+
+        function resetCreation() {
+            isRunning = false;
+            isPaused = false;
+            elementsCreated = 0;
+            lorePages = 0;
+            activeAgents = 0;
+            elements = [];
+            particles = [];
+
+            createAgents();
+            updateMetrics();
+            updateProgress();
+
+            document.getElementById('startBtn').disabled = false;
+            document.getElementById('pauseBtn').disabled = true;
+            document.getElementById('pauseBtn').textContent = '⏸ Pause';
+
+            ctx.fillStyle = '#000';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+
+        function setSpeed(newSpeed) {
+            speed = newSpeed;
+            document.querySelectorAll('.speed-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('elementModal').classList.remove('active');
+        }
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        function updateUI() {
+            updateMetrics();
+            updateProgress();
+        }
+
+        // Initialize
+        init();
+    </script>
+</body>
+</html>
