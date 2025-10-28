@@ -1215,6 +1215,263 @@
             font-size: 1.2rem;
         }
 
+        /* Quick Copy Button on Cards */
+        .quick-copy-btn {
+            position: absolute;
+            bottom: 1rem;
+            right: 1rem;
+            padding: 0.5rem 1rem;
+            background: var(--matrix-green);
+            color: var(--deep-black);
+            border: none;
+            border-radius: 5px;
+            font-family: 'Courier New', Consolas, monospace;
+            font-size: 0.8rem;
+            font-weight: bold;
+            cursor: pointer;
+            opacity: 0;
+            transition: all 0.3s;
+            z-index: 10;
+        }
+
+        .capability-card:hover .quick-copy-btn {
+            opacity: 1;
+        }
+
+        .quick-copy-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 15px var(--glow-green);
+        }
+
+        /* Favorite Star Button */
+        .favorite-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: transparent;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            opacity: 0.3;
+            transition: all 0.3s;
+            z-index: 10;
+        }
+
+        .favorite-btn:hover {
+            opacity: 1;
+            transform: scale(1.2);
+        }
+
+        .favorite-btn.favorited {
+            opacity: 1;
+            animation: pulse 2s infinite;
+        }
+
+        /* Keyboard Shortcuts Panel */
+        .shortcuts-panel {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: rgba(0, 0, 0, 0.95);
+            border: 2px solid var(--matrix-green);
+            border-radius: 10px;
+            padding: 1.5rem;
+            max-width: 300px;
+            z-index: 9999;
+            display: none;
+            box-shadow: 0 0 30px var(--glow-green);
+        }
+
+        .shortcuts-panel.active {
+            display: block;
+            animation: slideInUp 0.3s;
+        }
+
+        @keyframes slideInUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .shortcuts-panel h3 {
+            margin-bottom: 1rem;
+            text-align: center;
+            text-transform: uppercase;
+        }
+
+        .shortcut-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .shortcut-key {
+            background: var(--matrix-green);
+            color: var(--deep-black);
+            padding: 0.2rem 0.5rem;
+            border-radius: 3px;
+            font-weight: bold;
+            font-size: 0.8rem;
+        }
+
+        .shortcut-desc {
+            opacity: 0.8;
+            font-size: 0.85rem;
+        }
+
+        /* Floating Action Button */
+        .fab {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 60px;
+            height: 60px;
+            background: var(--matrix-green);
+            color: var(--deep-black);
+            border: none;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 0 30px var(--glow-green);
+            z-index: 9998;
+            transition: all 0.3s;
+        }
+
+        .fab:hover {
+            transform: scale(1.1) rotate(90deg);
+            box-shadow: 0 0 50px var(--glow-green);
+        }
+
+        /* Stats Badge */
+        .stats-badge {
+            position: fixed;
+            top: 2rem;
+            left: 2rem;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            padding: 1rem;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+            min-width: 200px;
+        }
+
+        .stats-badge h4 {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+            opacity: 0.7;
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.3rem 0;
+            font-size: 0.9rem;
+        }
+
+        .stat-value {
+            color: var(--matrix-green);
+            font-weight: bold;
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            margin-top: 0.5rem;
+            height: 5px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: var(--matrix-green);
+            width: 0%;
+            transition: width 0.5s;
+            box-shadow: 0 0 10px var(--glow-green);
+        }
+
+        /* Filter Panel */
+        .filter-panel {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .filter-group {
+            margin-bottom: 1rem;
+        }
+
+        .filter-label {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+        }
+
+        .filter-pills {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-pill {
+            padding: 0.5rem 1rem;
+            background: transparent;
+            border: 2px solid var(--glass-border);
+            border-radius: 20px;
+            color: var(--matrix-green);
+            font-family: 'Courier New', Consolas, monospace;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .filter-pill:hover {
+            border-color: var(--matrix-green);
+            background: var(--glass-bg);
+        }
+
+        .filter-pill.active {
+            background: var(--matrix-green);
+            color: var(--deep-black);
+            border-color: var(--matrix-green);
+        }
+
+        /* Comparison Mode */
+        .comparison-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .comparison-slot {
+            background: var(--glass-bg);
+            border: 2px dashed var(--glass-border);
+            border-radius: 10px;
+            padding: 2rem;
+            text-align: center;
+            min-height: 400px;
+            position: relative;
+        }
+
+        .comparison-slot.filled {
+            border-style: solid;
+            border-color: var(--matrix-green);
+        }
+
+        .comparison-prompt-card {
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 5px;
+            padding: 1.5rem;
+            text-align: left;
+        }
+
         /* Wake Up Neo Easter Egg */
         .wake-up-neo {
             position: fixed;
@@ -1951,6 +2208,95 @@
             <div class="modal-body" id="modal-body">
                 <!-- Content injected by JavaScript -->
             </div>
+        </div>
+    </div>
+
+    <!-- Stats Badge -->
+    <div class="stats-badge" id="stats-badge">
+        <h4>📊 Your Activity</h4>
+        <div class="stat-row">
+            <span>Prompts Viewed:</span>
+            <span class="stat-value" id="stat-viewed">0</span>
+        </div>
+        <div class="stat-row">
+            <span>Copied:</span>
+            <span class="stat-value" id="stat-copied">0</span>
+        </div>
+        <div class="stat-row">
+            <span>Favorites:</span>
+            <span class="stat-value" id="stat-favorites">0</span>
+        </div>
+        <div class="stat-row">
+            <span>Built Custom:</span>
+            <span class="stat-value" id="stat-built">0</span>
+        </div>
+        <div class="progress-container">
+            <div class="progress-bar" id="exploration-progress"></div>
+        </div>
+        <div style="font-size: 0.75rem; opacity: 0.6; margin-top: 0.5rem; text-align: center;">
+            <span id="progress-text">0% Explored</span>
+        </div>
+    </div>
+
+    <!-- Keyboard Shortcuts Panel -->
+    <div class="shortcuts-panel" id="shortcuts-panel">
+        <h3>⌨️ Keyboard Shortcuts</h3>
+        <div class="shortcut-item">
+            <span class="shortcut-desc">Search</span>
+            <span class="shortcut-key">Ctrl+K</span>
+        </div>
+        <div class="shortcut-item">
+            <span class="shortcut-desc">Close Modal</span>
+            <span class="shortcut-key">ESC</span>
+        </div>
+        <div class="shortcut-item">
+            <span class="shortcut-desc">Builder Tab</span>
+            <span class="shortcut-key">B</span>
+        </div>
+        <div class="shortcut-item">
+            <span class="shortcut-desc">Analytics Tab</span>
+            <span class="shortcut-key">A</span>
+        </div>
+        <div class="shortcut-item">
+            <span class="shortcut-desc">Favorites</span>
+            <span class="shortcut-key">F</span>
+        </div>
+        <div class="shortcut-item">
+            <span class="shortcut-desc">Show Shortcuts</span>
+            <span class="shortcut-key">?</span>
+        </div>
+        <div class="shortcut-item">
+            <span class="shortcut-desc">Random Prompt</span>
+            <span class="shortcut-key">R</span>
+        </div>
+        <div style="text-align: center; margin-top: 1rem;">
+            <button class="action-btn" onclick="toggleShortcuts()">CLOSE</button>
+        </div>
+    </div>
+
+    <!-- Floating Action Button -->
+    <button class="fab" id="fab" onclick="toggleFabMenu()" title="Quick Actions">
+        ⚡
+    </button>
+
+    <!-- FAB Menu (appears on click) -->
+    <div id="fab-menu" style="display: none; position: fixed; bottom: 5rem; right: 2rem; z-index: 9997;">
+        <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+            <button class="action-btn" onclick="showFavorites()" style="white-space: nowrap;">
+                ⭐ Favorites (<span id="fav-count">0</span>)
+            </button>
+            <button class="action-btn" onclick="exportAllPrompts()" style="white-space: nowrap;">
+                💾 Export All
+            </button>
+            <button class="action-btn" onclick="toggleShortcuts()" style="white-space: nowrap;">
+                ⌨️ Shortcuts
+            </button>
+            <button class="action-btn" onclick="randomPrompt()" style="white-space: nowrap;">
+                🎲 Random
+            </button>
+            <button class="action-btn" onclick="resetStats()" style="white-space: nowrap;">
+                🔄 Reset Stats
+            </button>
         </div>
     </div>
 
@@ -3372,6 +3718,349 @@ Speedup vs sequential: ${speedupFactor}x faster`;
                 }, 100);
             }
         }
+
+        // ========== ULTRA FEATURES: STATS, FAVORITES, KEYBOARD SHORTCUTS ==========
+
+        // LocalStorage Management
+        const STORAGE_KEYS = {
+            stats: 'matrix_stats',
+            favorites: 'matrix_favorites',
+            viewed: 'matrix_viewed_prompts'
+        };
+
+        function getStats() {
+            const stored = localStorage.getItem(STORAGE_KEYS.stats);
+            return stored ? JSON.parse(stored) : {
+                viewed: 0,
+                copied: 0,
+                favorites: 0,
+                built: 0
+            };
+        }
+
+        function saveStats(stats) {
+            localStorage.setItem(STORAGE_KEYS.stats, JSON.stringify(stats));
+            updateStatsDisplay();
+        }
+
+        function incrementStat(stat) {
+            const stats = getStats();
+            stats[stat]++;
+            saveStats(stats);
+        }
+
+        function updateStatsDisplay() {
+            const stats = getStats();
+            document.getElementById('stat-viewed').textContent = stats.viewed;
+            document.getElementById('stat-copied').textContent = stats.copied;
+            document.getElementById('stat-favorites').textContent = stats.favorites;
+            document.getElementById('stat-built').textContent = stats.built;
+
+            // Update progress (total unique prompts viewed out of 40)
+            const viewedPrompts = getViewedPrompts();
+            const progress = Math.min((viewedPrompts.size / 40) * 100, 100);
+            document.getElementById('exploration-progress').style.width = progress + '%';
+            document.getElementById('progress-text').textContent = Math.floor(progress) + '% Explored';
+        }
+
+        function getViewedPrompts() {
+            const stored = localStorage.getItem(STORAGE_KEYS.viewed);
+            return stored ? new Set(JSON.parse(stored)) : new Set();
+        }
+
+        function addViewedPrompt(promptId) {
+            const viewed = getViewedPrompts();
+            if (!viewed.has(promptId)) {
+                viewed.add(promptId);
+                localStorage.setItem(STORAGE_KEYS.viewed, JSON.stringify([...viewed]));
+                incrementStat('viewed');
+            }
+        }
+
+        // Favorites System
+        function getFavorites() {
+            const stored = localStorage.getItem(STORAGE_KEYS.favorites);
+            return stored ? new Set(JSON.parse(stored)) : new Set();
+        }
+
+        function toggleFavorite(promptId) {
+            const favorites = getFavorites();
+            if (favorites.has(promptId)) {
+                favorites.delete(promptId);
+            } else {
+                favorites.add(promptId);
+            }
+            localStorage.setItem(STORAGE_KEYS.favorites, JSON.stringify([...favorites]));
+
+            const stats = getStats();
+            stats.favorites = favorites.size;
+            saveStats(stats);
+            updateFavoriteButtons();
+
+            showNotification(favorites.has(promptId) ? '⭐ Added to favorites!' : '✨ Removed from favorites');
+        }
+
+        function updateFavoriteButtons() {
+            const favorites = getFavorites();
+            document.getElementById('fav-count').textContent = favorites.size;
+
+            // Update all favorite buttons on cards
+            document.querySelectorAll('.favorite-btn').forEach(btn => {
+                const promptId = btn.dataset.promptId;
+                if (favorites.has(promptId)) {
+                    btn.classList.add('favorited');
+                    btn.textContent = '⭐';
+                } else {
+                    btn.classList.remove('favorited');
+                    btn.textContent = '☆';
+                }
+            });
+        }
+
+        function showFavorites() {
+            const favorites = getFavorites();
+            if (favorites.size === 0) {
+                showNotification('No favorites yet! Click the star on any prompt card.');
+                return;
+            }
+
+            const modal = document.getElementById('modal');
+            const modalTitle = document.getElementById('modal-title');
+            const modalBody = document.getElementById('modal-body');
+
+            modalTitle.textContent = `⭐ Your Favorites (${favorites.size})`;
+            modalBody.innerHTML = `
+                <h3>Saved Prompts</h3>
+                <p>You have ${favorites.size} favorite prompt${favorites.size !== 1 ? 's' : ''}:</p>
+                <ul style="margin-top: 1rem;">
+                    ${[...favorites].map(id => `<li style="cursor: pointer; padding: 0.5rem; border-bottom: 1px solid var(--glass-border);" onclick="openModal('${id}'); closeModal();">${id.replace(/-/g, ' ').toUpperCase()}</li>`).join('')}
+                </ul>
+                <p style="margin-top: 1rem; opacity: 0.7;">Click any prompt to view details.</p>
+            `;
+
+            modal.classList.add('active');
+            toggleFabMenu(); // Close FAB menu
+        }
+
+        // Quick Copy Function
+        function quickCopyPrompt(promptId) {
+            const promptTexts = {
+                'great-migration': 'Transform 2,500 legacy PHP files into modern React/TypeScript components with 100% test coverage. Generate 250 parallel agents, each handling 10 files independently with full migration to microservices architecture.',
+                'documentation-engine': 'Analyze 3,500 codebase files across 50 microservices and generate comprehensive technical documentation: API references, tutorials, architecture guides, and troubleshooting docs with automated cross-references.',
+                'knowledge-synthesizer': 'Read 75 academic research papers and generate 200 interconnected educational articles for different expertise levels, plus 500 concept cards and a 10,000-node knowledge graph.',
+                'automation-orchestrator': 'Design 50 business processes and generate 300 workflow automation scripts, 150 integration connectors, 500 validation rules with monitoring dashboards.',
+                'universe-architect': 'Take a single story premise and generate a complete fictional universe: 300 world elements, 200 character profiles, 100 locations, 500 plot threads—all interconnected.',
+                'system-designer': 'Convert requirements into complete system architecture: 100 API specifications, 500 database schemas, 200 service blueprints, 1,000 deployment configurations.',
+                'data-warehouse-genesis': 'Design and generate 2,000 ETL pipelines, 5,000 dbt models, 500 data quality frameworks, and 1,000 monitoring dashboards from 100 source systems.',
+                'api-universe': 'Generate 10,000 RESTful endpoints across 200 microservices with complete OpenAPI specs, 10,000 unit tests, 5,000 integration tests, and SDK libraries in 8 languages.',
+                'test-cathedral': 'Generate 16,000 comprehensive tests: 10,000 unit tests, 5,000 integration tests, 1,000 end-to-end tests with full coverage reports and CI/CD integration.',
+                'dnd-campaign': 'Create a complete 20-session D&D campaign with 100+ NPCs with full stat blocks, 50+ detailed locations, encounter design, treasure systems, and dynamic plot threads responding to player choices.'
+            };
+
+            const text = promptTexts[promptId] || 'Orchestration prompt for ' + promptId;
+            copyToClipboard(text, '✅ Prompt copied!');
+            incrementStat('copied');
+        }
+
+        // FAB Menu Toggle
+        function toggleFabMenu() {
+            const menu = document.getElementById('fab-menu');
+            const fab = document.getElementById('fab');
+            if (menu.style.display === 'none') {
+                menu.style.display = 'block';
+                menu.style.animation = 'slideInUp 0.3s';
+                fab.style.transform = 'rotate(135deg)';
+            } else {
+                menu.style.display = 'none';
+                fab.style.transform = 'rotate(0deg)';
+            }
+        }
+
+        // Keyboard Shortcuts Toggle
+        function toggleShortcuts() {
+            const panel = document.getElementById('shortcuts-panel');
+            panel.classList.toggle('active');
+        }
+
+        // Export All Prompts
+        function exportAllPrompts() {
+            const allPrompts = `# THE MATRIX - ALL ORCHESTRATION PROMPTS
+
+## 10 Mind-Blowing Flagship Prompts
+
+1. **The Great Migration**
+Transform 2,500 legacy PHP files into modern React/TypeScript components with 100% test coverage.
+- Agents: 250 parallel
+- Time: 15 minutes
+- Speedup: 10,000x
+
+2. **Documentation Engine**
+Generate comprehensive docs for 3,500 codebase files across 50 microservices.
+- Agents: 350 parallel
+- Artifacts: 400 pages
+- Time: 18 minutes
+
+3. **Knowledge Synthesizer**
+Analyze 75 research papers and generate 700 interconnected artifacts.
+- Agents: 15 parallel
+- Artifacts: 700 total
+- Time: 12 minutes
+
+4. **Automation Orchestrator**
+Design 50 business processes with 950 automation artifacts.
+- Agents: 50 parallel
+- Artifacts: 950 total
+- Time: 10 minutes
+
+5. **Universe Architect**
+Generate complete fictional universe with 1,100 elements.
+- Agents: 10 parallel
+- Elements: 1,100
+- Time: 20 minutes
+
+6. **System Designer**
+Convert requirements into 1,800 system specifications.
+- Agents: 100 parallel
+- Specs: 1,800
+- Time: 14 minutes
+
+7. **Data Warehouse Genesis**
+Design 8,500 data engineering artifacts from 100 sources.
+- Agents: 100 parallel
+- Artifacts: 8,500
+- Time: 25 minutes
+
+8. **The Infinite API**
+Generate 25,000+ API artifacts across 200 microservices.
+- Agents: 200 parallel
+- Artifacts: 25,000+
+- Time: 22 minutes
+
+9. **Test Cathedral**
+Generate 16,000 comprehensive tests with CI/CD.
+- Agents: 200 parallel
+- Tests: 16,000
+- Time: 16 minutes
+
+10. **D&D Campaign Architect**
+Create complete 20-session campaign with 500+ elements.
+- Agents: 10 parallel
+- Elements: 500+
+- Time: 18 minutes
+
+## How to Use These Prompts
+
+1. Choose a prompt that matches your domain
+2. Adapt it to your specific project
+3. Paste into Claude Code
+4. The Matrix orchestrator will:
+   - Analyze your project
+   - Generate work breakdown structure
+   - Spawn N parallel agents
+   - Generate N×M artifacts
+   - Integrate everything
+
+---
+Generated by The Matrix AI Orchestration System
+`;
+
+            const blob = new Blob([allPrompts], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'matrix-all-prompts.txt';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            showNotification('📦 All prompts exported!');
+            toggleFabMenu();
+        }
+
+        // Random Prompt Selector
+        function randomPrompt() {
+            const allPrompts = [
+                'great-migration', 'documentation-engine', 'knowledge-synthesizer',
+                'automation-orchestrator', 'universe-architect', 'system-designer',
+                'data-warehouse-genesis', 'api-universe', 'test-cathedral', 'dnd-campaign'
+            ];
+
+            const random = allPrompts[Math.floor(Math.random() * allPrompts.length)];
+            openModal(random);
+            showNotification('🎲 Random prompt selected!');
+            toggleFabMenu();
+        }
+
+        // Reset Stats
+        function resetStats() {
+            if (confirm('Are you sure you want to reset all stats and favorites? This cannot be undone.')) {
+                localStorage.clear();
+                updateStatsDisplay();
+                updateFavoriteButtons();
+                showNotification('🔄 All stats and favorites reset!');
+                toggleFabMenu();
+            }
+        }
+
+        // Keyboard Shortcuts Handler
+        document.addEventListener('keydown', (e) => {
+            // Ignore if typing in input/textarea
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+                return;
+            }
+
+            switch(e.key.toLowerCase()) {
+                case '?':
+                    toggleShortcuts();
+                    break;
+                case 'b':
+                    document.querySelector('.tab-button:nth-child(5)').click(); // Builder tab
+                    break;
+                case 'a':
+                    document.querySelector('.tab-button:nth-child(6)').click(); // Analytics tab
+                    break;
+                case 'f':
+                    showFavorites();
+                    break;
+                case 'r':
+                    randomPrompt();
+                    break;
+                case 'k':
+                    if (e.ctrlKey || e.metaKey) {
+                        e.preventDefault();
+                        document.getElementById('global-search').focus();
+                    }
+                    break;
+            }
+        });
+
+        // Track modal opens
+        const originalOpenModal = openModal;
+        window.openModal = function(promptId) {
+            addViewedPrompt(promptId);
+            originalOpenModal(promptId);
+        };
+
+        // Track custom prompt generation
+        const originalGeneratePrompt = generatePrompt;
+        window.generatePrompt = function() {
+            originalGeneratePrompt();
+            incrementStat('built');
+        };
+
+        // Initialize stats on load
+        updateStatsDisplay();
+        updateFavoriteButtons();
+
+        // Close FAB menu when clicking outside
+        document.addEventListener('click', (e) => {
+            const fab = document.getElementById('fab');
+            const menu = document.getElementById('fab-menu');
+            if (menu.style.display !== 'none' && !fab.contains(e.target) && !menu.contains(e.target)) {
+                toggleFabMenu();
+            }
+        });
 
         // Console Easter Egg
         console.log('%c WAKE UP, NEO... ', 'background: #000; color: #00ff41; font-size: 20px; font-family: monospace; padding: 10px;');

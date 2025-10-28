@@ -16366,6 +16366,735 @@ ${JSON.stringify(state, null, 2)}
         window.windowSnappingSystem = new WindowSnappingSystem();
 
         // ============================================
+        // PWA (PROGRESSIVE WEB APP) SYSTEM
+        // ============================================
+        class PWAManager {
+            constructor() {
+                this.manifest = {
+                    name: "Windows 95 Desktop Simulator",
+                    short_name: "Win95 Sim",
+                    description: "Fully interactive Windows 95 desktop simulator with working programs, draggable windows, and authentic UI",
+                    start_url: "./",
+                    display: "standalone",
+                    background_color: "#008080",
+                    theme_color: "#008080",
+                    orientation: "any",
+                    categories: ["entertainment", "productivity", "utilities"],
+                    lang: "en-US",
+                    dir: "ltr",
+                    icons: [
+                        {
+                            src: this.generateIcon(192),
+                            sizes: "192x192",
+                            type: "image/png",
+                            purpose: "any maskable"
+                        },
+                        {
+                            src: this.generateIcon(512),
+                            sizes: "512x512",
+                            type: "image/png",
+                            purpose: "any maskable"
+                        }
+                    ],
+                    screenshots: [],
+                    shortcuts: [
+                        {
+                            name: "Open Notepad",
+                            short_name: "Notepad",
+                            description: "Open a new Notepad window",
+                            url: "./?open=notepad",
+                            icons: [{ src: this.generateIcon(96), sizes: "96x96" }]
+                        },
+                        {
+                            name: "Open Calculator",
+                            short_name: "Calculator",
+                            description: "Open the Calculator",
+                            url: "./?open=calculator",
+                            icons: [{ src: this.generateIcon(96), sizes: "96x96" }]
+                        },
+                        {
+                            name: "Open Paint",
+                            short_name: "Paint",
+                            description: "Open Paint program",
+                            url: "./?open=paint",
+                            icons: [{ src: this.generateIcon(96), sizes: "96x96" }]
+                        }
+                    ]
+                };
+
+                this.installPrompt = null;
+                this.isInstalled = false;
+
+                this.init();
+            }
+
+            /**
+             * Initialize PWA system
+             */
+            init() {
+                // Generate and inject manifest
+                this.injectManifest();
+
+                // Listen for install prompt
+                window.addEventListener('beforeinstallprompt', (e) => {
+                    e.preventDefault();
+                    this.installPrompt = e;
+                    this.showInstallBanner();
+                });
+
+                // Check if already installed
+                window.addEventListener('appinstalled', () => {
+                    this.isInstalled = true;
+                    this.installPrompt = null;
+                    console.log('PWA installed successfully!');
+
+                    if (window.toastManager) {
+                        window.toastManager.show(
+                            '✅ Installed!',
+                            'Windows 95 Simulator has been installed as an app!',
+                            5000
+                        );
+                    }
+                });
+
+                // Check if running as installed app
+                if (window.matchMedia('(display-mode: standalone)').matches) {
+                    this.isInstalled = true;
+                    console.log('Running as installed PWA');
+                }
+
+                // Handle app shortcuts
+                this.handleShortcuts();
+            }
+
+            /**
+             * Generate icon data URL
+             * @param {number} size - Icon size
+             * @returns {string} Data URL
+             */
+            generateIcon(size) {
+                const canvas = document.createElement('canvas');
+                canvas.width = size;
+                canvas.height = size;
+                const ctx = canvas.getContext('2d');
+
+                // Windows 95 logo style
+                const gradient = ctx.createLinearGradient(0, 0, size, size);
+                gradient.addColorStop(0, '#ff0000');
+                gradient.addColorStop(0.25, '#ffff00');
+                gradient.addColorStop(0.5, '#00ff00');
+                gradient.addColorStop(0.75, '#0000ff');
+                gradient.addColorStop(1, '#ff00ff');
+
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, 0, size, size);
+
+                // Add shadow effect
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+                ctx.fillRect(size * 0.1, size * 0.1, size * 0.8, size * 0.8);
+
+                // Add highlight
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+                ctx.fillRect(size * 0.2, size * 0.2, size * 0.6, size * 0.6);
+
+                // Add "95" text
+                ctx.fillStyle = '#000';
+                ctx.font = `bold ${size * 0.3}px Arial`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('95', size / 2, size / 2);
+
+                return canvas.toDataURL();
+            }
+
+            /**
+             * Inject manifest into document
+             */
+            injectManifest() {
+                const manifestJSON = JSON.stringify(this.manifest);
+                const blob = new Blob([manifestJSON], { type: 'application/json' });
+                const manifestURL = URL.createObjectURL(blob);
+
+                const manifestLink = document.getElementById('pwa-manifest');
+                if (manifestLink) {
+                    manifestLink.href = manifestURL;
+                }
+            }
+
+            /**
+             * Show install banner to user
+             */
+            showInstallBanner() {
+                // Create install banner
+                const banner = document.createElement('div');
+                banner.id = 'pwa-install-banner';
+                banner.style.cssText = `
+                    position: fixed;
+                    bottom: 20px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    background: linear-gradient(135deg, #000080, #0000aa);
+                    color: white;
+                    padding: 16px 24px;
+                    border-radius: 8px;
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+                    z-index: 100000;
+                    display: flex;
+                    align-items: center;
+                    gap: 16px;
+                    animation: slideUp 0.3s ease-out;
+                    font-family: 'MS Sans Serif', Arial, sans-serif;
+                    max-width: 90%;
+                `;
+
+                banner.innerHTML = `
+                    <div style="font-size: 24px;">📱</div>
+                    <div style="flex: 1;">
+                        <div style="font-weight: bold; margin-bottom: 4px;">Install Windows 95 Simulator</div>
+                        <div style="font-size: 11px; opacity: 0.9;">Add to your home screen for offline access</div>
+                    </div>
+                    <button class="btn primary" id="pwa-install-btn" style="white-space: nowrap;">Install</button>
+                    <button class="btn" id="pwa-dismiss-btn">✕</button>
+                `;
+
+                // Add animation
+                const style = document.createElement('style');
+                style.textContent = `
+                    @keyframes slideUp {
+                        from {
+                            opacity: 0;
+                            transform: translateX(-50%) translateY(20px);
+                        }
+                        to {
+                            opacity: 1;
+                            transform: translateX(-50%) translateY(0);
+                        }
+                    }
+                `;
+                document.head.appendChild(style);
+
+                document.body.appendChild(banner);
+
+                // Install button handler
+                document.getElementById('pwa-install-btn').addEventListener('click', () => {
+                    this.promptInstall();
+                    banner.remove();
+                });
+
+                // Dismiss button handler
+                document.getElementById('pwa-dismiss-btn').addEventListener('click', () => {
+                    banner.remove();
+                });
+
+                // Auto-dismiss after 15 seconds
+                setTimeout(() => {
+                    if (banner.parentElement) {
+                        banner.remove();
+                    }
+                }, 15000);
+            }
+
+            /**
+             * Prompt user to install PWA
+             */
+            async promptInstall() {
+                if (!this.installPrompt) {
+                    console.log('Install prompt not available');
+                    return;
+                }
+
+                try {
+                    const result = await this.installPrompt.prompt();
+                    console.log('Install prompt result:', result.outcome);
+
+                    if (result.outcome === 'accepted') {
+                        console.log('User accepted install');
+                        window.soundManager?.playInfo();
+                    } else {
+                        console.log('User dismissed install');
+                    }
+
+                    this.installPrompt = null;
+                } catch (error) {
+                    console.error('Error prompting install:', error);
+                }
+            }
+
+            /**
+             * Handle app shortcuts when opened
+             */
+            handleShortcuts() {
+                const urlParams = new URLSearchParams(window.location.search);
+                const openParam = urlParams.get('open');
+
+                if (openParam && window.emulator) {
+                    // Wait for emulator to be ready
+                    setTimeout(() => {
+                        switch (openParam) {
+                            case 'notepad':
+                                window.emulator.openNotepad();
+                                break;
+                            case 'calculator':
+                                window.emulator.openCalculator();
+                                break;
+                            case 'paint':
+                                window.emulator.openPaint();
+                                break;
+                        }
+                    }, 1000);
+                }
+            }
+
+            /**
+             * Check if app can be installed
+             * @returns {boolean} Can install
+             */
+            canInstall() {
+                return this.installPrompt !== null && !this.isInstalled;
+            }
+
+            /**
+             * Check if app is installed
+             * @returns {boolean} Is installed
+             */
+            isAppInstalled() {
+                return this.isInstalled || window.matchMedia('(display-mode: standalone)').matches;
+            }
+
+            /**
+             * Get install status
+             * @returns {Object} Status object
+             */
+            getStatus() {
+                return {
+                    canInstall: this.canInstall(),
+                    isInstalled: this.isAppInstalled(),
+                    hasPrompt: this.installPrompt !== null,
+                    displayMode: window.matchMedia('(display-mode: standalone)').matches ? 'standalone' : 'browser'
+                };
+            }
+        }
+
+        // Create global PWA manager instance
+        window.pwaManager = new PWAManager();
+
+        // ============================================
+        // PERFORMANCE MONITORING DASHBOARD
+        // ============================================
+        class PerformanceMonitor {
+            constructor() {
+                this.metrics = {
+                    fps: 0,
+                    memory: { used: 0, total: 0, limit: 0 },
+                    events: { total: 0, perSecond: 0 },
+                    windows: { open: 0, minimized: 0 },
+                    network: { requests: 0, errors: 0 },
+                    storage: { used: 0, available: 0 },
+                    uptime: 0
+                };
+
+                this.fpsHistory = [];
+                this.eventHistory = [];
+                this.startTime = Date.now();
+                this.lastFpsUpdate = Date.now();
+                this.frameCount = 0;
+                this.eventCount = 0;
+                this.lastEventCount = 0;
+
+                this.isMonitoring = false;
+                this.dashboardWindow = null;
+
+                this.init();
+            }
+
+            /**
+             * Initialize monitoring
+             */
+            init() {
+                // Start FPS tracking
+                this.trackFPS();
+
+                // Track events
+                this.trackEvents();
+
+                // Update metrics every second
+                setInterval(() => this.updateMetrics(), 1000);
+
+                // Add global accessor
+                window.showPerformance = () => this.showDashboard();
+            }
+
+            /**
+             * Track FPS
+             */
+            trackFPS() {
+                const updateFPS = () => {
+                    this.frameCount++;
+
+                    const now = Date.now();
+                    const elapsed = now - this.lastFpsUpdate;
+
+                    if (elapsed >= 1000) {
+                        this.metrics.fps = Math.round((this.frameCount / elapsed) * 1000);
+                        this.fpsHistory.push(this.metrics.fps);
+
+                        // Keep only last 60 seconds
+                        if (this.fpsHistory.length > 60) {
+                            this.fpsHistory.shift();
+                        }
+
+                        this.frameCount = 0;
+                        this.lastFpsUpdate = now;
+                    }
+
+                    requestAnimationFrame(updateFPS);
+                };
+
+                requestAnimationFrame(updateFPS);
+            }
+
+            /**
+             * Track events
+             */
+            trackEvents() {
+                const eventTypes = ['click', 'keydown', 'touchstart', 'mousemove'];
+
+                eventTypes.forEach(type => {
+                    document.addEventListener(type, () => {
+                        this.eventCount++;
+                        this.metrics.events.total++;
+                    }, { passive: true, capture: true });
+                });
+
+                // Calculate events per second
+                setInterval(() => {
+                    this.metrics.events.perSecond = this.eventCount - this.lastEventCount;
+                    this.lastEventCount = this.eventCount;
+
+                    this.eventHistory.push(this.metrics.events.perSecond);
+                    if (this.eventHistory.length > 60) {
+                        this.eventHistory.shift();
+                    }
+                }, 1000);
+            }
+
+            /**
+             * Update all metrics
+             */
+            updateMetrics() {
+                // Memory (if available)
+                if (performance.memory) {
+                    this.metrics.memory = {
+                        used: Math.round(performance.memory.usedJSHeapSize / 1048576), // MB
+                        total: Math.round(performance.memory.totalJSHeapSize / 1048576),
+                        limit: Math.round(performance.memory.jsHeapSizeLimit / 1048576)
+                    };
+                }
+
+                // Windows
+                const windows = document.querySelectorAll('.window');
+                this.metrics.windows = {
+                    open: windows.length,
+                    minimized: document.querySelectorAll('.window.minimized').length
+                };
+
+                // Storage
+                if (navigator.storage && navigator.storage.estimate) {
+                    navigator.storage.estimate().then(estimate => {
+                        this.metrics.storage = {
+                            used: Math.round(estimate.usage / 1048576), // MB
+                            available: Math.round(estimate.quota / 1048576)
+                        };
+                    });
+                }
+
+                // Uptime
+                this.metrics.uptime = Math.floor((Date.now() - this.startTime) / 1000);
+            }
+
+            /**
+             * Show performance dashboard
+             */
+            showDashboard() {
+                if (this.dashboardWindow && this.dashboardWindow.parentElement) {
+                    // Focus existing window
+                    if (window.emulator && window.emulator.windowManager) {
+                        window.emulator.windowManager.focusWindow(this.dashboardWindow);
+                    }
+                    return;
+                }
+
+                const content = this.createDashboardContent();
+
+                if (window.emulator && window.emulator.windowManager) {
+                    this.dashboardWindow = window.emulator.windowManager.createWindow(
+                        '📊 Performance Monitor',
+                        content,
+                        { width: 600, height: 500 }
+                    );
+
+                    // Center window
+                    if (this.dashboardWindow) {
+                        this.dashboardWindow.style.left = `${(window.innerWidth - 600) / 2}px`;
+                        this.dashboardWindow.style.top = `${(window.innerHeight - 500) / 2}px`;
+                    }
+
+                    // Update dashboard every 500ms
+                    this.isMonitoring = true;
+                    this.updateDashboard();
+                }
+            }
+
+            /**
+             * Create dashboard HTML
+             */
+            createDashboardContent() {
+                return `
+                    <div id="perf-dashboard" style="padding: 16px; font-family: 'MS Sans Serif', monospace; height: 100%; overflow-y: auto; background: #c0c0c0;">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
+                            <!-- FPS -->
+                            <div class="perf-card">
+                                <div class="perf-label">FPS</div>
+                                <div id="perf-fps" class="perf-value">--</div>
+                                <div class="perf-chart" id="fps-chart"></div>
+                            </div>
+
+                            <!-- Events -->
+                            <div class="perf-card">
+                                <div class="perf-label">Events/sec</div>
+                                <div id="perf-events" class="perf-value">--</div>
+                                <div class="perf-chart" id="events-chart"></div>
+                            </div>
+
+                            <!-- Memory -->
+                            <div class="perf-card">
+                                <div class="perf-label">Memory (MB)</div>
+                                <div id="perf-memory" class="perf-value">--</div>
+                                <div style="font-size: 9px; color: #666; margin-top: 4px;">
+                                    <span id="perf-memory-details">--</span>
+                                </div>
+                            </div>
+
+                            <!-- Windows -->
+                            <div class="perf-card">
+                                <div class="perf-label">Windows</div>
+                                <div id="perf-windows" class="perf-value">--</div>
+                                <div style="font-size: 9px; color: #666; margin-top: 4px;">
+                                    <span id="perf-windows-details">--</span>
+                                </div>
+                            </div>
+
+                            <!-- Storage -->
+                            <div class="perf-card">
+                                <div class="perf-label">Storage (MB)</div>
+                                <div id="perf-storage" class="perf-value">--</div>
+                                <div style="font-size: 9px; color: #666; margin-top: 4px;">
+                                    <span id="perf-storage-details">--</span>
+                                </div>
+                            </div>
+
+                            <!-- Uptime -->
+                            <div class="perf-card">
+                                <div class="perf-label">Uptime</div>
+                                <div id="perf-uptime" class="perf-value">--</div>
+                            </div>
+                        </div>
+
+                        <!-- System Info -->
+                        <div class="perf-card" style="margin-bottom: 12px;">
+                            <div class="perf-label">System Information</div>
+                            <div style="font-size: 10px; line-height: 1.6; margin-top: 8px;">
+                                <div><strong>User Agent:</strong> <span id="perf-ua">--</span></div>
+                                <div><strong>Platform:</strong> <span id="perf-platform">--</span></div>
+                                <div><strong>Screen:</strong> <span id="perf-screen">--</span></div>
+                                <div><strong>Pixel Ratio:</strong> <span id="perf-ratio">--</span></div>
+                                <div><strong>Online:</strong> <span id="perf-online">--</span></div>
+                            </div>
+                        </div>
+
+                        <!-- Performance Tips -->
+                        <div class="perf-card">
+                            <div class="perf-label">💡 Performance Tips</div>
+                            <div id="perf-tips" style="font-size: 10px; line-height: 1.6; margin-top: 8px;">
+                                <div>✓ Close unused windows to free memory</div>
+                                <div>✓ FPS below 30 indicates performance issues</div>
+                                <div>✓ High event rate may cause lag</div>
+                            </div>
+                        </div>
+
+                        <style>
+                            .perf-card {
+                                background: white;
+                                border: 2px solid;
+                                border-color: #dfdfdf #808080 #808080 #dfdfdf;
+                                padding: 12px;
+                                box-shadow: 1px 1px 0 #000;
+                            }
+                            .perf-label {
+                                font-size: 11px;
+                                font-weight: bold;
+                                color: #000080;
+                                margin-bottom: 6px;
+                            }
+                            .perf-value {
+                                font-size: 24px;
+                                font-weight: bold;
+                                color: #000;
+                            }
+                            .perf-chart {
+                                height: 40px;
+                                margin-top: 8px;
+                                background: #f0f0f0;
+                                border: 1px solid #999;
+                                position: relative;
+                                overflow: hidden;
+                            }
+                            .perf-bar {
+                                position: absolute;
+                                bottom: 0;
+                                width: 2px;
+                                background: #000080;
+                            }
+                        </style>
+                    </div>
+                `;
+            }
+
+            /**
+             * Update dashboard continuously
+             */
+            updateDashboard() {
+                if (!this.isMonitoring || !this.dashboardWindow || !this.dashboardWindow.parentElement) {
+                    this.isMonitoring = false;
+                    return;
+                }
+
+                // Update values
+                const fpsEl = document.getElementById('perf-fps');
+                const eventsEl = document.getElementById('perf-events');
+                const memoryEl = document.getElementById('perf-memory');
+                const memoryDetailsEl = document.getElementById('perf-memory-details');
+                const windowsEl = document.getElementById('perf-windows');
+                const windowsDetailsEl = document.getElementById('perf-windows-details');
+                const storageEl = document.getElementById('perf-storage');
+                const storageDetailsEl = document.getElementById('perf-storage-details');
+                const uptimeEl = document.getElementById('perf-uptime');
+
+                if (fpsEl) fpsEl.textContent = this.metrics.fps;
+                if (eventsEl) eventsEl.textContent = this.metrics.events.perSecond;
+                if (memoryEl) memoryEl.textContent = this.metrics.memory.used;
+                if (memoryDetailsEl) memoryDetailsEl.textContent = `${this.metrics.memory.used} / ${this.metrics.memory.total} MB (Limit: ${this.metrics.memory.limit})`;
+                if (windowsEl) windowsEl.textContent = this.metrics.windows.open;
+                if (windowsDetailsEl) windowsDetailsEl.textContent = `${this.metrics.windows.minimized} minimized`;
+                if (storageEl) storageEl.textContent = this.metrics.storage.used;
+                if (storageDetailsEl) storageDetailsEl.textContent = `${this.metrics.storage.available} MB available`;
+
+                if (uptimeEl) {
+                    const hours = Math.floor(this.metrics.uptime / 3600);
+                    const minutes = Math.floor((this.metrics.uptime % 3600) / 60);
+                    const seconds = this.metrics.uptime % 60;
+                    uptimeEl.textContent = `${hours}h ${minutes}m ${seconds}s`;
+                }
+
+                // Update charts
+                this.updateChart('fps-chart', this.fpsHistory, 60);
+                this.updateChart('events-chart', this.eventHistory, 100);
+
+                // Update system info
+                const uaEl = document.getElementById('perf-ua');
+                const platformEl = document.getElementById('perf-platform');
+                const screenEl = document.getElementById('perf-screen');
+                const ratioEl = document.getElementById('perf-ratio');
+                const onlineEl = document.getElementById('perf-online');
+
+                if (uaEl) uaEl.textContent = navigator.userAgent.substring(0, 50) + '...';
+                if (platformEl) platformEl.textContent = navigator.platform;
+                if (screenEl) screenEl.textContent = `${screen.width}×${screen.height}`;
+                if (ratioEl) ratioEl.textContent = window.devicePixelRatio;
+                if (onlineEl) onlineEl.textContent = navigator.onLine ? '✅ Yes' : '❌ No';
+
+                // Color code FPS
+                if (fpsEl) {
+                    if (this.metrics.fps >= 50) {
+                        fpsEl.style.color = '#008000';
+                    } else if (this.metrics.fps >= 30) {
+                        fpsEl.style.color = '#ff8800';
+                    } else {
+                        fpsEl.style.color = '#cc0000';
+                    }
+                }
+
+                // Continue updating
+                setTimeout(() => this.updateDashboard(), 500);
+            }
+
+            /**
+             * Update mini chart
+             */
+            updateChart(containerId, data, maxValue) {
+                const container = document.getElementById(containerId);
+                if (!container) return;
+
+                container.innerHTML = '';
+
+                const width = container.offsetWidth;
+                const height = container.offsetHeight;
+                const barWidth = Math.max(2, width / data.length);
+
+                data.forEach((value, index) => {
+                    const bar = document.createElement('div');
+                    bar.className = 'perf-bar';
+                    bar.style.left = (index * barWidth) + 'px';
+                    bar.style.height = ((value / maxValue) * height) + 'px';
+                    bar.style.width = barWidth + 'px';
+                    container.appendChild(bar);
+                });
+            }
+
+            /**
+             * Get performance summary
+             */
+            getSummary() {
+                return {
+                    fps: this.metrics.fps,
+                    avgFps: this.fpsHistory.length > 0
+                        ? Math.round(this.fpsHistory.reduce((a, b) => a + b, 0) / this.fpsHistory.length)
+                        : 0,
+                    memory: this.metrics.memory,
+                    events: this.metrics.events,
+                    windows: this.metrics.windows,
+                    uptime: this.metrics.uptime,
+                    health: this.getHealthScore()
+                };
+            }
+
+            /**
+             * Calculate health score (0-100)
+             */
+            getHealthScore() {
+                let score = 100;
+
+                // FPS penalty
+                if (this.metrics.fps < 30) score -= 30;
+                else if (this.metrics.fps < 50) score -= 15;
+
+                // Memory penalty
+                const memoryPercent = (this.metrics.memory.used / this.metrics.memory.limit) * 100;
+                if (memoryPercent > 90) score -= 25;
+                else if (memoryPercent > 70) score -= 10;
+
+                // Event load penalty
+                if (this.metrics.events.perSecond > 100) score -= 15;
+                else if (this.metrics.events.perSecond > 50) score -= 5;
+
+                return Math.max(0, Math.min(100, score));
+            }
+        }
+
+        // Create global performance monitor instance
+        window.performanceMonitor = new PerformanceMonitor();
+
+        // ============================================
         // PERFORMANCE UTILITIES
         // ============================================
         const PerformanceUtils = {
@@ -19323,14 +20052,42 @@ Provide a brief, contextually relevant tip or comment. Be genuinely helpful, not
                     }
                 });
 
-                // Type "win95" anywhere easter egg
+                // Type secret codes anywhere
                 let typeBuffer = '';
                 document.addEventListener('keypress', (e) => {
-                    typeBuffer += e.key;
-                    if (typeBuffer.length > 5) typeBuffer = typeBuffer.slice(-5);
-                    if (typeBuffer === 'win95') {
-                        this.showWin95Facts();
-                        typeBuffer = '';
+                    typeBuffer += e.key.toLowerCase();
+                    if (typeBuffer.length > 20) typeBuffer = typeBuffer.slice(-20);
+
+                    // Check all secret codes
+                    const codes = {
+                        'win95': () => this.showWin95Facts(),
+                        'bsod': () => this.showBlueScreen(),
+                        'matrix': () => this.showMatrixRain(),
+                        'performance': () => window.showPerformance(),
+                        'doom': () => this.showDoomScreen(),
+                        'party': () => this.activatePartyMode(),
+                        'rainbow': () => this.activateRainbowMode(),
+                        'hacker': () => this.activateHackerMode(),
+                        'retro': () => this.showRetroScreen(),
+                        'secret': () => this.revealAllSecrets(),
+                        'clippy': () => this.clippyParty(),
+                        'gravity': () => this.activateGravity(),
+                        'flash': () => this.flashScreen(),
+                        'shake': () => this.shakeScreen(),
+                        'spin': () => this.spinWindows(),
+                        'ghost': () => this.ghostMode(),
+                        'disco': () => this.discoMode(),
+                        'zen': () => this.zenMode(),
+                        'chaos': () => this.chaosMode(),
+                        'time': () => this.showTimeTravel()
+                    };
+
+                    for (const [code, action] of Object.entries(codes)) {
+                        if (typeBuffer.endsWith(code)) {
+                            action();
+                            typeBuffer = '';
+                            break;
+                        }
                     }
                 });
 
@@ -19552,6 +20309,422 @@ Provide a brief, contextually relevant tip or comment. Be genuinely helpful, not
                         style.remove();
                     }, 1500);
                 }
+            }
+
+            // New Easter Egg: Matrix Rain
+            showMatrixRain() {
+                const canvas = document.createElement('canvas');
+                canvas.style.cssText = 'position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:99999;background:#000;';
+                document.body.appendChild(canvas);
+
+                const ctx = canvas.getContext('2d');
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+
+                const chars = '01WINDOWS95MATRIX';
+                const fontSize = 14;
+                const columns = canvas.width / fontSize;
+                const drops = Array(Math.floor(columns)).fill(1);
+
+                let frame = 0;
+                const maxFrames = 300; // 5 seconds at 60fps
+
+                const draw = () => {
+                    ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                    ctx.fillStyle = '#0F0';
+                    ctx.font = fontSize + 'px monospace';
+
+                    for (let i = 0; i < drops.length; i++) {
+                        const text = chars[Math.floor(Math.random() * chars.length)];
+                        ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+                        if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                            drops[i] = 0;
+                        }
+                        drops[i]++;
+                    }
+
+                    frame++;
+                    if (frame < maxFrames) {
+                        requestAnimationFrame(draw);
+                    } else {
+                        canvas.remove();
+                    }
+                };
+
+                draw();
+            }
+
+            // New Easter Egg: Doom Screen
+            showDoomScreen() {
+                const overlay = document.createElement('div');
+                overlay.style.cssText = `
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100vw;
+                    height: 100vh;
+                    background: #000;
+                    color: #ff0000;
+                    z-index: 100000;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-family: monospace;
+                    font-size: 48px;
+                    text-shadow: 0 0 20px #ff0000;
+                    cursor: pointer;
+                    animation: doom-fade 0.5s;
+                `;
+
+                overlay.innerHTML = `
+                    <div style="text-align: center;">
+                        <div style="font-size: 72px; margin-bottom: 20px;">💀</div>
+                        <div>DOOM MODE</div>
+                        <div style="font-size: 24px; margin-top: 20px; opacity: 0.7;">Click anywhere to exit</div>
+                    </div>
+                `;
+
+                const style = document.createElement('style');
+                style.textContent = '@keyframes doom-fade { from { opacity: 0; } to { opacity: 1; } }';
+                document.head.appendChild(style);
+
+                overlay.addEventListener('click', () => {
+                    overlay.remove();
+                    style.remove();
+                });
+
+                document.body.appendChild(overlay);
+                setTimeout(() => overlay.remove(), 5000);
+            }
+
+            // New Easter Egg: Party Mode
+            activatePartyMode() {
+                window.soundManager?.playStartup();
+                const style = document.createElement('style');
+                style.id = 'party-mode';
+                style.textContent = `
+                    * {
+                        animation: party-spin 2s infinite ease-in-out !important;
+                    }
+                    @keyframes party-spin {
+                        0%, 100% { transform: rotate(0deg) scale(1); }
+                        25% { transform: rotate(5deg) scale(1.05); }
+                        75% { transform: rotate(-5deg) scale(0.95); }
+                    }
+                `;
+                document.head.appendChild(style);
+
+                setTimeout(() => {
+                    const el = document.getElementById('party-mode');
+                    if (el) el.remove();
+                }, 5000);
+            }
+
+            // New Easter Egg: Rainbow Mode
+            activateRainbowMode() {
+                const style = document.createElement('style');
+                style.id = 'rainbow-mode';
+                style.textContent = `
+                    body { animation: rainbow-bg 3s infinite !important; }
+                    @keyframes rainbow-bg {
+                        0% { filter: hue-rotate(0deg); }
+                        100% { filter: hue-rotate(360deg); }
+                    }
+                `;
+                document.head.appendChild(style);
+
+                setTimeout(() => {
+                    const el = document.getElementById('rainbow-mode');
+                    if (el) el.remove();
+                }, 10000);
+            }
+
+            // New Easter Egg: Hacker Mode
+            activateHackerMode() {
+                const style = document.createElement('style');
+                style.id = 'hacker-mode';
+                style.textContent = `
+                    body { background: #000 !important; color: #0f0 !important; font-family: monospace !important; }
+                    .window { background: #001100 !important; border-color: #0f0 !important; color: #0f0 !important; }
+                    .window-titlebar { background: #003300 !important; }
+                    button { background: #002200 !important; color: #0f0 !important; border-color: #0f0 !important; }
+                `;
+                document.head.appendChild(style);
+
+                setTimeout(() => {
+                    const el = document.getElementById('hacker-mode');
+                    if (el) el.remove();
+                }, 15000);
+            }
+
+            // New Easter Egg: Retro Screen
+            showRetroScreen() {
+                const overlay = document.createElement('div');
+                overlay.style.cssText = `
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100vw;
+                    height: 100vh;
+                    background: repeating-linear-gradient(0deg, rgba(0,255,0,0.15), rgba(0,255,0,0.15) 1px, transparent 1px, transparent 2px);
+                    z-index: 99999;
+                    pointer-events: none;
+                    animation: crt-scan 8s linear infinite;
+                `;
+
+                const style = document.createElement('style');
+                style.textContent = `
+                    @keyframes crt-scan {
+                        from { background-position: 0 0; }
+                        to { background-position: 0 100vh; }
+                    }
+                `;
+                document.head.appendChild(style);
+                document.body.appendChild(overlay);
+
+                setTimeout(() => {
+                    overlay.remove();
+                    style.remove();
+                }, 10000);
+            }
+
+            // New Easter Egg: Reveal All Secrets
+            revealAllSecrets() {
+                const secrets = [
+                    '🎮 KONAMI CODE - Up Up Down Down Left Right Left Right B A',
+                    '🖱️ Triple-click taskbar for a surprise',
+                    '⌨️ Type "matrix" for Matrix rain',
+                    '💀 Type "doom" for Doom mode',
+                    '🎉 Type "party" for Party mode',
+                    '🌈 Type "rainbow" for Rainbow mode',
+                    '💻 Type "hacker" for Hacker mode',
+                    '📊 Type "performance" to show Performance Monitor',
+                    '📺 Type "retro" for CRT effect',
+                    '👻 Type "ghost" for Ghost mode',
+                    '🪩 Type "disco" for Disco mode',
+                    '🧘 Type "zen" for Zen mode',
+                    '🌀 Type "chaos" for Chaos mode',
+                    '⏰ Type "time" for Time Travel',
+                    '💫 Type "spin" to spin windows',
+                    '⚡ Type "flash" to flash screen',
+                    '🌊 Type "shake" to shake screen',
+                    '🎯 Type "gravity" for Gravity effect',
+                    '🎪 Type "clippy" for Clippy party',
+                    '📋 Ctrl+Alt+Del for Blue Screen'
+                ];
+
+                const content = `
+                    <div style="padding: 20px; font-family: monospace; max-height: 400px; overflow-y: auto;">
+                        <h2 style="color: #000080; margin-top: 0;">🔓 All Secret Codes Revealed!</h2>
+                        ${secrets.map(s => `<div style="margin: 8px 0;">${s}</div>`).join('')}
+                        <div style="margin-top: 20px; padding: 12px; background: #ffffcc; border: 1px solid #ff0;">
+                            <strong>💡 Pro Tip:</strong> Try combining codes for maximum chaos!
+                        </div>
+                    </div>
+                `;
+
+                if (window.emulator && window.emulator.windowManager) {
+                    window.emulator.windowManager.createWindow('🎁 Secret Codes', content, { width: 500, height: 450 });
+                }
+            }
+
+            // New Easter Egg: Clippy Party
+            clippyParty() {
+                if (window.clippy) {
+                    const messages = [
+                        "🎉 PARTY TIME! Let's celebrate!",
+                        "🕺 Time to dance!",
+                        "🎵 Can you feel the rhythm?",
+                        "🌟 You're the best!",
+                        "🎊 This is so much fun!"
+                    ];
+
+                    messages.forEach((msg, i) => {
+                        setTimeout(() => {
+                            window.clippy.show(msg, i % 2 === 0 ? 'entertainer' : 'helper');
+                        }, i * 800);
+                    });
+                }
+            }
+
+            // New Easter Egg: Gravity Effect
+            activateGravity() {
+                const windows = document.querySelectorAll('.window');
+                windows.forEach((win, i) => {
+                    setTimeout(() => {
+                        win.style.transition = 'all 2s cubic-bezier(0.5, 0, 1, 1)';
+                        win.style.transform = `translateY(${window.innerHeight}px)`;
+
+                        setTimeout(() => {
+                            win.style.transition = '';
+                            win.style.transform = '';
+                        }, 2000);
+                    }, i * 200);
+                });
+            }
+
+            // New Easter Egg: Flash Screen
+            flashScreen() {
+                for (let i = 0; i < 5; i++) {
+                    setTimeout(() => {
+                        document.body.style.background = i % 2 === 0 ? '#fff' : '#000';
+                        setTimeout(() => {
+                            document.body.style.background = '';
+                        }, 100);
+                    }, i * 200);
+                }
+            }
+
+            // New Easter Egg: Shake Screen
+            shakeScreen() {
+                const originalTransform = document.body.style.transform;
+                let frame = 0;
+
+                const shake = () => {
+                    if (frame < 30) {
+                        const x = Math.random() * 20 - 10;
+                        const y = Math.random() * 20 - 10;
+                        document.body.style.transform = `translate(${x}px, ${y}px)`;
+                        frame++;
+                        requestAnimationFrame(shake);
+                    } else {
+                        document.body.style.transform = originalTransform;
+                    }
+                };
+
+                shake();
+            }
+
+            // New Easter Egg: Spin Windows
+            spinWindows() {
+                const windows = document.querySelectorAll('.window');
+                windows.forEach(win => {
+                    win.style.transition = 'transform 1s';
+                    win.style.transform = 'rotate(360deg)';
+
+                    setTimeout(() => {
+                        win.style.transition = '';
+                        win.style.transform = '';
+                    }, 1000);
+                });
+            }
+
+            // New Easter Egg: Ghost Mode
+            ghostMode() {
+                const windows = document.querySelectorAll('.window');
+                windows.forEach(win => {
+                    win.style.opacity = '0.3';
+                    setTimeout(() => {
+                        win.style.opacity = '';
+                    }, 5000);
+                });
+            }
+
+            // New Easter Egg: Disco Mode
+            discoMode() {
+                const colors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff'];
+                let i = 0;
+
+                const interval = setInterval(() => {
+                    document.body.style.background = colors[i % colors.length];
+                    i++;
+
+                    if (i > 20) {
+                        clearInterval(interval);
+                        document.body.style.background = '';
+                    }
+                }, 200);
+            }
+
+            // New Easter Egg: Zen Mode
+            zenMode() {
+                const overlay = document.createElement('div');
+                overlay.style.cssText = `
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100vw;
+                    height: 100vh;
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    z-index: 100000;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    color: white;
+                    font-family: Arial;
+                    font-size: 48px;
+                    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+                    cursor: pointer;
+                    opacity: 0;
+                    transition: opacity 1s;
+                `;
+
+                overlay.innerHTML = `
+                    <div style="text-align: center;">
+                        <div style="font-size: 72px; margin-bottom: 20px;">🧘</div>
+                        <div>ZEN MODE</div>
+                        <div style="font-size: 24px; margin-top: 20px; opacity: 0.8;">Breathe... Relax... Enjoy...</div>
+                    </div>
+                `;
+
+                overlay.addEventListener('click', () => overlay.remove());
+                document.body.appendChild(overlay);
+
+                setTimeout(() => overlay.style.opacity = '1', 10);
+                setTimeout(() => overlay.remove(), 10000);
+            }
+
+            // New Easter Egg: Chaos Mode
+            chaosMode() {
+                // Activate multiple effects at once!
+                this.shakeScreen();
+                setTimeout(() => this.spinWindows(), 500);
+                setTimeout(() => this.flashScreen(), 1000);
+                setTimeout(() => this.discoMode(), 2000);
+
+                window.soundManager?.playError();
+                window.soundManager?.playWarning();
+            }
+
+            // New Easter Egg: Time Travel
+            showTimeTravel() {
+                const years = [1995, 1998, 2000, 2007, 2015, 2025];
+                let i = 0;
+
+                const overlay = document.createElement('div');
+                overlay.style.cssText = `
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100vw;
+                    height: 100vh;
+                    background: #000;
+                    color: #0f0;
+                    z-index: 100000;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-family: monospace;
+                    font-size: 72px;
+                `;
+
+                const interval = setInterval(() => {
+                    overlay.textContent = `⏰ ${years[i]}`;
+                    document.body.appendChild(overlay);
+
+                    setTimeout(() => {
+                        if (overlay.parentElement) overlay.remove();
+                    }, 400);
+
+                    i++;
+                    if (i >= years.length) {
+                        clearInterval(interval);
+                        setTimeout(() => overlay.remove(), 500);
+                    }
+                }, 500);
             }
 
             // Hidden feature: Unlock advanced mode

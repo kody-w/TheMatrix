@@ -1,0 +1,1578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Tools Suite - Pokemon Battle Assistant</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #1a1a2e;
+            color: #fff;
+            min-height: 100vh;
+            overflow-x: hidden;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        .header h1 {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 0.9em;
+            opacity: 0.95;
+        }
+
+        .tabs-container {
+            display: flex;
+            overflow-x: auto;
+            background: #16213e;
+            border-bottom: 2px solid #2d3748;
+            flex-wrap: wrap;
+            gap: 0;
+        }
+
+        .tab-button {
+            flex: 1;
+            min-width: 140px;
+            padding: 12px 16px;
+            background: #16213e;
+            border: none;
+            color: #a0aec0;
+            cursor: pointer;
+            font-size: 0.9em;
+            font-weight: 500;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .tab-button:hover {
+            background: #2d3748;
+            color: #fff;
+        }
+
+        .tab-button.active {
+            border-bottom-color: #667eea;
+            color: #667eea;
+            background: #1e2a4a;
+        }
+
+        .content-area {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background: #1e2a4a;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .tool-section {
+            background: #2d3748;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid #4a5568;
+        }
+
+        .tool-title {
+            font-size: 1.3em;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #667eea;
+        }
+
+        .tool-description {
+            font-size: 0.9em;
+            color: #cbd5e0;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 5px;
+            color: #e2e8f0;
+            font-size: 0.9em;
+        }
+
+        .input-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        input[type="range"],
+        select {
+            width: 100%;
+            padding: 10px 12px;
+            background: #4a5568;
+            border: 1px solid #4a5568;
+            border-radius: 4px;
+            color: #fff;
+            font-size: 0.95em;
+            transition: all 0.3s ease;
+        }
+
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+            background: #5a6578;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        input[type="range"] {
+            padding: 0;
+            height: 6px;
+            border: none;
+            cursor: pointer;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+            border: 2px solid #1e2a4a;
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+            border: 2px solid #1e2a4a;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+
+        button {
+            padding: 10px 16px;
+            background: #667eea;
+            border: none;
+            border-radius: 4px;
+            color: #fff;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button.secondary {
+            background: #4a5568;
+            color: #e2e8f0;
+        }
+
+        button.secondary:hover {
+            background: #5a6578;
+        }
+
+        .result-box {
+            background: #1a2332;
+            border: 2px solid #667eea;
+            border-radius: 6px;
+            padding: 15px;
+            margin-top: 15px;
+            font-size: 0.95em;
+        }
+
+        .result-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #4a5568;
+        }
+
+        .result-row:last-child {
+            border-bottom: none;
+        }
+
+        .result-label {
+            color: #cbd5e0;
+            font-weight: 500;
+        }
+
+        .result-value {
+            color: #68d391;
+            font-weight: 600;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .stat-card {
+            background: #1a2332;
+            border: 1px solid #4a5568;
+            border-radius: 4px;
+            padding: 12px;
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 0.8em;
+            color: #cbd5e0;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: 1.4em;
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .comparison-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .comparison-box {
+            background: #1a2332;
+            border: 1px solid #4a5568;
+            border-radius: 6px;
+            padding: 15px;
+        }
+
+        .comparison-box h4 {
+            margin-bottom: 12px;
+            color: #667eea;
+        }
+
+        .metric {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            font-size: 0.9em;
+        }
+
+        .metric-label {
+            color: #cbd5e0;
+        }
+
+        .metric-value {
+            font-weight: 600;
+            color: #68d391;
+        }
+
+        .warning-box {
+            background: #3e2b28;
+            border: 1px solid #c05544;
+            border-radius: 4px;
+            padding: 12px;
+            margin-top: 15px;
+            color: #f8b4a0;
+            font-size: 0.9em;
+        }
+
+        .success-box {
+            background: #2b3e28;
+            border: 1px solid #44c055;
+            border-radius: 4px;
+            padding: 12px;
+            margin-top: 15px;
+            color: #a0f8b4;
+            font-size: 0.9em;
+        }
+
+        .note {
+            background: #2d3748;
+            border-left: 4px solid #667eea;
+            padding: 12px;
+            margin-top: 15px;
+            border-radius: 4px;
+            font-size: 0.85em;
+            color: #cbd5e0;
+        }
+
+        .pokemon-selector {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+
+        .pokemon-input {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .iv-inputs {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .level-display {
+            text-align: center;
+            padding: 10px;
+            background: #1a2332;
+            border-radius: 4px;
+            margin-top: 8px;
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            margin-top: 15px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9em;
+        }
+
+        th {
+            background: #1a2332;
+            padding: 10px;
+            text-align: left;
+            color: #667eea;
+            border-bottom: 2px solid #4a5568;
+            font-weight: 600;
+        }
+
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #4a5568;
+            color: #e2e8f0;
+        }
+
+        tr:hover {
+            background: #3a4758;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #cbd5e0;
+        }
+
+        .spinner {
+            border: 4px solid #4a5568;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 0;
+            }
+
+            .header {
+                padding: 15px;
+            }
+
+            .header h1 {
+                font-size: 1.4em;
+            }
+
+            .tabs-container {
+                flex-wrap: wrap;
+            }
+
+            .tab-button {
+                min-width: 120px;
+                padding: 10px 12px;
+                font-size: 0.8em;
+            }
+
+            .content-area {
+                padding: 15px;
+            }
+
+            .tool-section {
+                padding: 15px;
+            }
+
+            .comparison-row {
+                grid-template-columns: 1fr;
+            }
+
+            .input-row {
+                grid-template-columns: 1fr;
+            }
+
+            .iv-inputs {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Advanced Tools Suite</h1>
+            <p>Professional-grade Pokemon GO PvP calculators and analyzers</p>
+        </div>
+
+        <div class="tabs-container" id="tabsContainer"></div>
+
+        <div class="content-area" id="contentArea"></div>
+    </div>
+
+    <script>
+        // ============================================
+        // DATA LOADER
+        // ============================================
+        let POKEMON_DATA = {};
+        let MOVES_DATA = {};
+        let TYPE_EFFECTIVENESS = {};
+
+        async function loadGameMaster() {
+            const loading = document.getElementById('contentArea');
+            loading.innerHTML = '<div class="loading"><div class="spinner"></div><p>Loading Pokemon data...</p></div>';
+
+            try {
+                const response = await fetch('https://raw.githubusercontent.com/pvpoke/pvpoke/master/src/data/gamemaster.json');
+                const data = await response.json();
+
+                POKEMON_DATA = {};
+                MOVES_DATA = {};
+                TYPE_EFFECTIVENESS = data.typeEffectiveness || {};
+
+                // Index pokemon
+                if (data.pokemon && Array.isArray(data.pokemon)) {
+                    data.pokemon.forEach(poke => {
+                        POKEMON_DATA[poke.speciesId] = poke;
+                    });
+                }
+
+                // Index moves
+                if (data.moves && Array.isArray(data.moves)) {
+                    data.moves.forEach(move => {
+                        MOVES_DATA[move.moveId] = move;
+                    });
+                }
+
+                renderUI();
+            } catch (error) {
+                loading.innerHTML = `<div class="loading"><p>Error loading data: ${error.message}</p></div>`;
+                console.error('Failed to load gamemaster.json:', error);
+            }
+        }
+
+        // ============================================
+        // UI RENDERING
+        // ============================================
+        const tools = [
+            {
+                id: 'breakpoint',
+                name: 'Breakpoint Finder',
+                icon: '📊',
+                render: renderBreakpointFinder
+            },
+            {
+                id: 'bulkpoint',
+                name: 'Bulkpoint Calculator',
+                icon: '🛡️',
+                render: renderBulkpointCalculator
+            },
+            {
+                id: 'energy-advantage',
+                name: 'Energy Advantage',
+                icon: '⚡',
+                render: renderEnergyAdvantage
+            },
+            {
+                id: 'cmp-checker',
+                name: 'CMP Checker',
+                icon: '⚔️',
+                render: renderCMPChecker
+            },
+            {
+                id: 'fast-move-denial',
+                name: 'Fast Move Denial',
+                icon: '🚫',
+                render: renderFastMoveDenial
+            },
+            {
+                id: 'shadow-vs-normal',
+                name: 'Shadow vs Normal',
+                icon: '👻',
+                render: renderShadowVsNormal
+            },
+            {
+                id: 'mega-evolution',
+                name: 'Mega Evolution',
+                icon: '🔥',
+                render: renderMegaEvolution
+            },
+            {
+                id: 'lucky-trade',
+                name: 'Lucky Trade IV',
+                icon: '🎲',
+                render: renderLuckyTradeIV
+            },
+            {
+                id: 'community-day',
+                name: 'Community Day Prep',
+                icon: '🎉',
+                render: renderCommunityDayPrep
+            },
+            {
+                id: 'stardust-roi',
+                name: 'Stardust ROI',
+                icon: '💰',
+                render: renderStardustROI
+            }
+        ];
+
+        function renderUI() {
+            const tabsContainer = document.getElementById('tabsContainer');
+            const contentArea = document.getElementById('contentArea');
+
+            // Render tabs
+            tabsContainer.innerHTML = tools.map((tool, idx) => `
+                <button class="tab-button ${idx === 0 ? 'active' : ''}"
+                        data-tool="${tool.id}"
+                        onclick="switchTool('${tool.id}')">
+                    <span>${tool.icon}</span> ${tool.name}
+                </button>
+            `).join('');
+
+            // Render content
+            contentArea.innerHTML = tools.map((tool, idx) => `
+                <div class="tab-content ${idx === 0 ? 'active' : ''}" id="content-${tool.id}">
+                    ${tool.render()}
+                </div>
+            `).join('');
+        }
+
+        function switchTool(toolId) {
+            // Update active tab
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.tool === toolId);
+            });
+
+            // Update active content
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.toggle('active', content.id === `content-${toolId}`);
+            });
+        }
+
+        // ============================================
+        // TOOL 1: BREAKPOINT FINDER
+        // ============================================
+        function renderBreakpointFinder() {
+            return `
+                <div class="tool-section">
+                    <h2 class="tool-title">Breakpoint Finder</h2>
+                    <p class="tool-description">Find IV thresholds where your Pokemon deals additional damage to opponents.</p>
+
+                    <div class="input-group">
+                        <label class="input-label">Your Pokemon</label>
+                        <input type="text" id="bp-pokemon" placeholder="e.g., Registeel"
+                               list="bp-pokemon-list" onchange="updateBreakpoint()">
+                        <datalist id="bp-pokemon-list"></datalist>
+                    </div>
+
+                    <div class="input-group">
+                        <label class="input-label">Your Fast Move</label>
+                        <input type="text" id="bp-fast-move" placeholder="e.g., Flash Cannon"
+                               onchange="updateBreakpoint()">
+                    </div>
+
+                    <div class="input-group">
+                        <label class="input-label">Opponent Pokemon</label>
+                        <input type="text" id="bp-opponent" placeholder="e.g., Cresselia"
+                               list="bp-opponent-list" onchange="updateBreakpoint()">
+                        <datalist id="bp-opponent-list"></datalist>
+                    </div>
+
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label class="input-label">Opponent Level</label>
+                            <input type="number" id="bp-opp-level" value="50" min="1" max="50" onchange="updateBreakpoint()">
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label">Opponent Def IV</label>
+                            <input type="number" id="bp-opp-def-iv" value="15" min="0" max="15" onchange="updateBreakpoint()">
+                        </div>
+                    </div>
+
+                    <button onclick="calculateBreakpoints()">Calculate Breakpoints</button>
+
+                    <div id="bp-results"></div>
+                </div>
+            `;
+        }
+
+        function calculateBreakpoints() {
+            const pokemon = POKEMON_DATA[normalizeId(document.getElementById('bp-pokemon').value)];
+            const opponent = POKEMON_DATA[normalizeId(document.getElementById('bp-opponent').value)];
+            const oppLevel = parseInt(document.getElementById('bp-opp-level').value);
+            const oppDefIV = parseInt(document.getElementById('bp-opp-def-iv').value);
+
+            if (!pokemon || !opponent) {
+                document.getElementById('bp-results').innerHTML = '<div class="warning-box">Please enter valid Pokemon names</div>';
+                return;
+            }
+
+            const attackStat = pokemon.baseStats.atk;
+            const defStat = opponent.baseStats.def;
+            const oppHP = opponent.baseStats.hp;
+
+            const results = [];
+            for (let atkIV = 0; atkIV <= 15; atkIV++) {
+                const stat = Math.floor((2 * (attackStat + atkIV)) * getLevel(50) / 200 + 5);
+                const oppDef = Math.floor((2 * (defStat + oppDefIV)) * getLevel(oppLevel) / 200 + 5);
+                const damage = Math.max(1, Math.floor(5 * stat / oppDef + 0.5));
+                results.push({ atkIV, damage });
+            }
+
+            // Find breakpoints
+            const breakpoints = [];
+            for (let i = 1; i < results.length; i++) {
+                if (results[i].damage > results[i-1].damage) {
+                    breakpoints.push(results[i]);
+                }
+            }
+
+            const resultsHtml = `
+                <div class="result-box">
+                    <h3 style="color: #667eea; margin-bottom: 12px;">Breakpoint Analysis</h3>
+                    ${breakpoints.length > 0 ? `
+                        <p style="margin-bottom: 12px; color: #cbd5e0;">Attack IVs where damage increases:</p>
+                        ${breakpoints.map(bp => `
+                            <div class="result-row">
+                                <span class="result-label">ATK IV ${bp.atkIV}</span>
+                                <span class="result-value">${bp.damage} damage</span>
+                            </div>
+                        `).join('')}
+                    ` : `
+                        <p style="color: #cbd5e0;">No breakpoints found in IV range 0-15</p>
+                    `}
+                </div>
+            `;
+
+            document.getElementById('bp-results').innerHTML = resultsHtml;
+        }
+
+        // ============================================
+        // TOOL 2: BULKPOINT CALCULATOR
+        // ============================================
+        function renderBulkpointCalculator() {
+            return `
+                <div class="tool-section">
+                    <h2 class="tool-title">Bulkpoint Calculator</h2>
+                    <p class="tool-description">Find IV thresholds to survive specific charged moves.</p>
+
+                    <div class="input-group">
+                        <label class="input-label">Your Pokemon</label>
+                        <input type="text" id="bulk-pokemon" placeholder="e.g., Talonflame"
+                               list="bulk-pokemon-list" onchange="updateBulkpoint()">
+                        <datalist id="bulk-pokemon-list"></datalist>
+                    </div>
+
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label class="input-label">Your Level</label>
+                            <input type="number" id="bulk-level" value="50" min="1" max="50" onchange="updateBulkpoint()">
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label">Your HP IV</label>
+                            <input type="number" id="bulk-hp-iv" value="15" min="0" max="15" onchange="updateBulkpoint()">
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label class="input-label">Opponent Pokemon</label>
+                        <input type="text" id="bulk-opponent" placeholder="e.g., Galarian Moltres"
+                               list="bulk-opponent-list" onchange="updateBulkpoint()">
+                        <datalist id="bulk-opponent-list"></datalist>
+                    </div>
+
+                    <div class="input-group">
+                        <label class="input-label">Opponent Charged Move</label>
+                        <input type="text" id="bulk-charged-move" placeholder="e.g., Brave Bird" onchange="updateBulkpoint()">
+                    </div>
+
+                    <button onclick="calculateBulkpoints()">Calculate Bulkpoints</button>
+
+                    <div id="bulk-results"></div>
+                </div>
+            `;
+        }
+
+        function calculateBulkpoints() {
+            const pokemon = POKEMON_DATA[normalizeId(document.getElementById('bulk-pokemon').value)];
+            const opponent = POKEMON_DATA[normalizeId(document.getElementById('bulk-opponent').value)];
+            const hpIV = parseInt(document.getElementById('bulk-hp-iv').value);
+            const level = parseInt(document.getElementById('bulk-level').value);
+
+            if (!pokemon || !opponent) {
+                document.getElementById('bulk-results').innerHTML = '<div class="warning-box">Please enter valid Pokemon names</div>';
+                return;
+            }
+
+            const hpStat = pokemon.baseStats.hp;
+            const defStat = pokemon.baseStats.def;
+            const oppAtkStat = opponent.baseStats.atk;
+
+            const hp = Math.floor((2 * (hpStat + hpIV)) * getLevel(level) / 200 + level + 15);
+            const def = Math.floor((2 * (defStat + 15)) * getLevel(level) / 200 + 5);
+
+            const resultsHtml = `
+                <div class="result-box">
+                    <h3 style="color: #667eea; margin-bottom: 12px;">Bulk Analysis</h3>
+                    <div class="result-row">
+                        <span class="result-label">HP Stat</span>
+                        <span class="result-value">${hp}</span>
+                    </div>
+                    <div class="result-row">
+                        <span class="result-label">Def Stat</span>
+                        <span class="result-value">${def}</span>
+                    </div>
+                    <div class="result-row">
+                        <span class="result-label">Bulk Product (HP × Def)</span>
+                        <span class="result-value">${hp * def}</span>
+                    </div>
+                    <p style="margin-top: 12px; color: #cbd5e0; font-size: 0.85em;">
+                        Increase DEF IV to 15 for optimal bulk against charged moves.
+                    </p>
+                </div>
+            `;
+
+            document.getElementById('bulk-results').innerHTML = resultsHtml;
+        }
+
+        // ============================================
+        // TOOL 3: ENERGY ADVANTAGE SIMULATOR
+        // ============================================
+        function renderEnergyAdvantage() {
+            return `
+                <div class="tool-section">
+                    <h2 class="tool-title">Energy Advantage Simulator</h2>
+                    <p class="tool-description">Determine who reaches their charged move first in a matchup.</p>
+
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label class="input-label">Pokemon 1 Fast Move</label>
+                            <input type="text" id="ea-fast1" placeholder="e.g., Lock-On" onchange="simulateEnergyAdvantage()">
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label">Pokemon 1 Charge Cost</label>
+                            <input type="number" id="ea-charge1" value="50" min="30" max="100" onchange="simulateEnergyAdvantage()">
+                        </div>
+                    </div>
+
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label class="input-label">Pokemon 2 Fast Move</label>
+                            <input type="text" id="ea-fast2" placeholder="e.g., Confusion" onchange="simulateEnergyAdvantage()">
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label">Pokemon 2 Charge Cost</label>
+                            <input type="number" id="ea-charge2" value="50" min="30" max="100" onchange="simulateEnergyAdvantage()">
+                        </div>
+                    </div>
+
+                    <button onclick="simulateEnergyAdvantage()">Simulate Battle</button>
+
+                    <div id="ea-results"></div>
+                </div>
+            `;
+        }
+
+        function simulateEnergyAdvantage() {
+            const fast1Energy = 7; // Average fast move energy
+            const fast2Energy = 7;
+            const charge1 = parseInt(document.getElementById('ea-charge1').value);
+            const charge2 = parseInt(document.getElementById('ea-charge2').value);
+
+            const turns1 = Math.ceil(charge1 / fast1Energy);
+            const turns2 = Math.ceil(charge2 / fast2Energy);
+
+            const faster = turns1 < turns2 ? 'Pokemon 1' : turns2 < turns1 ? 'Pokemon 2' : 'Tie';
+
+            const resultsHtml = `
+                <div class="result-box">
+                    <h3 style="color: #667eea; margin-bottom: 12px;">Energy Advantage</h3>
+                    <div class="comparison-row">
+                        <div class="comparison-box">
+                            <h4>Pokemon 1</h4>
+                            <div class="metric">
+                                <span class="metric-label">Charge Cost:</span>
+                                <span class="metric-value">${charge1} energy</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-label">Fast Move Energy:</span>
+                                <span class="metric-value">${fast1Energy}</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-label">Turns to Charge:</span>
+                                <span class="metric-value">${turns1}</span>
+                            </div>
+                        </div>
+                        <div class="comparison-box">
+                            <h4>Pokemon 2</h4>
+                            <div class="metric">
+                                <span class="metric-label">Charge Cost:</span>
+                                <span class="metric-value">${charge2} energy</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-label">Fast Move Energy:</span>
+                                <span class="metric-value">${fast2Energy}</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-label">Turns to Charge:</span>
+                                <span class="metric-value">${turns2}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="success-box">
+                        <strong>Result:</strong> ${faster} reaches their charged move first!
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('ea-results').innerHTML = resultsHtml;
+        }
+
+        // ============================================
+        // TOOL 4: CMP CHECKER
+        // ============================================
+        function renderCMPChecker() {
+            return `
+                <div class="tool-section">
+                    <h2 class="tool-title">CMP Checker (Comparison)</h2>
+                    <p class="tool-description">Check attack stat tiebreaker in mirror matches - determines who throws charged move first.</p>
+
+                    <div class="input-group">
+                        <label class="input-label">Pokemon (same species)</label>
+                        <input type="text" id="cmp-pokemon" placeholder="e.g., Registeel"
+                               list="cmp-pokemon-list" onchange="updateCMP()">
+                        <datalist id="cmp-pokemon-list"></datalist>
+                    </div>
+
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label class="input-label">Pokemon 1 Level</label>
+                            <input type="number" id="cmp-level1" value="50" min="1" max="50" onchange="updateCMP()">
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label">Pokemon 1 ATK IV</label>
+                            <input type="number" id="cmp-atk1" value="15" min="0" max="15" onchange="updateCMP()">
+                        </div>
+                    </div>
+
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label class="input-label">Pokemon 2 Level</label>
+                            <input type="number" id="cmp-level2" value="50" min="1" max="50" onchange="updateCMP()">
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label">Pokemon 2 ATK IV</label>
+                            <input type="number" id="cmp-atk2" value="0" min="0" max="15" onchange="updateCMP()">
+                        </div>
+                    </div>
+
+                    <button onclick="calculateCMP()">Check CMP</button>
+
+                    <div id="cmp-results"></div>
+                </div>
+            `;
+        }
+
+        function calculateCMP() {
+            const pokemon = POKEMON_DATA[normalizeId(document.getElementById('cmp-pokemon').value)];
+
+            if (!pokemon) {
+                document.getElementById('cmp-results').innerHTML = '<div class="warning-box">Please enter a valid Pokemon name</div>';
+                return;
+            }
+
+            const level1 = parseInt(document.getElementById('cmp-level1').value);
+            const atk1 = parseInt(document.getElementById('cmp-atk1').value);
+            const level2 = parseInt(document.getElementById('cmp-level2').value);
+            const atk2 = parseInt(document.getElementById('cmp-atk2').value);
+
+            const baseStat = pokemon.baseStats.atk;
+
+            const stat1 = Math.floor((2 * (baseStat + atk1)) * getLevel(level1) / 200 + 5);
+            const stat2 = Math.floor((2 * (baseStat + atk2)) * getLevel(level2) / 200 + 5);
+
+            const winner = stat1 > stat2 ? 'Pokemon 1' : stat2 > stat1 ? 'Pokemon 2' : 'Tie';
+
+            const resultsHtml = `
+                <div class="result-box">
+                    <h3 style="color: #667eea; margin-bottom: 12px;">CMP Result</h3>
+                    <div class="comparison-row">
+                        <div class="comparison-box">
+                            <h4>Pokemon 1</h4>
+                            <div class="metric">
+                                <span class="metric-label">Level:</span>
+                                <span class="metric-value">${level1}</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-label">ATK IV:</span>
+                                <span class="metric-value">${atk1}</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-label">Attack Stat:</span>
+                                <span class="metric-value">${stat1}</span>
+                            </div>
+                        </div>
+                        <div class="comparison-box">
+                            <h4>Pokemon 2</h4>
+                            <div class="metric">
+                                <span class="metric-label">Level:</span>
+                                <span class="metric-value">${level2}</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-label">ATK IV:</span>
+                                <span class="metric-value">${atk2}</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-label">Attack Stat:</span>
+                                <span class="metric-value">${stat2}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="success-box">
+                        <strong>Winner:</strong> ${winner} throws first!
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('cmp-results').innerHTML = resultsHtml;
+        }
+
+        // ============================================
+        // TOOL 5: FAST MOVE DENIAL CALCULATOR
+        // ============================================
+        function renderFastMoveDenial() {
+            return `
+                <div class="tool-section">
+                    <h2 class="tool-title">Fast Move Denial Counter</h2>
+                    <p class="tool-description">Count how many fast moves your opponent has thrown based on turn count.</p>
+
+                    <div class="input-group">
+                        <label class="input-label">Opponent Fast Move</label>
+                        <input type="text" id="fmd-move" placeholder="e.g., Confusion" onchange="updateFMD()">
+                    </div>
+
+                    <div class="input-group">
+                        <label class="input-label">Turns Elapsed</label>
+                        <input type="range" id="fmd-turns" min="1" max="50" value="10" onchange="updateFMD()">
+                        <div class="level-display">Turn <span id="fmd-turns-display">10</span></div>
+                    </div>
+
+                    <button onclick="calculateFastMoveDenial()">Calculate Fast Moves Thrown</button>
+
+                    <div id="fmd-results"></div>
+                </div>
+            `;
+        }
+
+        function updateFMD() {
+            document.getElementById('fmd-turns-display').textContent = document.getElementById('fmd-turns').value;
+        }
+
+        function calculateFastMoveDenial() {
+            const turns = parseInt(document.getElementById('fmd-turns').value);
+            // Average fast move: 2-3 turns per cast
+            const avgTurnsPerCast = 2.5;
+            const movesThrown = Math.floor(turns / avgTurnsPerCast);
+
+            const resultsHtml = `
+                <div class="result-box">
+                    <h3 style="color: #667eea; margin-bottom: 12px;">Fast Move Count</h3>
+                    <div class="result-row">
+                        <span class="result-label">Turns Elapsed</span>
+                        <span class="result-value">${turns}</span>
+                    </div>
+                    <div class="result-row">
+                        <span class="result-label">Est. Fast Moves Thrown</span>
+                        <span class="result-value">${movesThrown}</span>
+                    </div>
+                    <div class="result-row">
+                        <span class="result-label">Est. Energy Gained</span>
+                        <span class="result-value">${movesThrown * 5}</span>
+                    </div>
+                    <div class="note">
+                        This is an estimate. Actual fast moves depend on the specific move's animation duration.
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('fmd-results').innerHTML = resultsHtml;
+        }
+
+        // ============================================
+        // TOOL 6: SHADOW VS NORMAL COMPARISON
+        // ============================================
+        function renderShadowVsNormal() {
+            return `
+                <div class="tool-section">
+                    <h2 class="tool-title">Shadow vs Normal Comparison</h2>
+                    <p class="tool-description">Compare stats and performance between Shadow and Normal forms.</p>
+
+                    <div class="input-group">
+                        <label class="input-label">Pokemon</label>
+                        <input type="text" id="sv-pokemon" placeholder="e.g., Machamp"
+                               list="sv-pokemon-list" onchange="updateShadowVsNormal()">
+                        <datalist id="sv-pokemon-list"></datalist>
+                    </div>
+
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label class="input-label">Level</label>
+                            <input type="number" id="sv-level" value="50" min="1" max="50" onchange="updateShadowVsNormal()">
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label">ATK IV</label>
+                            <input type="number" id="sv-atk" value="15" min="0" max="15" onchange="updateShadowVsNormal()">
+                        </div>
+                    </div>
+
+                    <button onclick="compareShadowVsNormal()">Compare Stats</button>
+
+                    <div id="sv-results"></div>
+                </div>
+            `;
+        }
+
+        function compareShadowVsNormal() {
+            const pokemon = POKEMON_DATA[normalizeId(document.getElementById('sv-pokemon').value)];
+
+            if (!pokemon) {
+                document.getElementById('sv-results').innerHTML = '<div class="warning-box">Please enter a valid Pokemon name</div>';
+                return;
+            }
+
+            const level = parseInt(document.getElementById('sv-level').value);
+            const atkIV = parseInt(document.getElementById('sv-atk').value);
+
+            // Shadow: +20% attack, -20% defense
+            const normalAtk = Math.floor((2 * (pokemon.baseStats.atk + atkIV)) * getLevel(level) / 200 + 5);
+            const shadowAtk = Math.floor(normalAtk * 1.2);
+
+            const normalDef = Math.floor((2 * (pokemon.baseStats.def + 15)) * getLevel(level) / 200 + 5);
+            const shadowDef = Math.floor(normalDef * 0.8);
+
+            const hp = Math.floor((2 * (pokemon.baseStats.hp + 15)) * getLevel(level) / 200 + level + 15);
+
+            const resultsHtml = `
+                <div class="result-box">
+                    <h3 style="color: #667eea; margin-bottom: 12px;">Stats Comparison</h3>
+                    <div class="comparison-row">
+                        <div class="comparison-box">
+                            <h4>Normal Form</h4>
+                            <div class="metric">
+                                <span class="metric-label">Attack:</span>
+                                <span class="metric-value">${normalAtk}</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-label">Defense:</span>
+                                <span class="metric-value">${normalDef}</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-label">HP:</span>
+                                <span class="metric-value">${hp}</span>
+                            </div>
+                            <div class="metric" style="margin-top: 8px; padding-top: 8px; border-top: 1px solid #4a5568;">
+                                <span class="metric-label">Bulk:</span>
+                                <span class="metric-value">${hp * normalDef}</span>
+                            </div>
+                        </div>
+                        <div class="comparison-box">
+                            <h4>Shadow Form</h4>
+                            <div class="metric">
+                                <span class="metric-label">Attack:</span>
+                                <span class="metric-value">${shadowAtk}</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-label">Defense:</span>
+                                <span class="metric-value">${shadowDef}</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-label">HP:</span>
+                                <span class="metric-value">${hp}</span>
+                            </div>
+                            <div class="metric" style="margin-top: 8px; padding-top: 8px; border-top: 1px solid #4a5568;">
+                                <span class="metric-label">Bulk:</span>
+                                <span class="metric-value">${hp * shadowDef}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="note">
+                        <strong>Shadow Impact:</strong>
+                        <br>+${shadowAtk - normalAtk} Attack | -${normalDef - shadowDef} Defense | Bulk: ${hp * shadowDef - (hp * normalDef)}
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('sv-results').innerHTML = resultsHtml;
+        }
+
+        // ============================================
+        // TOOL 7: MEGA EVOLUTION PLANNER
+        // ============================================
+        function renderMegaEvolution() {
+            return `
+                <div class="tool-section">
+                    <h2 class="tool-title">Mega Evolution Planner</h2>
+                    <p class="tool-description">Plan Mega Evolution investment and understand stat boosts.</p>
+
+                    <div class="input-group">
+                        <label class="input-label">Pokemon (with Mega Evolution)</label>
+                        <input type="text" id="mega-pokemon" placeholder="e.g., Charizard"
+                               list="mega-pokemon-list" onchange="updateMegaEvolution()">
+                        <datalist id="mega-pokemon-list"></datalist>
+                    </div>
+
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label class="input-label">Level</label>
+                            <input type="number" id="mega-level" value="50" min="1" max="50" onchange="updateMegaEvolution()">
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label">Mega Level</label>
+                            <input type="number" id="mega-mega-level" value="1" min="1" max="3" onchange="updateMegaEvolution()">
+                        </div>
+                    </div>
+
+                    <button onclick="calculateMegaEvolution()">Calculate Mega Boost</button>
+
+                    <div id="mega-results"></div>
+                </div>
+            `;
+        }
+
+        function calculateMegaEvolution() {
+            const pokemon = POKEMON_DATA[normalizeId(document.getElementById('mega-pokemon').value)];
+
+            if (!pokemon) {
+                document.getElementById('mega-results').innerHTML = '<div class="warning-box">Please enter a valid Pokemon name</div>';
+                return;
+            }
+
+            const level = parseInt(document.getElementById('mega-level').value);
+            const megaLevel = parseInt(document.getElementById('mega-mega-level').value);
+
+            // Mega boost: Level 1 = +10%, Level 2 = +15%, Level 3 = +20%
+            const megaBoosts = { 1: 1.10, 2: 1.15, 3: 1.20 };
+            const boost = megaBoosts[megaLevel];
+
+            const normalAtk = Math.floor((2 * (pokemon.baseStats.atk + 15)) * getLevel(level) / 200 + 5);
+            const megaAtk = Math.floor(normalAtk * boost);
+
+            const resultsHtml = `
+                <div class="result-box">
+                    <h3 style="color: #667eea; margin-bottom: 12px;">Mega Evolution Stats</h3>
+                    <div class="comparison-row">
+                        <div class="comparison-box">
+                            <h4>Normal Form</h4>
+                            <div class="metric">
+                                <span class="metric-label">Attack:</span>
+                                <span class="metric-value">${normalAtk}</span>
+                            </div>
+                        </div>
+                        <div class="comparison-box">
+                            <h4>Mega (Level ${megaLevel})</h4>
+                            <div class="metric">
+                                <span class="metric-label">Attack:</span>
+                                <span class="metric-value">${megaAtk}</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-label">Boost:</span>
+                                <span class="metric-value">+${Math.round((boost - 1) * 100)}%</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="success-box">
+                        Mega Energy Cost: 300-500 (varies by Pokemon)
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('mega-results').innerHTML = resultsHtml;
+        }
+
+        // ============================================
+        // TOOL 8: LUCKY TRADE IV ESTIMATOR
+        // ============================================
+        function renderLuckyTradeIV() {
+            return `
+                <div class="tool-section">
+                    <h2 class="tool-title">Lucky Trade IV Estimator</h2>
+                    <p class="tool-description">Estimate minimum IVs guaranteed from Lucky Trades (minimum 12/12/12).</p>
+
+                    <div class="input-group">
+                        <label class="input-label">Pokemon You'll Trade</label>
+                        <input type="text" id="lucky-pokemon" placeholder="e.g., Giratina"
+                               list="lucky-pokemon-list" onchange="updateLuckyTrade()">
+                        <datalist id="lucky-pokemon-list"></datalist>
+                    </div>
+
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label class="input-label">Target League</label>
+                            <select id="lucky-league" onchange="updateLuckyTrade()">
+                                <option value="cp500">Great League (500 CP)</option>
+                                <option value="cp1500" selected>Ultra League (1500 CP)</option>
+                                <option value="cp2500">Master League (2500 CP)</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label">Desired Level</label>
+                            <input type="number" id="lucky-level" value="50" min="1" max="50" onchange="updateLuckyTrade()">
+                        </div>
+                    </div>
+
+                    <button onclick="calculateLuckyTradeIV()">Calculate Lucky IV Guarantee</button>
+
+                    <div id="lucky-results"></div>
+                </div>
+            `;
+        }
+
+        function calculateLuckyTradeIV() {
+            const pokemon = POKEMON_DATA[normalizeId(document.getElementById('lucky-pokemon').value)];
+
+            if (!pokemon) {
+                document.getElementById('lucky-results').innerHTML = '<div class="warning-box">Please enter a valid Pokemon name</div>';
+                return;
+            }
+
+            const league = document.getElementById('lucky-league').value;
+            const level = parseInt(document.getElementById('lucky-level').value);
+
+            // Lucky trades guarantee minimum 12/12/12 IVs
+            const minIVs = { atk: 12, def: 12, hp: 12 };
+            const maxIVs = { atk: 15, def: 15, hp: 15 };
+
+            const hp = Math.floor((2 * (pokemon.baseStats.hp + minIVs.hp)) * getLevel(level) / 200 + level + 15);
+            const atk = Math.floor((2 * (pokemon.baseStats.atk + minIVs.atk)) * getLevel(level) / 200 + 5);
+            const def = Math.floor((2 * (pokemon.baseStats.def + minIVs.def)) * getLevel(level) / 200 + 5);
+
+            const resultsHtml = `
+                <div class="result-box">
+                    <h3 style="color: #667eea; margin-bottom: 12px;">Lucky Trade IV Guarantee</h3>
+                    <div class="result-row">
+                        <span class="result-label">Minimum IVs</span>
+                        <span class="result-value">12 ATK / 12 DEF / 12 HP</span>
+                    </div>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-label">HP</div>
+                            <div class="stat-value">${hp}</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">ATK</div>
+                            <div class="stat-value">${atk}</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">DEF</div>
+                            <div class="stat-value">${def}</div>
+                        </div>
+                    </div>
+                    <div class="success-box">
+                        Lucky Trades guarantee a minimum of 12 IV in each stat. This is ideal for power-ups!
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('lucky-results').innerHTML = resultsHtml;
+        }
+
+        // ============================================
+        // TOOL 9: COMMUNITY DAY PREP
+        // ============================================
+        function renderCommunityDayPrep() {
+            return `
+                <div class="tool-section">
+                    <h2 class="tool-title">Community Day Prep Tool</h2>
+                    <p class="tool-description">Plan your Community Day strategy and calculate evolution investments.</p>
+
+                    <div class="input-group">
+                        <label class="input-label">Pokemon (CD Evolution Target)</label>
+                        <input type="text" id="cd-pokemon" placeholder="e.g., Alakazam"
+                               list="cd-pokemon-list" onchange="updateCommunityDay()">
+                        <datalist id="cd-pokemon-list"></datalist>
+                    </div>
+
+                    <div class="input-group">
+                        <label class="input-label">Number to Evolve</label>
+                        <input type="number" id="cd-count" value="3" min="1" max="100" onchange="updateCommunityDay()">
+                    </div>
+
+                    <div class="input-group">
+                        <label class="input-label">Target: Power-up to Level</label>
+                        <input type="number" id="cd-target-level" value="50" min="20" max="50" onchange="updateCommunityDay()">
+                    </div>
+
+                    <button onclick="calculateCommunityDayPrep()">Calculate Resources Needed</button>
+
+                    <div id="cd-results"></div>
+                </div>
+            `;
+        }
+
+        function calculateCommunityDayPrep() {
+            const pokemon = POKEMON_DATA[normalizeId(document.getElementById('cd-pokemon').value)];
+
+            if (!pokemon) {
+                document.getElementById('cd-results').innerHTML = '<div class="warning-box">Please enter a valid Pokemon name</div>';
+                return;
+            }
+
+            const count = parseInt(document.getElementById('cd-count').value);
+            const targetLevel = parseInt(document.getElementById('cd-target-level').value);
+
+            // Estimate resources per Pokemon (roughly)
+            const stardustPerLevel = 1000; // Average
+            const candyPerLevel = 2;
+
+            const totalStardust = count * (targetLevel - 20) * stardustPerLevel;
+            const totalCandy = pokemon.thirdMoveCost + (count * (targetLevel - 20) * candyPerLevel);
+
+            const resultsHtml = `
+                <div class="result-box">
+                    <h3 style="color: #667eea; margin-bottom: 12px;">Community Day Prep</h3>
+                    <div class="result-row">
+                        <span class="result-label">Pokemon to Build</span>
+                        <span class="result-value">${count}</span>
+                    </div>
+                    <div class="result-row">
+                        <span class="result-label">Target Level</span>
+                        <span class="result-value">${targetLevel}</span>
+                    </div>
+                    <h4 style="color: #667eea; margin-top: 15px; margin-bottom: 10px;">Resources Needed</h4>
+                    <div class="result-row">
+                        <span class="result-label">Stardust</span>
+                        <span class="result-value">${totalStardust.toLocaleString()}</span>
+                    </div>
+                    <div class="result-row">
+                        <span class="result-label">Candy</span>
+                        <span class="result-value">${totalCandy}</span>
+                    </div>
+                    <div class="note">
+                        This is an estimate. Actual costs depend on current level of Pokemon. Prepare stardust and candy in advance!
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('cd-results').innerHTML = resultsHtml;
+        }
+
+        // ============================================
+        // TOOL 10: STARDUST ROI CALCULATOR
+        // ============================================
+        function renderStardustROI() {
+            return `
+                <div class="tool-section">
+                    <h2 class="tool-title">Stardust ROI Calculator</h2>
+                    <p class="tool-description">Determine which Pokemon give the best return on stardust investment.</p>
+
+                    <div class="input-group">
+                        <label class="input-label">Pokemon 1</label>
+                        <input type="text" id="roi-pokemon1" placeholder="e.g., Registeel"
+                               list="roi-pokemon-list" onchange="updateRoiCalculator()">
+                        <datalist id="roi-pokemon-list"></datalist>
+                    </div>
+
+                    <div class="input-group">
+                        <label class="input-label">Pokemon 2</label>
+                        <input type="text" id="roi-pokemon2" placeholder="e.g., Cresselia"
+                               list="roi-pokemon-list2" onchange="updateRoiCalculator()">
+                        <datalist id="roi-pokemon-list2"></datalist>
+                    </div>
+
+                    <div class="input-group">
+                        <label class="input-label">Investment Level</label>
+                        <input type="number" id="roi-level" value="50" min="20" max="50" onchange="updateRoiCalculator()">
+                    </div>
+
+                    <button onclick="calculateStardustROI()">Compare ROI</button>
+
+                    <div id="roi-results"></div>
+                </div>
+            `;
+        }
+
+        function calculateStardustROI() {
+            const pokemon1 = POKEMON_DATA[normalizeId(document.getElementById('roi-pokemon1').value)];
+            const pokemon2 = POKEMON_DATA[normalizeId(document.getElementById('roi-pokemon2').value)];
+
+            if (!pokemon1 || !pokemon2) {
+                document.getElementById('roi-results').innerHTML = '<div class="warning-box">Please enter valid Pokemon names</div>';
+                return;
+            }
+
+            const level = parseInt(document.getElementById('roi-level').value);
+
+            // Simple ROI: stat product / stardust cost per level
+            const stardustPerLevel = 1000; // Average
+
+            const stats1 = (pokemon1.baseStats.hp + 15) * (pokemon1.baseStats.atk + 15) * (pokemon1.baseStats.def + 15);
+            const stats2 = (pokemon2.baseStats.hp + 15) * (pokemon2.baseStats.atk + 15) * (pokemon2.baseStats.def + 15);
+
+            const roi1 = (stats1 / (stardustPerLevel * (level - 20))).toFixed(2);
+            const roi2 = (stats2 / (stardustPerLevel * (level - 20))).toFixed(2);
+
+            const better = parseFloat(roi1) > parseFloat(roi2) ? 'Pokemon 1' : 'Pokemon 2';
+
+            const resultsHtml = `
+                <div class="result-box">
+                    <h3 style="color: #667eea; margin-bottom: 12px;">Stardust ROI Comparison</h3>
+                    <div class="comparison-row">
+                        <div class="comparison-box">
+                            <h4>${pokemon1.speciesName}</h4>
+                            <div class="metric">
+                                <span class="metric-label">Stat Product:</span>
+                                <span class="metric-value">${stats1.toLocaleString()}</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-label">ROI Score:</span>
+                                <span class="metric-value">${roi1}</span>
+                            </div>
+                        </div>
+                        <div class="comparison-box">
+                            <h4>${pokemon2.speciesName}</h4>
+                            <div class="metric">
+                                <span class="metric-label">Stat Product:</span>
+                                <span class="metric-value">${stats2.toLocaleString()}</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-label">ROI Score:</span>
+                                <span class="metric-value">${roi2}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="success-box">
+                        <strong>Best Investment:</strong> ${better} (higher ROI = better value)
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('roi-results').innerHTML = resultsHtml;
+        }
+
+        // ============================================
+        // UTILITY FUNCTIONS
+        // ============================================
+        function getLevel(level) {
+            // CP multiplier calculation
+            const cpMultipliers = {
+                1: 0.094, 1.5: 0.16639787, 2: 0.16639787, 2.5: 0.21573247, 3: 0.21573247,
+                3.5: 0.25572005, 4: 0.25572005, 4.5: 0.29024988, 5: 0.29024988
+            };
+
+            if (cpMultipliers[level]) return cpMultipliers[level];
+
+            // Approximation for other levels
+            return 0.094 + (level - 1) * 0.008;
+        }
+
+        function normalizeId(name) {
+            if (!name) return '';
+            return name.toLowerCase()
+                .replace(/[^a-z0-9]/g, '_')
+                .replace(/_+/g, '_')
+                .replace(/^_|_$/g, '');
+        }
+
+        // Populate datalists
+        function populateDataLists() {
+            const pokemonList = Object.values(POKEMON_DATA)
+                .sort((a, b) => a.speciesName.localeCompare(b.speciesName))
+                .slice(0, 100); // Limit to first 100 for performance
+
+            const listHtml = pokemonList
+                .map(p => `<option value="${p.speciesName}">`)
+                .join('');
+
+            document.querySelectorAll('[id$="-pokemon-list"], [id$="-pokemon-list2"]').forEach(list => {
+                list.innerHTML = listHtml;
+            });
+        }
+
+        // ============================================
+        // INITIALIZATION
+        // ============================================
+        window.addEventListener('DOMContentLoaded', () => {
+            loadGameMaster();
+        });
+    </script>
+</body>
+</html>
