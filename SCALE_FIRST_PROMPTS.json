@@ -1,0 +1,62 @@
+[
+  {
+    "title": "The 10,000 Endpoint API Factory",
+    "prompt": "Generate 10,000 production-grade REST API endpoints for our enterprise microservices ecosystem. We have 100 distinct service domains, each needing 100 endpoints with full OpenAPI specs, validation schemas, error handling, integration tests, and deployment manifests.",
+    "scale": "100 packages × 100 endpoints = 10,000 total endpoints | 10,000 test suites | 10,000 validation schemas | 100 OpenAPI specifications | 100 service deployment configs | 100 CI/CD pipeline configurations",
+    "wow_factor": "Parallel generation of 10,000 production-ready endpoints that would take a team of 50 developers 6 months to build sequentially, completed through orchestrated agents in hours. Each endpoint fully documented, tested, and integrated into service mesh."
+  },
+  {
+    "title": "The 5,000 Page Documentation Empire",
+    "prompt": "Create a comprehensive 5,000-page technical documentation site for our global SaaS platform. Generate 50 major documentation sections (getting started, features, integrations, APIs, SDKs, troubleshooting, etc.), each with 100 detailed pages including code examples, interactive walkthroughs, video transcripts, and multi-language translations.",
+    "scale": "50 packages × 100 pages = 5,000 total pages | 5,000 code examples | 2,500 interactive walkthroughs | 50 SEO-optimized table of contents | 50 searchable indices | 5,000 cross-referenced links | 50 translated versions (250,000 translated pages if including 10 languages)",
+    "wow_factor": "A documentation library larger than the entire Wikipedia technology section, created from your project analysis in a single orchestration run. Fully navigable, SEO-optimized, and synchronized across 10+ language translations."
+  },
+  {
+    "title": "The 8,000 Component Design System",
+    "prompt": "Generate an exhaustive React component library with 8,000 components across 80 categories. Create 100 base components with 50 variants each, including Storybook stories, Jest test suites, accessibility audits, responsive design tests, visual regression tests, and TypeScript definitions.",
+    "scale": "80 component categories × 100 components = 8,000 components | 400,000 component variants | 8,000 Storybook stories | 8,000 test suites (50+ tests each) | 8,000 TypeScript definition files | 8,000 accessibility audit reports | 8,000 responsive design test specifications",
+    "wow_factor": "The world's largest auto-generated component library created by orchestrating 80 agents in parallel, each generating 100 fully-tested, documented, and accessible components with zero manual effort. Larger than Material-UI, Chakra UI, and Bootstrap combined."
+  },
+  {
+    "title": "The 50,000 Data Pipeline Transformation Suite",
+    "prompt": "Build 50,000 ETL data pipelines for our enterprise data warehouse processing 500+ data sources across 500 domains. Generate 100 data transformation pipelines per domain, including Airflow DAGs, dbt models, Spark jobs, data quality checks, monitoring dashboards, lineage documentation, and automated retry logic.",
+    "scale": "500 data source packages × 100 pipelines = 50,000 ETL pipelines | 50,000 dbt transformation models | 50,000 Airflow DAGs | 50,000 data quality test suites | 50,000 lineage documentation files | 500 data warehouse schema definitions | 500 monitoring dashboard configurations | 50,000 automated data quality checks",
+    "wow_factor": "An ETL infrastructure handling 50,000 distinct data transformations across 500 sources, orchestrated and deployed automatically. What would require 200+ data engineers working for 2 years is generated and integrated in a single orchestration session."
+  },
+  {
+    "title": "The 15,000 Test Suite Fortress",
+    "prompt": "Generate 15,000 comprehensive test suites for full application coverage across 150 different applications. Create 100 test suites per application including unit tests, integration tests, e2e tests, performance tests, security tests, load tests, and chaos engineering scenarios, with full CI/CD integration and coverage reports.",
+    "scale": "150 applications × 100 test suites = 15,000 test suites | 450,000 individual test cases | 15,000 coverage reports | 15,000 CI/CD test pipeline configurations | 150 cross-application test orchestration configs | 15,000 mock data fixtures | 15,000 test result aggregation dashboards",
+    "wow_factor": "Test coverage that would require 150 QA teams working in parallel, all generated and integrated automatically. 450,000 test cases across 15,000 suites, achieving code coverage metrics enterprise teams spend months achieving."
+  },
+  {
+    "title": "The 25,000 Microservice Function Library",
+    "prompt": "Create 25,000 reusable microservice functions across 250 business domains. Generate 100 utility functions, helper libraries, and middleware per domain with complete documentation, type definitions, unit tests, performance benchmarks, and security audits. Include cross-service dependency graphs and API contracts.",
+    "scale": "250 business domains × 100 functions = 25,000 microservice functions | 25,000 TypeScript/Python definition files | 25,000 comprehensive docstrings | 25,000 unit test suites | 25,000 performance benchmark files | 250 cross-service dependency graphs | 250 API contract specifications | 25,000 security audit reports",
+    "wow_factor": "A reusable function library 10x larger than Lodash or NumPy, auto-generated from your business logic, with every function documented, tested, benchmarked, and security-audited. Complete with dependency management across all 25,000 functions."
+  },
+  {
+    "title": "The 12,000 Infrastructure-as-Code Repository",
+    "prompt": "Generate 12,000 Terraform/CloudFormation infrastructure modules for 120 cloud services and environments. Create 100 IaC modules per service (networking, compute, storage, databases, security, monitoring), with integration tests, cost estimation, disaster recovery procedures, and automated deployment pipelines.",
+    "scale": "120 cloud services × 100 IaC modules = 12,000 infrastructure modules | 12,000 Terraform/CloudFormation files | 12,000 integration test suites | 12,000 cost estimation models | 120 multi-region deployment configurations | 12,000 disaster recovery playbooks | 120 complete cloud architecture diagrams | 12,000 automated deployment pipelines",
+    "wow_factor": "Complete infrastructure-as-code for 120 services with 12,000 modules, eliminating months of DevOps work. Every module tested, documented, costed, and ready for production deployment across multiple regions and environments."
+  },
+  {
+    "title": "The 20,000 Marketing Content Blitz",
+    "prompt": "Launch 20,000 pieces of marketing content across 200 campaign categories. Generate 100 marketing materials per category (landing pages, email sequences, social media posts, ad copy, blog articles, case studies, whitepapers, video scripts), all brand-aligned, SEO-optimized, and A/B test variants.",
+    "scale": "200 campaign categories × 100 pieces = 20,000 marketing assets | 20,000 unique pieces of content | 40,000 A/B test variants | 20,000 SEO keyword-optimized versions | 200 comprehensive brand guideline applications | 20,000 conversion-optimized versions | 2,000 monthly blog articles | 20,000 social media scheduling templates",
+    "wow_factor": "Two years worth of marketing content (20,000 pieces) created and deployed automatically. Enough material to execute 200 parallel marketing campaigns simultaneously with full brand consistency and SEO optimization baked in."
+  },
+  {
+    "title": "The 30,000 Mobile App Feature Suite",
+    "prompt": "Build 30,000 mobile app features for 300 feature categories across iOS and Android platforms. Generate 50 features per category with complete UI screens, backend APIs, database schemas, unit/integration tests, performance optimizations, accessibility features, and platform-specific implementations.",
+    "scale": "300 feature categories × 50 features × 2 platforms = 30,000 feature implementations | 60,000 UI screen designs | 30,000 backend API endpoints | 30,000 database schema definitions | 60,000 platform-specific implementations | 30,000 test suites | 30,000 accessibility audit reports | 30,000 performance optimization profiles",
+    "wow_factor": "Enough mobile features to launch 30 fully-featured competitor apps. Complete with native implementations for iOS and Android, all synchronized, tested, and production-ready. What 300 mobile developers would deliver in 1 year, generated and integrated in hours."
+  },
+  {
+    "title": "The 40,000 Machine Learning Model Zoo",
+    "prompt": "Generate 40,000 machine learning models across 400 different use cases and domains. Create 100 models per domain (neural networks, decision trees, ensemble methods, etc.) with complete training pipelines, hyperparameter optimization, evaluation metrics, deployment configs, monitoring dashboards, and automated retraining scripts.",
+    "scale": "400 ML domains × 100 models = 40,000 ML models | 40,000 training pipeline scripts | 40,000 hyperparameter optimization configurations | 40,000 model evaluation reports | 40,000 deployment containerizations | 40,000 inference optimization profiles | 400 ML monitoring dashboards | 40,000 automated retraining schedules",
+    "wow_factor": "The largest auto-generated ML model repository ever created. 40,000 trained, evaluated, and deployment-ready models spanning every major use case. Complete with production monitoring, automated retraining, and performance tracking. What would require 400 ML engineers takes one orchestration run."
+  }
+]
