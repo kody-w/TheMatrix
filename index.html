@@ -2959,7 +2959,8 @@
 
             <!-- Prompt Library Sub-tabs -->
             <div class="prompt-library-tabs">
-                <button class="prompt-tab-button active" data-category="scale" onclick="switchPromptCategory('scale')">SCALE-FIRST</button>
+                <button class="prompt-tab-button active" data-category="ultimate" onclick="switchPromptCategory('ultimate')">⚡ ULTIMATE</button>
+                <button class="prompt-tab-button" data-category="scale" onclick="switchPromptCategory('scale')">SCALE-FIRST</button>
                 <button class="prompt-tab-button" data-category="ux" onclick="switchPromptCategory('ux')">USER EXPERIENCE</button>
                 <button class="prompt-tab-button" data-category="creative" onclick="switchPromptCategory('creative')">CREATIVE</button>
                 <button class="prompt-tab-button" data-category="business" onclick="switchPromptCategory('business')">BUSINESS IMPACT</button>
@@ -4143,7 +4144,7 @@ You take the red pill - you stay in Wonderland and I show you how deep the rabbi
 
             // If library tab, load initial prompt category
             if (tabName === 'library') {
-                switchPromptCategory('scale');
+                switchPromptCategory('ultimate');
             }
         }
 
@@ -4406,6 +4407,9 @@ You take the red pill - you stay in Wonderland and I show you how deep the rabbi
                 // Transform based on category
                 let transformedData;
                 switch(category) {
+                    case 'ultimate':
+                        transformedData = rawData.map(transformUltimatePrompt);
+                        break;
                     case 'scale':
                         transformedData = rawData.map(transformScalePrompt);
                         break;
