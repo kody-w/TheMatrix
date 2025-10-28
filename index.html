@@ -641,6 +641,26 @@
                 padding: 0.5rem 1rem;
                 font-size: 0.7rem;
             }
+
+            .builder-container {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-row {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .metrics-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .builder-actions {
+                flex-direction: column;
+            }
+
+            .agent-scale-chart {
+                height: 150px;
+            }
         }
 
         /* Glitch Effect */
@@ -732,6 +752,467 @@
         .prompt-tab-button {
             padding: 0.6rem 1.5rem;
             font-size: 0.85rem;
+        }
+
+        /* Search System */
+        .search-container {
+            max-width: 800px;
+            margin: 0 auto 2rem;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 1rem 1.5rem;
+            background: var(--glass-bg);
+            border: 2px solid var(--glass-border);
+            border-radius: 10px;
+            color: var(--matrix-green);
+            font-family: 'Courier New', Consolas, monospace;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        .search-input:focus {
+            border-color: var(--matrix-green);
+            box-shadow: 0 0 20px var(--glow-green);
+        }
+
+        .search-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.95);
+            border: 2px solid var(--matrix-green);
+            border-radius: 10px;
+            margin-top: 0.5rem;
+            max-height: 400px;
+            overflow-y: auto;
+            z-index: 100;
+            display: none;
+        }
+
+        .search-results.active {
+            display: block;
+        }
+
+        .search-result-item {
+            padding: 1rem;
+            border-bottom: 1px solid var(--glass-border);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .search-result-item:hover {
+            background: var(--glass-bg);
+        }
+
+        .search-result-title {
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .search-result-category {
+            font-size: 0.8rem;
+            opacity: 0.6;
+            text-transform: uppercase;
+        }
+
+        /* Prompt Builder */
+        .builder-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .builder-form {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            padding: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+        }
+
+        .builder-input, .builder-textarea {
+            width: 100%;
+            padding: 0.8rem;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--glass-border);
+            border-radius: 5px;
+            color: var(--matrix-green);
+            font-family: 'Courier New', Consolas, monospace;
+            font-size: 0.95rem;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        .builder-input:focus, .builder-textarea:focus {
+            border-color: var(--matrix-green);
+            box-shadow: 0 0 10px var(--glow-green);
+        }
+
+        .hint {
+            display: block;
+            font-size: 0.8rem;
+            opacity: 0.6;
+            margin-top: 0.3rem;
+        }
+
+        .builder-generate-btn {
+            width: 100%;
+            padding: 1.2rem;
+            background: var(--matrix-green);
+            color: var(--deep-black);
+            border: none;
+            border-radius: 5px;
+            font-family: 'Courier New', Consolas, monospace;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.2rem;
+            transition: all 0.3s;
+        }
+
+        .builder-generate-btn:hover {
+            box-shadow: 0 0 30px var(--glow-green);
+            transform: scale(1.02);
+        }
+
+        .builder-output {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            padding: 2rem;
+        }
+
+        .builder-output h3 {
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+        }
+
+        .prompt-output {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--glass-border);
+            border-radius: 5px;
+            padding: 1.5rem;
+            min-height: 300px;
+            max-height: 500px;
+            overflow-y: auto;
+            margin-bottom: 1rem;
+            line-height: 1.8;
+            white-space: pre-wrap;
+        }
+
+        .builder-actions {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .action-btn {
+            flex: 1;
+            padding: 0.8rem;
+            background: transparent;
+            border: 2px solid var(--matrix-green);
+            color: var(--matrix-green);
+            border-radius: 5px;
+            font-family: 'Courier New', Consolas, monospace;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .action-btn:hover {
+            background: var(--matrix-green);
+            color: var(--deep-black);
+        }
+
+        .estimated-metrics {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--glass-border);
+            border-radius: 5px;
+            padding: 1rem;
+        }
+
+        .estimated-metrics h4 {
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+        }
+
+        .metric-item {
+            text-align: center;
+        }
+
+        .metric-value {
+            display: block;
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--matrix-green);
+        }
+
+        .metric-label {
+            display: block;
+            font-size: 0.8rem;
+            opacity: 0.6;
+            margin-top: 0.5rem;
+        }
+
+        /* Analytics Dashboard */
+        .analytics-dashboard {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .stat-card {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .stat-card:hover {
+            border-color: var(--matrix-green);
+            box-shadow: 0 0 20px var(--glow-green);
+            transform: translateY(-5px);
+        }
+
+        .stat-icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--matrix-green);
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.7;
+            text-transform: uppercase;
+            margin-top: 0.5rem;
+        }
+
+        .comparison-section {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .comparison-section h3 {
+            margin-bottom: 1.5rem;
+            text-transform: uppercase;
+        }
+
+        .comparison-bars {
+            position: relative;
+        }
+
+        .comparison-item {
+            margin-bottom: 1.5rem;
+        }
+
+        .comparison-label {
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+        }
+
+        .comparison-bar {
+            position: relative;
+            height: 50px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--glass-border);
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--matrix-dark-green), var(--matrix-green));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: width 1s ease;
+        }
+
+        .bar-text {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            font-weight: bold;
+            z-index: 2;
+        }
+
+        .speedup-indicator {
+            text-align: center;
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: rgba(0, 255, 65, 0.1);
+            border: 2px solid var(--matrix-green);
+            border-radius: 10px;
+        }
+
+        .speedup-value {
+            font-size: 3rem;
+            font-weight: bold;
+            color: var(--matrix-green);
+            display: block;
+        }
+
+        .speedup-label {
+            font-size: 1.2rem;
+            text-transform: uppercase;
+            opacity: 0.8;
+        }
+
+        .domain-distribution, .agent-visualization, .efficiency-matrix {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .domain-distribution h3, .agent-visualization h3, .efficiency-matrix h3 {
+            margin-bottom: 1.5rem;
+            text-transform: uppercase;
+        }
+
+        .domain-chart {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .domain-bar {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 5px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .domain-bar::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: var(--percentage);
+            background: linear-gradient(90deg, transparent, var(--glow-green));
+            opacity: 0.3;
+        }
+
+        .domain-name {
+            flex: 1;
+            font-weight: bold;
+            z-index: 1;
+        }
+
+        .domain-count {
+            background: var(--matrix-green);
+            color: var(--deep-black);
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-weight: bold;
+            z-index: 1;
+        }
+
+        .agent-scale-chart {
+            display: flex;
+            height: 200px;
+            gap: 0.5rem;
+        }
+
+        .scale-segment {
+            flex: var(--size);
+            background: linear-gradient(180deg, var(--matrix-green), var(--matrix-dark-green));
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            font-weight: bold;
+            color: var(--deep-black);
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .scale-segment:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 30px var(--glow-green);
+        }
+
+        .efficiency-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .efficiency-table th {
+            background: rgba(0, 255, 65, 0.1);
+            padding: 1rem;
+            text-align: left;
+            border: 1px solid var(--glass-border);
+            text-transform: uppercase;
+            font-size: 0.9rem;
+        }
+
+        .efficiency-table td {
+            padding: 1rem;
+            border: 1px solid var(--glass-border);
+        }
+
+        .efficiency-table tbody tr:hover {
+            background: var(--glass-bg);
+        }
+
+        .efficiency-high {
+            color: var(--matrix-green);
+            font-size: 1.2rem;
+        }
+
+        .efficiency-medium {
+            color: #ffff00;
+            font-size: 1.2rem;
         }
 
         /* Wake Up Neo Easter Egg */
@@ -827,12 +1308,26 @@
                 Explore demonstrations, documentation, and mind-blowing orchestration prompts
             </p>
 
+            <!-- Search Bar -->
+            <div class="search-container">
+                <input
+                    type="text"
+                    id="global-search"
+                    class="search-input"
+                    placeholder="🔍 Search prompts, demos, docs..."
+                    oninput="globalSearch(this.value)"
+                />
+                <div id="search-results" class="search-results"></div>
+            </div>
+
             <!-- Tab Navigation -->
             <div class="content-tabs">
                 <button class="tab-button active" onclick="switchTab('prompts')">MIND-BLOWING PROMPTS</button>
                 <button class="tab-button" onclick="switchTab('demos')">INTERACTIVE DEMOS</button>
                 <button class="tab-button" onclick="switchTab('docs')">DOCUMENTATION</button>
                 <button class="tab-button" onclick="switchTab('library')">PROMPT LIBRARY</button>
+                <button class="tab-button" onclick="switchTab('builder')">PROMPT BUILDER</button>
+                <button class="tab-button" onclick="switchTab('analytics')">ANALYTICS</button>
             </div>
         </section>
 
@@ -1139,6 +1634,246 @@
             <!-- Prompt library content will be dynamically loaded -->
             <div id="prompt-library-content" class="capabilities-grid" style="margin-top: 2rem;">
                 <!-- Dynamically populated by JavaScript -->
+            </div>
+        </section>
+
+        <!-- Tab Content: Prompt Builder -->
+        <section class="tab-content" id="builder-tab">
+            <h2 class="section-title">PROMPT BUILDER</h2>
+            <p style="text-align: center; opacity: 0.8; margin-bottom: 3rem; font-size: 1.1rem;">
+                Customize and generate your own orchestration prompts
+            </p>
+
+            <div class="builder-container">
+                <div class="builder-form">
+                    <div class="form-group">
+                        <label>Domain / Category</label>
+                        <select id="builder-domain" class="builder-input">
+                            <option value="software">Software Development</option>
+                            <option value="content">Content Creation</option>
+                            <option value="data">Data Engineering</option>
+                            <option value="creative">Creative Writing</option>
+                            <option value="business">Business Process</option>
+                            <option value="infrastructure">Infrastructure</option>
+                            <option value="testing">Quality Assurance</option>
+                            <option value="design">Design System</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Number of Agents (N)</label>
+                        <input type="number" id="builder-agents" class="builder-input" value="10" min="1" max="500">
+                        <span class="hint">Parallel agents working simultaneously</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Outcomes per Agent (M)</label>
+                        <input type="number" id="builder-outcomes" class="builder-input" value="5" min="1" max="100">
+                        <span class="hint">Artifacts generated by each agent</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Project Description</label>
+                        <textarea id="builder-description" class="builder-textarea" rows="4" placeholder="Describe your project and what you want to generate..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Output Type</label>
+                        <input type="text" id="builder-output" class="builder-input" placeholder="e.g., API endpoints, React components, documentation pages...">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Special Requirements</label>
+                        <textarea id="builder-requirements" class="builder-textarea" rows="3" placeholder="Technical stack, patterns, constraints..."></textarea>
+                    </div>
+
+                    <button class="builder-generate-btn" onclick="generatePrompt()">
+                        ⚡ GENERATE PROMPT
+                    </button>
+                </div>
+
+                <div class="builder-output">
+                    <h3>Generated Orchestration Prompt</h3>
+                    <div id="generated-prompt" class="prompt-output">
+                        <p style="opacity: 0.6; text-align: center; padding: 2rem;">
+                            Fill in the form and click "Generate Prompt" to create your custom orchestration prompt
+                        </p>
+                    </div>
+                    <div class="builder-actions" id="builder-actions" style="display: none;">
+                        <button class="action-btn" onclick="copyPrompt()">📋 COPY TO CLIPBOARD</button>
+                        <button class="action-btn" onclick="downloadPrompt()">💾 DOWNLOAD</button>
+                        <button class="action-btn" onclick="sharePrompt()">🔗 SHARE</button>
+                    </div>
+
+                    <div class="estimated-metrics" id="estimated-metrics" style="display: none;">
+                        <h4>Estimated Metrics</h4>
+                        <div class="metrics-grid">
+                            <div class="metric-item">
+                                <span class="metric-value" id="total-artifacts">0</span>
+                                <span class="metric-label">Total Artifacts</span>
+                            </div>
+                            <div class="metric-item">
+                                <span class="metric-value" id="estimated-time">0</span>
+                                <span class="metric-label">Est. Time (min)</span>
+                            </div>
+                            <div class="metric-item">
+                                <span class="metric-value" id="speedup-factor">0x</span>
+                                <span class="metric-label">Speedup vs Sequential</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tab Content: Analytics Dashboard -->
+        <section class="tab-content" id="analytics-tab">
+            <h2 class="section-title">ORCHESTRATION ANALYTICS</h2>
+            <p style="text-align: center; opacity: 0.8; margin-bottom: 3rem; font-size: 1.1rem;">
+                Visualize the power of parallel agent orchestration
+            </p>
+
+            <div class="analytics-dashboard">
+                <!-- Summary Stats -->
+                <div class="stats-row">
+                    <div class="stat-card">
+                        <div class="stat-icon">🚀</div>
+                        <div class="stat-value">30+</div>
+                        <div class="stat-label">Total Prompts</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">🤖</div>
+                        <div class="stat-value">2,500+</div>
+                        <div class="stat-label">Max Agents</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">⚡</div>
+                        <div class="stat-value">25,000+</div>
+                        <div class="stat-label">Max Artifacts</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">⏱️</div>
+                        <div class="stat-value">25min</div>
+                        <div class="stat-label">Longest Process</div>
+                    </div>
+                </div>
+
+                <!-- Comparison Visualization -->
+                <div class="comparison-section">
+                    <h3>Sequential vs Parallel Execution</h3>
+                    <div class="comparison-bars">
+                        <div class="comparison-item">
+                            <div class="comparison-label">Sequential Execution</div>
+                            <div class="comparison-bar sequential">
+                                <div class="bar-fill" style="width: 100%;"></div>
+                                <span class="bar-text">2,500 hours (104 days)</span>
+                            </div>
+                        </div>
+                        <div class="comparison-item">
+                            <div class="comparison-label">Parallel Orchestration</div>
+                            <div class="comparison-bar parallel">
+                                <div class="bar-fill" style="width: 1%;"></div>
+                                <span class="bar-text">15 minutes</span>
+                            </div>
+                        </div>
+                        <div class="speedup-indicator">
+                            <span class="speedup-value">10,000x</span>
+                            <span class="speedup-label">Faster</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Domain Distribution -->
+                <div class="domain-distribution">
+                    <h3>Prompts by Domain</h3>
+                    <div class="domain-chart">
+                        <div class="domain-bar" style="--percentage: 30%;">
+                            <span class="domain-name">Software Dev</span>
+                            <span class="domain-count">9</span>
+                        </div>
+                        <div class="domain-bar" style="--percentage: 25%;">
+                            <span class="domain-name">Creative</span>
+                            <span class="domain-count">8</span>
+                        </div>
+                        <div class="domain-bar" style="--percentage: 20%;">
+                            <span class="domain-name">User Experience</span>
+                            <span class="domain-count">6</span>
+                        </div>
+                        <div class="domain-bar" style="--percentage: 15%;">
+                            <span class="domain-name">Data/Infrastructure</span>
+                            <span class="domain-count">5</span>
+                        </div>
+                        <div class="domain-bar" style="--percentage: 10%;">
+                            <span class="domain-name">Business</span>
+                            <span class="domain-count">3</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Agent Distribution -->
+                <div class="agent-visualization">
+                    <h3>Agent Scale Distribution</h3>
+                    <div class="agent-scale-chart">
+                        <div class="scale-segment" style="--size: 15%;" title="1-10 agents">
+                            <span>Small<br>1-10</span>
+                        </div>
+                        <div class="scale-segment" style="--size: 35%;" title="10-50 agents">
+                            <span>Medium<br>10-50</span>
+                        </div>
+                        <div class="scale-segment" style="--size: 30%;" title="50-100 agents">
+                            <span>Large<br>50-100</span>
+                        </div>
+                        <div class="scale-segment" style="--size: 20%;" title="100+ agents">
+                            <span>Massive<br>100+</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Time Efficiency -->
+                <div class="efficiency-matrix">
+                    <h3>Time Efficiency Matrix</h3>
+                    <table class="efficiency-table">
+                        <thead>
+                            <tr>
+                                <th>Scale</th>
+                                <th>Artifacts</th>
+                                <th>Agents</th>
+                                <th>Time</th>
+                                <th>Efficiency</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Small</td>
+                                <td>50-100</td>
+                                <td>5-10</td>
+                                <td>8-12 min</td>
+                                <td class="efficiency-high">⚡⚡⚡</td>
+                            </tr>
+                            <tr>
+                                <td>Medium</td>
+                                <td>500-1,000</td>
+                                <td>50-100</td>
+                                <td>12-18 min</td>
+                                <td class="efficiency-high">⚡⚡⚡</td>
+                            </tr>
+                            <tr>
+                                <td>Large</td>
+                                <td>5,000-10,000</td>
+                                <td>100-200</td>
+                                <td>18-22 min</td>
+                                <td class="efficiency-medium">⚡⚡</td>
+                            </tr>
+                            <tr>
+                                <td>Massive</td>
+                                <td>10,000+</td>
+                                <td>200-500</td>
+                                <td>22-25 min</td>
+                                <td class="efficiency-medium">⚡⚡</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </section>
 
@@ -1770,117 +2505,368 @@ You take the red pill - you stay in Wonderland and I show you how deep the rabbi
             }
         }
 
-        // Prompt Library Data
-        const promptLibrary = {
-            ux: [
-                {
-                    title: "The Complete SaaS Dashboard",
-                    description: "Build 50 fully interactive metric tiles across 10 dashboard sections with real-time data displays, filters, and custom themes.",
-                    stats: ["10 Agents", "50 Components", "8 Minutes"]
-                },
-                {
-                    title: "The E-Commerce Experience",
-                    description: "Create complete storefront with 100 products, 500 reviews, shopping cart, checkout flow, and recommendation engine.",
-                    stats: ["10 Agents", "100 Products", "10 Minutes"]
-                },
-                {
-                    title: "The Knowledge Portal",
-                    description: "Transform scattered knowledge into 150 organized articles with learning paths, search, glossary, and topic visualization.",
-                    stats: ["15 Agents", "150 Articles", "12 Minutes"]
-                },
-                {
-                    title: "The Marketing Asset Factory",
-                    description: "Generate 60 marketing assets across 6 campaigns: emails, landing pages, social posts, ad copy, blogs, and resources.",
-                    stats: ["6 Agents", "60 Assets", "9 Minutes"]
-                },
-                {
-                    title: "The Mobile App Suite",
-                    description: "Build 80 mobile app screens covering 8 user journeys with iOS/Android compliance, dark mode, and accessibility.",
-                    stats: ["8 Agents", "80 Screens", "11 Minutes"]
-                }
-            ],
-            creative: [
-                {
-                    title: "Immersive World Builder",
-                    description: "Generate 100 interconnected locations for interactive fiction with atmospheric descriptions, NPCs, secrets, and emergent gameplay.",
-                    stats: ["10 Agents", "100 Locations", "14 Minutes"]
-                },
-                {
-                    title: "Character Generation Engine",
-                    description: "Create 500 unique character profiles with backstories, relationships, psychological profiles, and 15,000+ dialogue lines.",
-                    stats: ["10 Agents", "500 Characters", "18 Minutes"]
-                },
-                {
-                    title: "Musical Universe Creator",
-                    description: "Generate 250-track concept album across 5 acts with lyrics, chord progressions, instrumentation, and character leitmotifs.",
-                    stats: ["5 Agents", "250 Songs", "25 Minutes"]
-                },
-                {
-                    title: "Fantasy Ecosystem Generator",
-                    description: "Create 400 alien species across 8 biomes with evolutionary history, food webs, and realistic ecological relationships.",
-                    stats: ["8 Agents", "400 Species", "20 Minutes"]
-                },
-                {
-                    title: "Mythological Pantheon",
-                    description: "Generate 400 gods across 8 divine families with relationships, origin myths, powers, and cosmic drama.",
-                    stats: ["8 Agents", "400 Deities", "16 Minutes"]
-                }
-            ],
-            scale: [
-                {
-                    title: "The Great Migration",
-                    description: "Transform 2,500 legacy PHP files into modern React/TypeScript with 100% test coverage.",
-                    stats: ["250 Agents", "2,500 Files", "15 Minutes"]
-                },
-                {
-                    title: "The Documentation Engine",
-                    description: "Generate comprehensive docs for 3,500 codebase files across 50 microservices with API references and tutorials.",
-                    stats: ["350 Agents", "400 Pages", "18 Minutes"]
-                },
-                {
-                    title: "The Infinite API",
-                    description: "Generate 10,000 RESTful endpoints across 200 microservices with OpenAPI specs, tests, and SDKs in 8 languages.",
-                    stats: ["200 Agents", "25,000+ Artifacts", "22 Minutes"]
-                },
-                {
-                    title: "Data Warehouse Genesis",
-                    description: "Design 2,000 ETL pipelines, 5,000 dbt models, 500 data quality frameworks from 100 source systems.",
-                    stats: ["100 Agents", "8,500 Artifacts", "25 Minutes"]
-                },
-                {
-                    title: "Test Cathedral",
-                    description: "Generate 16,000 comprehensive tests: 10,000 unit, 5,000 integration, 1,000 E2E with CI/CD integration.",
-                    stats: ["200 Agents", "16,000 Tests", "16 Minutes"]
-                }
-            ],
-            business: [
-                {
-                    title: "The Automation Orchestrator",
-                    description: "Design 50 business processes with 300 automation scripts, 150 integrations, 500 validation rules, and monitoring.",
-                    stats: ["50 Agents", "950 Artifacts", "10 Minutes"]
-                },
-                {
-                    title: "The API Gateway Authority",
-                    description: "Generate 60 production-ready API endpoints across 6 service domains with OpenAPI specs, auth, and SDKs.",
-                    stats: ["6 Agents", "60 Endpoints", "8 Minutes"]
-                },
-                {
-                    title: "Product Roadmap Visualizer",
-                    description: "Build interactive roadmap with 120 features across 12 quarters including stories, wireframes, metrics, and dependencies.",
-                    stats: ["12 Agents", "120 Features", "14 Minutes"]
-                },
-                {
-                    title: "The System Designer",
-                    description: "Convert requirements into 100 API specs, 500 database schemas, 200 service blueprints, 1,000 deployment configs.",
-                    stats: ["100 Agents", "1,800 Specs", "14 Minutes"]
-                },
-                {
-                    title: "Content Migration Engine",
-                    description: "Transform 2,500 source documents into 500 organized targets with semantic enrichment and cross-referencing.",
-                    stats: ["50 Agents", "500 Documents", "12 Minutes"]
-                }
-            ]
+        // ============================================
+        // DYNAMIC DATA LOADING FROM GITHUB
+        // ============================================
+
+        // GitHub Raw URL Configuration
+        const GITHUB_DATA_SOURCES = {
+            ux: 'https://raw.githubusercontent.com/kody-w/TheMatrix/main/prompts-user-experience.json',
+            creative: 'https://raw.githubusercontent.com/kody-w/TheMatrix/main/creative-prompts.json',
+            scale: 'https://raw.githubusercontent.com/kody-w/TheMatrix/main/SCALE_FIRST_PROMPTS.json',
+            business: 'https://raw.githubusercontent.com/kody-w/TheMatrix/main/BUSINESS_IMPACT_PROMPTS.json'
         };
+
+        // Cache configuration
+        const CACHE_DURATION = 1000 * 60 * 15; // 15 minutes
+        const CACHE_KEY_PREFIX = 'matrix_prompts_';
+
+        // Global state for prompt library
+        let promptLibrary = {
+            ux: [],
+            creative: [],
+            scale: [],
+            business: []
+        };
+
+        let dataLoadedSuccessfully = false;
+
+        // ============================================
+        // SCHEMA TRANSFORMATION ADAPTERS
+        // ============================================
+
+        // Extract stats from prompt text (N packages × M items)
+        function extractStatsFromText(text) {
+            const stats = [];
+
+            // Try to extract N × M pattern
+            const multiplyMatch = text.match(/(\d+)\s*(?:packages?|domains?|categories?|sections?|agents?)\s*×\s*(\d+)\s*(?:items?|endpoints?|pages?|components?|features?)/i);
+            if (multiplyMatch) {
+                const n = parseInt(multiplyMatch[1]);
+                const m = parseInt(multiplyMatch[2]);
+                stats.push(`${n} Agents`);
+                stats.push(`${n * m} Outcomes`);
+            }
+
+            // Extract time estimates
+            const timeMatch = text.match(/(\d+)\s*(?:minutes?|mins?|hours?)/i);
+            if (timeMatch) {
+                stats.push(`${timeMatch[1]} Minutes`);
+            }
+
+            // Extract large numbers as outcomes if no multiply pattern found
+            if (stats.length === 0) {
+                const numberMatches = text.match(/\b(\d{1,3}(?:,\d{3})*)\b/g);
+                if (numberMatches && numberMatches.length > 0) {
+                    const largest = Math.max(...numberMatches.map(n => parseInt(n.replace(/,/g, ''))));
+                    if (largest >= 50) {
+                        stats.push(`${largest.toLocaleString()} Artifacts`);
+                    }
+                }
+            }
+
+            // Default stats if none found
+            if (stats.length === 0) {
+                stats.push('Parallel Execution', 'Production Ready');
+            }
+
+            return stats;
+        }
+
+        // Transform SCALE_FIRST_PROMPTS.json schema
+        function transformScalePrompt(item) {
+            const stats = extractStatsFromText(item.scale || item.prompt);
+            // Truncate long descriptions
+            const description = item.prompt.length > 200
+                ? item.prompt.substring(0, 197) + '...'
+                : item.prompt;
+
+            return {
+                title: item.title,
+                description: description,
+                stats: stats.length > 0 ? stats : ['High Scale', 'Parallel Agents', 'Production Ready'],
+                rawData: item // Keep original for modal
+            };
+        }
+
+        // Transform creative-prompts.json schema
+        function transformCreativePrompt(item) {
+            const stats = extractStatsFromText(item.creative_output || item.prompt);
+            const description = item.prompt.length > 200
+                ? item.prompt.substring(0, 197) + '...'
+                : item.prompt;
+
+            return {
+                title: item.title,
+                description: description,
+                stats: stats.length > 0 ? stats : ['Creative Generation', 'Interconnected', 'Narrative Depth'],
+                rawData: item
+            };
+        }
+
+        // Transform BUSINESS_IMPACT_PROMPTS.json schema
+        function transformBusinessPrompt(item) {
+            const stats = extractStatsFromText(item.prompt);
+
+            // Extract ROI from business_impact
+            const roiMatch = item.business_impact?.match(/ROI:\s*\$?([\d.]+)M/i);
+            if (roiMatch) {
+                stats.push(`$${roiMatch[1]}M ROI`);
+            }
+
+            const description = item.prompt.length > 200
+                ? item.prompt.substring(0, 197) + '...'
+                : item.prompt;
+
+            return {
+                title: item.title,
+                description: description,
+                stats: stats.length > 0 ? stats : ['Business Impact', 'Production Ready', 'High ROI'],
+                rawData: item
+            };
+        }
+
+        // Transform prompts-user-experience.json schema
+        function transformUXPrompt(item) {
+            const stats = extractStatsFromText(item.prompt);
+            const description = item.prompt.length > 200
+                ? item.prompt.substring(0, 197) + '...'
+                : item.prompt;
+
+            return {
+                title: item.title,
+                description: description,
+                stats: stats.length > 0 ? stats : ['User Experience', 'Interactive', 'Responsive'],
+                rawData: item
+            };
+        }
+
+        // ============================================
+        // DATA LOADING FUNCTIONS
+        // ============================================
+
+        // Get cached data
+        function getCachedData(category) {
+            try {
+                const cached = localStorage.getItem(CACHE_KEY_PREFIX + category);
+                if (!cached) return null;
+
+                const { data, timestamp } = JSON.parse(cached);
+                const age = Date.now() - timestamp;
+
+                if (age < CACHE_DURATION) {
+                    console.log(`✅ Using cached data for ${category} (${Math.round(age / 1000)}s old)`);
+                    return data;
+                }
+            } catch (e) {
+                console.warn('Cache read error:', e);
+            }
+            return null;
+        }
+
+        // Set cached data
+        function setCachedData(category, data) {
+            try {
+                localStorage.setItem(CACHE_KEY_PREFIX + category, JSON.stringify({
+                    data: data,
+                    timestamp: Date.now()
+                }));
+            } catch (e) {
+                console.warn('Cache write error:', e);
+            }
+        }
+
+        // Fetch data from GitHub with timeout
+        async function fetchWithTimeout(url, timeout = 10000) {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), timeout);
+
+            try {
+                const response = await fetch(url, { signal: controller.signal });
+                clearTimeout(timeoutId);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                return await response.json();
+            } catch (error) {
+                clearTimeout(timeoutId);
+                throw error;
+            }
+        }
+
+        // Load single category data
+        async function loadCategoryData(category) {
+            console.log(`📡 Loading ${category} data...`);
+
+            // Check cache first
+            const cached = getCachedData(category);
+            if (cached) {
+                return cached;
+            }
+
+            // Fetch from GitHub
+            const url = GITHUB_DATA_SOURCES[category];
+            if (!url) {
+                throw new Error(`No data source configured for category: ${category}`);
+            }
+
+            try {
+                const rawData = await fetchWithTimeout(url);
+
+                // Transform based on category
+                let transformedData;
+                switch(category) {
+                    case 'scale':
+                        transformedData = rawData.map(transformScalePrompt);
+                        break;
+                    case 'creative':
+                        transformedData = rawData.map(transformCreativePrompt);
+                        break;
+                    case 'business':
+                        transformedData = rawData.map(transformBusinessPrompt);
+                        break;
+                    case 'ux':
+                        transformedData = rawData.map(transformUXPrompt);
+                        break;
+                    default:
+                        transformedData = rawData;
+                }
+
+                // Cache the transformed data
+                setCachedData(category, transformedData);
+
+                console.log(`✅ Loaded ${transformedData.length} ${category} prompts`);
+                return transformedData;
+
+            } catch (error) {
+                console.error(`❌ Failed to load ${category}:`, error);
+                throw error;
+            }
+        }
+
+        // Load all categories in parallel
+        async function loadAllPromptData() {
+            console.log('🚀 Loading all prompt data from GitHub...');
+
+            const categories = Object.keys(GITHUB_DATA_SOURCES);
+            const results = await Promise.allSettled(
+                categories.map(category => loadCategoryData(category))
+            );
+
+            // Process results
+            results.forEach((result, index) => {
+                const category = categories[index];
+                if (result.status === 'fulfilled') {
+                    promptLibrary[category] = result.value;
+                } else {
+                    console.error(`Failed to load ${category}:`, result.reason);
+                    promptLibrary[category] = []; // Empty array on failure
+                }
+            });
+
+            // Check if at least one category loaded
+            const successCount = results.filter(r => r.status === 'fulfilled').length;
+            dataLoadedSuccessfully = successCount > 0;
+
+            if (dataLoadedSuccessfully) {
+                console.log(`✅ Successfully loaded ${successCount}/${categories.length} categories`);
+            } else {
+                console.error('❌ Failed to load any data from GitHub');
+            }
+
+            return dataLoadedSuccessfully;
+        }
+
+        // Refresh data (clear cache and reload)
+        async function refreshPromptData() {
+            console.log('🔄 Refreshing all data...');
+
+            // Clear cache
+            Object.keys(GITHUB_DATA_SOURCES).forEach(category => {
+                localStorage.removeItem(CACHE_KEY_PREFIX + category);
+            });
+
+            // Show loading state
+            showLoadingState();
+
+            // Reload data
+            const success = await loadAllPromptData();
+
+            if (success) {
+                // Rebuild search index
+                buildSearchIndex();
+
+                // Refresh current category display
+                const activeCategory = document.querySelector('.prompt-tab-button.active')?.dataset?.category || 'scale';
+                switchPromptCategory(activeCategory);
+
+                hideLoadingState();
+                showNotification('✅ Data refreshed successfully!');
+            } else {
+                hideLoadingState();
+                showErrorState();
+            }
+        }
+
+        // ============================================
+        // LOADING & ERROR UI STATES
+        // ============================================
+
+        function showLoadingState() {
+            const content = document.getElementById('prompt-library-content');
+            if (content) {
+                content.innerHTML = `
+                    <div style="text-align: center; padding: 4rem 2rem; animation: pulse 2s infinite;">
+                        <div style="font-size: 3rem; margin-bottom: 1rem;">⚡</div>
+                        <div style="font-size: 1.5rem; font-weight: bold; margin-bottom: 0.5rem;">
+                            LOADING DATA FROM GITHUB...
+                        </div>
+                        <div style="opacity: 0.7;">
+                            Fetching latest prompt library from repository
+                        </div>
+                        <div style="margin-top: 2rem; opacity: 0.5; font-size: 0.9rem;">
+                            Matrix digital rain flows through The Matrix...
+                        </div>
+                    </div>
+                    <style>
+                        @keyframes pulse {
+                            0%, 100% { opacity: 1; }
+                            50% { opacity: 0.5; }
+                        }
+                    </style>
+                `;
+            }
+        }
+
+        function hideLoadingState() {
+            // Loading state will be replaced by actual content
+        }
+
+        function showErrorState() {
+            const content = document.getElementById('prompt-library-content');
+            if (content) {
+                content.innerHTML = `
+                    <div style="text-align: center; padding: 4rem 2rem;">
+                        <div style="font-size: 3rem; margin-bottom: 1rem;">⚠️</div>
+                        <div style="font-size: 1.5rem; font-weight: bold; margin-bottom: 0.5rem; color: var(--matrix-green);">
+                            FAILED TO LOAD DATA
+                        </div>
+                        <div style="opacity: 0.7; margin-bottom: 2rem;">
+                            Could not fetch prompt library from GitHub.<br>
+                            Check your internet connection or try again later.
+                        </div>
+                        <button onclick="refreshPromptData()"
+                                style="background: var(--matrix-green); color: var(--deep-black); border: none;
+                                       padding: 1rem 2rem; font-family: 'Courier New', Consolas, monospace;
+                                       font-size: 1rem; cursor: pointer; border-radius: 5px; font-weight: bold;">
+                            🔄 RETRY
+                        </button>
+                    </div>
+                `;
+            }
+        }
 
         // Switch Prompt Category
         function switchPromptCategory(category) {
@@ -1931,19 +2917,50 @@ You take the red pill - you stay in Wonderland and I show you how deep the rabbi
             const modalBody = document.getElementById('modal-body');
 
             modalTitle.textContent = prompt.title;
-            modalBody.innerHTML = `
-                <h3>Description</h3>
-                <p>${prompt.description}</p>
+
+            // Get additional data from rawData if available
+            const rawData = prompt.rawData || {};
+            const fullPrompt = rawData.prompt || prompt.description;
+            const additionalInfo = rawData.scale || rawData.creative_output || rawData.ux_delivered || rawData.business_impact || '';
+            const wowFactor = rawData.wow_factor || '';
+
+            let modalContent = `
+                <h3>Full Prompt</h3>
+                <div style="background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 5px; margin-bottom: 1.5rem; position: relative;">
+                    <p style="white-space: pre-wrap;">${fullPrompt}</p>
+                    <button onclick="copyToClipboard('${fullPrompt.replace(/'/g, "\\'")}', '✅ Prompt copied!')"
+                            style="position: absolute; top: 0.5rem; right: 0.5rem; background: var(--matrix-green); color: var(--deep-black); border: none; padding: 0.5rem 1rem; border-radius: 3px; cursor: pointer; font-family: 'Courier New', Consolas, monospace; font-size: 0.8rem;">
+                        📋 COPY
+                    </button>
+                </div>
 
                 <h3>Orchestration Stats</h3>
-                <ul>
+                <ul style="margin-bottom: 1.5rem;">
                     ${prompt.stats.map(stat => `<li>${stat}</li>`).join('')}
-                </ul>
+                </ul>`;
 
+            if (additionalInfo) {
+                modalContent += `
+                <h3>Details</h3>
+                <div style="background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 5px; margin-bottom: 1.5rem;">
+                    <p style="white-space: pre-wrap;">${additionalInfo}</p>
+                </div>`;
+            }
+
+            if (wowFactor) {
+                modalContent += `
+                <h3>🎯 Impact</h3>
+                <div style="background: rgba(0, 255, 65, 0.1); padding: 1rem; border-radius: 5px; margin-bottom: 1.5rem; border-left: 3px solid var(--matrix-green);">
+                    <p style="white-space: pre-wrap;">${wowFactor}</p>
+                </div>`;
+            }
+
+            modalContent += `
                 <h3>How to Use</h3>
                 <p>Copy this prompt concept and adapt it to your specific project needs. The Matrix orchestrator will analyze your codebase, generate a work breakdown structure, and spawn parallel agents to generate all required artifacts.</p>
             `;
 
+            modalBody.innerHTML = modalContent;
             modal.classList.add('active');
         }
 
@@ -1971,10 +2988,347 @@ You take the red pill - you stay in Wonderland and I show you how deep the rabbi
             modal.classList.add('active');
         }
 
-        // Initialize: Load scale-first prompts on page load
-        document.addEventListener('DOMContentLoaded', () => {
-            switchPromptCategory('scale');
+        // Global Search Function
+        let searchIndex = [];
+
+        function buildSearchIndex() {
+            searchIndex = [];
+
+            // Add modal data
+            for (const [key, data] of Object.entries(modalData)) {
+                searchIndex.push({
+                    id: key,
+                    title: data.title,
+                    content: data.content,
+                    category: 'Mind-Blowing Prompt',
+                    action: () => openModal(key)
+                });
+            }
+
+            // Add prompt library
+            for (const [category, prompts] of Object.entries(promptLibrary)) {
+                prompts.forEach(prompt => {
+                    searchIndex.push({
+                        title: prompt.title,
+                        content: prompt.description,
+                        category: `Prompt Library - ${category}`,
+                        action: () => openPromptModal(prompt)
+                    });
+                });
+            }
+
+            // Add docs
+            const docs = [
+                { title: 'README.md', category: 'Documentation' },
+                { title: 'CLAUDE.md', category: 'Documentation' },
+                { title: 'CATHEDRAL_EXECUTIVE_SUMMARY.md', category: 'Documentation' }
+            ];
+
+            docs.forEach(doc => {
+                searchIndex.push({
+                    title: doc.title,
+                    content: '',
+                    category: doc.category,
+                    action: () => openDocModal(doc.title)
+                });
+            });
+        }
+
+        function globalSearch(query) {
+            const resultsContainer = document.getElementById('search-results');
+
+            if (!query || query.length < 2) {
+                resultsContainer.classList.remove('active');
+                return;
+            }
+
+            const lowerQuery = query.toLowerCase();
+            const results = searchIndex.filter(item =>
+                item.title.toLowerCase().includes(lowerQuery) ||
+                item.content.toLowerCase().includes(lowerQuery) ||
+                item.category.toLowerCase().includes(lowerQuery)
+            ).slice(0, 10);
+
+            if (results.length === 0) {
+                resultsContainer.innerHTML = '<div class="search-result-item"><div class="search-result-title">No results found</div></div>';
+                resultsContainer.classList.add('active');
+                return;
+            }
+
+            resultsContainer.innerHTML = results.map(result => `
+                <div class="search-result-item" onclick='${result.action ? 'searchResultClick(' + JSON.stringify(result) + ')' : ''}'>
+                    <div class="search-result-title">${highlightQuery(result.title, query)}</div>
+                    <div class="search-result-category">${result.category}</div>
+                </div>
+            `).join('');
+
+            resultsContainer.classList.add('active');
+        }
+
+        function highlightQuery(text, query) {
+            const regex = new RegExp(`(${query})`, 'gi');
+            return text.replace(regex, '<span style="background: var(--glow-green); color: var(--deep-black); padding: 0 0.2rem;">$1</span>');
+        }
+
+        function searchResultClick(result) {
+            result.action();
+            document.getElementById('search-results').classList.remove('active');
+            document.getElementById('global-search').value = '';
+        }
+
+        // Close search results when clicking outside
+        document.addEventListener('click', (e) => {
+            const searchContainer = document.querySelector('.search-container');
+            if (searchContainer && !searchContainer.contains(e.target)) {
+                document.getElementById('search-results').classList.remove('active');
+            }
         });
+
+        // Prompt Generator
+        let generatedPromptText = '';
+
+        function generatePrompt() {
+            const domain = document.getElementById('builder-domain').value;
+            const agents = parseInt(document.getElementById('builder-agents').value);
+            const outcomes = parseInt(document.getElementById('builder-outcomes').value);
+            const description = document.getElementById('builder-description').value;
+            const output = document.getElementById('builder-output').value;
+            const requirements = document.getElementById('builder-requirements').value;
+
+            const totalArtifacts = agents * outcomes;
+            const estimatedTime = Math.ceil(8 + (totalArtifacts / 100));
+            const speedupFactor = Math.floor(totalArtifacts / estimatedTime * 60);
+
+            const prompt = `# Custom Orchestration Prompt: ${domain.charAt(0).toUpperCase() + domain.slice(1)}
+
+## Project Overview
+${description || 'Custom parallel orchestration project'}
+
+## Orchestration Strategy
+- **Domain**: ${domain.charAt(0).toUpperCase() + domain.slice(1)}
+- **Agents**: ${agents} parallel agents
+- **Outcomes per Agent**: ${outcomes}
+- **Total Artifacts**: ${totalArtifacts}
+- **Output Type**: ${output || 'Specified artifacts'}
+
+## Work Breakdown Structure
+Generate ${agents} work packages, with ${outcomes} ${output || 'items'} per package.
+
+## Technical Requirements
+${requirements || 'Follow project conventions and best practices'}
+
+## Expected Output
+${totalArtifacts} production-ready ${output || 'artifacts'} that follow consistent patterns and integrate seamlessly.
+
+## Orchestrator Instructions
+1. **Discovery**: Analyze relevant project files and documentation
+2. **Strategy**: Generate ${agents} work packages from domain analysis
+3. **System Analysis**: Extract patterns, standards, and technical requirements
+4. **Agent Spawn**: Launch ${agents} outcome-generator agents in parallel
+5. **Integration**: Invoke integrator agent to synthesize all ${totalArtifacts} outcomes
+6. **Validation**: Verify all artifacts generated successfully
+
+## Success Criteria
+- ✅ ${totalArtifacts} artifacts generated
+- ✅ Consistent patterns across all outcomes
+- ✅ Integration complete
+- ✅ All dependencies resolved
+- ✅ Documentation included
+
+---
+Generated with The Matrix AI Orchestration System
+Estimated completion time: ~${estimatedTime} minutes
+Speedup vs sequential: ${speedupFactor}x faster`;
+
+            generatedPromptText = prompt;
+            document.getElementById('generated-prompt').textContent = prompt;
+            document.getElementById('builder-actions').style.display = 'flex';
+            document.getElementById('estimated-metrics').style.display = 'block';
+
+            // Update metrics
+            document.getElementById('total-artifacts').textContent = totalArtifacts;
+            document.getElementById('estimated-time').textContent = estimatedTime;
+            document.getElementById('speedup-factor').textContent = speedupFactor + 'x';
+
+            // Animate metrics
+            animateValue('total-artifacts', 0, totalArtifacts, 1000);
+            animateValue('estimated-time', 0, estimatedTime, 1000);
+        }
+
+        function animateValue(id, start, end, duration) {
+            const element = document.getElementById(id);
+            const range = end - start;
+            const increment = range / (duration / 16);
+            let current = start;
+
+            const timer = setInterval(() => {
+                current += increment;
+                if ((increment > 0 && current >= end) || (increment < 0 && current <= end)) {
+                    current = end;
+                    clearInterval(timer);
+                }
+                element.textContent = id === 'speedup-factor' ? Math.floor(current) + 'x' : Math.floor(current);
+            }, 16);
+        }
+
+        function copyPrompt() {
+            navigator.clipboard.writeText(generatedPromptText).then(() => {
+                showNotification('📋 Prompt copied to clipboard!');
+            });
+        }
+
+        function downloadPrompt() {
+            const blob = new Blob([generatedPromptText], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'matrix-orchestration-prompt.txt';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showNotification('💾 Prompt downloaded!');
+        }
+
+        function sharePrompt() {
+            const shareData = {
+                title: 'Matrix Orchestration Prompt',
+                text: generatedPromptText
+            };
+
+            if (navigator.share) {
+                navigator.share(shareData).catch(() => {
+                    copyPrompt();
+                });
+            } else {
+                copyPrompt();
+                showNotification('🔗 Prompt copied (sharing not supported)');
+            }
+        }
+
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.textContent = message;
+            notification.style.cssText = `
+                position: fixed;
+                top: 2rem;
+                right: 2rem;
+                background: var(--matrix-green);
+                color: var(--deep-black);
+                padding: 1rem 2rem;
+                border-radius: 5px;
+                font-family: 'Courier New', Consolas, monospace;
+                font-weight: bold;
+                z-index: 10000;
+                animation: slideInRight 0.3s ease;
+                box-shadow: 0 0 30px var(--glow-green);
+            `;
+
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.style.animation = 'slideOutRight 0.3s ease';
+                setTimeout(() => document.body.removeChild(notification), 300);
+            }, 3000);
+        }
+
+        // Add slideIn/Out animations to style
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideInRight {
+                from { transform: translateX(400px); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes slideOutRight {
+                from { transform: translateX(0); opacity: 1; }
+                to { transform: translateX(400px); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Enhanced Modal with Copy Button
+        function openPromptModalEnhanced(prompt) {
+            const modal = document.getElementById('modal');
+            const modalTitle = document.getElementById('modal-title');
+            const modalBody = document.getElementById('modal-body');
+
+            modalTitle.textContent = prompt.title;
+            modalBody.innerHTML = `
+                <h3>Description</h3>
+                <p>${prompt.description}</p>
+
+                <h3>Orchestration Stats</h3>
+                <ul>
+                    ${prompt.stats.map(stat => `<li>${stat}</li>`).join('')}
+                </ul>
+
+                <h3>Example Prompt</h3>
+                <div style="background: rgba(0,0,0,0.5); padding: 1rem; border-radius: 5px; position: relative;">
+                    <p style="font-style: italic;">"${prompt.description}"</p>
+                    <button onclick="copyToClipboard('${prompt.description.replace(/'/g, "\\'")}', '✅ Copied!')"
+                            style="position: absolute; top: 0.5rem; right: 0.5rem; background: var(--matrix-green); color: var(--deep-black); border: none; padding: 0.5rem 1rem; border-radius: 3px; cursor: pointer; font-family: 'Courier New', Consolas, monospace;">
+                        📋 COPY
+                    </button>
+                </div>
+
+                <h3>How to Use</h3>
+                <p>Copy this prompt concept and adapt it to your specific project needs. The Matrix orchestrator will analyze your codebase, generate a work breakdown structure, and spawn parallel agents to generate all required artifacts.</p>
+            `;
+
+            modal.classList.add('active');
+        }
+
+        function copyToClipboard(text, successMsg) {
+            navigator.clipboard.writeText(text).then(() => {
+                showNotification(successMsg || '📋 Copied to clipboard!');
+            });
+        }
+
+        // Initialize: Load data from GitHub and build UI
+        document.addEventListener('DOMContentLoaded', async () => {
+            console.log('🎬 Matrix initializing...');
+
+            // Show loading state
+            showLoadingState();
+
+            // Load all prompt data from GitHub
+            const success = await loadAllPromptData();
+
+            if (success) {
+                // Build search index with loaded data
+                buildSearchIndex();
+
+                // Load default category (scale)
+                switchPromptCategory('scale');
+
+                console.log('✅ Matrix initialization complete');
+            } else {
+                // Show error state if loading failed
+                showErrorState();
+                console.error('❌ Matrix initialization failed');
+            }
+
+            // Animate analytics charts on tab switch
+            const analyticsTab = document.querySelector('.tab-button:nth-child(6)');
+            if (analyticsTab) {
+                analyticsTab.addEventListener('click', () => {
+                    setTimeout(() => {
+                        animateCharts();
+                    }, 300);
+                });
+            }
+        });
+
+        function animateCharts() {
+            // Animate comparison bars
+            const parallelBar = document.querySelector('.comparison-bar.parallel .bar-fill');
+            if (parallelBar) {
+                parallelBar.style.width = '0%';
+                setTimeout(() => {
+                    parallelBar.style.width = '1%';
+                }, 100);
+            }
+        }
 
         // Console Easter Egg
         console.log('%c WAKE UP, NEO... ', 'background: #000; color: #00ff41; font-size: 20px; font-family: monospace; padding: 10px;');

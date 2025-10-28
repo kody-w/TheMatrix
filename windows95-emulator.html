@@ -689,23 +689,59 @@
             display: flex;
             flex-direction: column;
             z-index: 10;
-            /* Subtle fade-in animation */
-            animation: windowFadeIn 0.08s ease-out;
+
+            /* GPU-accelerated properties for smooth animations */
+            transform: translate3d(0, 0, 0);
+            will-change: transform, opacity;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+
+            /* Smooth fade-in animation with GPU acceleration */
+            animation: windowFadeIn 0.12s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         @keyframes windowFadeIn {
             from {
                 opacity: 0;
-                transform: scale(0.98);
+                transform: translate3d(0, -20px, 0) scale3d(0.95, 0.95, 1);
             }
             to {
                 opacity: 1;
-                transform: scale(1);
+                transform: translate3d(0, 0, 0) scale3d(1, 1, 1);
             }
         }
 
         .window.minimized {
-            display: none;
+            /* GPU-accelerated minimize animation */
+            animation: windowMinimize 0.2s cubic-bezier(0.4, 0, 1, 1) forwards;
+        }
+
+        @keyframes windowMinimize {
+            0% {
+                opacity: 1;
+                transform: translate3d(0, 0, 0) scale3d(1, 1, 1);
+            }
+            100% {
+                opacity: 0;
+                transform: translate3d(0, 100px, 0) scale3d(0.1, 0.1, 1);
+                display: none;
+            }
+        }
+
+        /* Restore animation when un-minimizing */
+        .window.restoring {
+            animation: windowRestore 0.2s cubic-bezier(0, 0, 0.2, 1) forwards;
+        }
+
+        @keyframes windowRestore {
+            from {
+                opacity: 0;
+                transform: translate3d(0, 100px, 0) scale3d(0.1, 0.1, 1);
+            }
+            to {
+                opacity: 1;
+                transform: translate3d(0, 0, 0) scale3d(1, 1, 1);
+            }
         }
 
         .window.active {
@@ -1775,14 +1811,21 @@
                 windowEl.style.zIndex = this.nextZIndex++;
                 windowEl.dataset.windowTitle = title; // Store title for position saving
 
+                // Accessibility improvements
+                windowEl.setAttribute('role', 'dialog');
+                windowEl.setAttribute('aria-label', title);
+                windowEl.setAttribute('aria-modal', 'false');
+                windowEl.setAttribute('tabindex', '0');
+
                 const titleBar = document.createElement('div');
                 titleBar.className = 'window-titlebar';
+                titleBar.setAttribute('role', 'banner');
                 titleBar.innerHTML = `
-                    <span>${title}</span>
-                    <div class="titlebar-buttons">
-                        <div class="titlebar-btn minimize-btn" title="Minimize">_</div>
-                        <div class="titlebar-btn maximize-btn" title="Maximize">□</div>
-                        <div class="titlebar-btn close-btn" title="Close">X</div>
+                    <span aria-label="Window title">${title}</span>
+                    <div class="titlebar-buttons" role="toolbar" aria-label="Window controls">
+                        <div class="titlebar-btn minimize-btn" role="button" tabindex="0" aria-label="Minimize window" title="Minimize">_</div>
+                        <div class="titlebar-btn maximize-btn" role="button" tabindex="0" aria-label="Maximize window" title="Maximize">□</div>
+                        <div class="titlebar-btn close-btn" role="button" tabindex="0" aria-label="Close window" title="Close">X</div>
                     </div>
                 `;
 
@@ -1861,17 +1904,38 @@
                     this.showWindowSystemMenu(e.clientX, e.clientY, windowEl);
                 });
 
-                // Close button
+                // Close button with keyboard support
                 const closeBtn = windowEl.querySelector('.close-btn');
                 closeBtn.addEventListener('click', () => this.closeWindow(windowEl));
+                closeBtn.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        this.closeWindow(windowEl);
+                        window.soundManager?.playClick();
+                    }
+                });
 
-                // Minimize button
+                // Minimize button with keyboard support
                 const minimizeBtn = windowEl.querySelector('.minimize-btn');
                 minimizeBtn.addEventListener('click', () => this.minimizeWindow(windowEl));
+                minimizeBtn.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        this.minimizeWindow(windowEl);
+                        window.soundManager?.playClick();
+                    }
+                });
 
-                // Maximize button
+                // Maximize button with keyboard support
                 const maximizeBtn = windowEl.querySelector('.maximize-btn');
                 maximizeBtn.addEventListener('click', () => this.maximizeWindow(windowEl));
+                maximizeBtn.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        this.maximizeWindow(windowEl);
+                        window.soundManager?.playClick();
+                    }
+                });
 
                 // Focus on click
                 windowEl.addEventListener('mousedown', () => this.focusWindow(windowEl));
@@ -1980,6 +2044,15 @@
                 if (windowObj && windowObj.minimized) {
                     windowObj.minimized = false;
                     windowEl.classList.remove('minimized');
+
+                    // Add restoring animation class for GPU-accelerated animation
+                    windowEl.classList.add('restoring');
+
+                    // Remove the class after animation completes
+                    setTimeout(() => {
+                        windowEl.classList.remove('restoring');
+                    }, 200);
+
                     this.focusWindow(windowEl);
                     this.desktop.updateTaskbarButtons();
                 }
@@ -15369,6 +15442,989 @@ ${JSON.stringify(state, null, 2)}
         // Create global sound manager instance
         window.soundManager = new SoundManager();
 
+        // ============================================
+        // VIRTUAL FILE SYSTEM
+        // ============================================
+        class VirtualFileSystem {
+            constructor() {
+                this.root = {
+                    type: 'folder',
+                    name: 'C:',
+                    path: 'C:',
+                    children: {},
+                    created: new Date().toISOString(),
+                    modified: new Date().toISOString()
+                };
+
+                // Load from storage or initialize default structure
+                this.loadFromStorage() || this.initializeDefaultStructure();
+            }
+
+            /**
+             * Initialize default Windows 95 folder structure
+             */
+            initializeDefaultStructure() {
+                // Create default folders
+                this.createFolder('C:/Windows');
+                this.createFolder('C:/Windows/System');
+                this.createFolder('C:/Windows/Desktop');
+                this.createFolder('C:/My Documents');
+                this.createFolder('C:/Program Files');
+                this.createFolder('C:/Recycled');
+
+                // Create sample files
+                this.createFile('C:/Windows/Desktop/README.txt',
+                    'Welcome to Windows 95!\n\nThis is a virtual file system.\nYou can create, edit, and save files here.\n\nAll files are stored in your browser\'s localStorage.');
+
+                this.createFile('C:/My Documents/Untitled.txt',
+                    'Type your text here...');
+
+                this.saveToStorage();
+            }
+
+            /**
+             * Parse path into components
+             * @param {string} path - File path (e.g., "C:/folder/file.txt")
+             * @returns {Array} Path components
+             */
+            parsePath(path) {
+                return path.split('/').filter(p => p && p !== 'C:');
+            }
+
+            /**
+             * Navigate to a path and return the node
+             * @param {string} path - Path to navigate to
+             * @returns {Object|null} File or folder node
+             */
+            navigate(path) {
+                if (path === 'C:' || path === '') return this.root;
+
+                const parts = this.parsePath(path);
+                let current = this.root;
+
+                for (const part of parts) {
+                    if (!current.children || !current.children[part]) {
+                        return null;
+                    }
+                    current = current.children[part];
+                }
+
+                return current;
+            }
+
+            /**
+             * Create a folder at the specified path
+             * @param {string} path - Path for the new folder
+             * @returns {boolean} Success status
+             */
+            createFolder(path) {
+                const parts = this.parsePath(path);
+                const folderName = parts.pop();
+                const parentPath = parts.length > 0 ? 'C:/' + parts.join('/') : 'C:';
+
+                const parent = this.navigate(parentPath);
+                if (!parent || parent.type !== 'folder') return false;
+
+                if (!parent.children) parent.children = {};
+
+                if (parent.children[folderName]) {
+                    console.warn('Folder already exists:', folderName);
+                    return false;
+                }
+
+                parent.children[folderName] = {
+                    type: 'folder',
+                    name: folderName,
+                    path: path,
+                    children: {},
+                    created: new Date().toISOString(),
+                    modified: new Date().toISOString()
+                };
+
+                this.saveToStorage();
+                return true;
+            }
+
+            /**
+             * Create or update a file at the specified path
+             * @param {string} path - Path for the file
+             * @param {string} content - File content
+             * @returns {boolean} Success status
+             */
+            createFile(path, content = '') {
+                const parts = this.parsePath(path);
+                const fileName = parts.pop();
+                const parentPath = parts.length > 0 ? 'C:/' + parts.join('/') : 'C:';
+
+                const parent = this.navigate(parentPath);
+                if (!parent || parent.type !== 'folder') return false;
+
+                if (!parent.children) parent.children = {};
+
+                const now = new Date().toISOString();
+                const isNew = !parent.children[fileName];
+
+                parent.children[fileName] = {
+                    type: 'file',
+                    name: fileName,
+                    path: path,
+                    content: content,
+                    size: new Blob([content]).size,
+                    created: isNew ? now : (parent.children[fileName]?.created || now),
+                    modified: now
+                };
+
+                this.saveToStorage();
+                return true;
+            }
+
+            /**
+             * Read file content
+             * @param {string} path - File path
+             * @returns {string|null} File content or null if not found
+             */
+            readFile(path) {
+                const file = this.navigate(path);
+                if (!file || file.type !== 'file') return null;
+                return file.content;
+            }
+
+            /**
+             * Delete file or folder
+             * @param {string} path - Path to delete
+             * @returns {boolean} Success status
+             */
+            delete(path) {
+                const parts = this.parsePath(path);
+                const itemName = parts.pop();
+                const parentPath = parts.length > 0 ? 'C:/' + parts.join('/') : 'C:';
+
+                const parent = this.navigate(parentPath);
+                if (!parent || !parent.children || !parent.children[itemName]) {
+                    return false;
+                }
+
+                delete parent.children[itemName];
+                this.saveToStorage();
+                return true;
+            }
+
+            /**
+             * List contents of a folder
+             * @param {string} path - Folder path
+             * @returns {Array} Array of items in folder
+             */
+            listFolder(path) {
+                const folder = this.navigate(path);
+                if (!folder || folder.type !== 'folder') return [];
+
+                return Object.values(folder.children || {}).map(item => ({
+                    name: item.name,
+                    type: item.type,
+                    path: item.path,
+                    size: item.size || 0,
+                    created: item.created,
+                    modified: item.modified
+                }));
+            }
+
+            /**
+             * Rename file or folder
+             * @param {string} oldPath - Current path
+             * @param {string} newName - New name
+             * @returns {boolean} Success status
+             */
+            rename(oldPath, newName) {
+                const parts = this.parsePath(oldPath);
+                const oldName = parts.pop();
+                const parentPath = parts.length > 0 ? 'C:/' + parts.join('/') : 'C:';
+
+                const parent = this.navigate(parentPath);
+                if (!parent || !parent.children || !parent.children[oldName]) {
+                    return false;
+                }
+
+                if (parent.children[newName]) {
+                    console.warn('An item with that name already exists');
+                    return false;
+                }
+
+                const item = parent.children[oldName];
+                item.name = newName;
+                item.path = parentPath + '/' + newName;
+                item.modified = new Date().toISOString();
+
+                parent.children[newName] = item;
+                delete parent.children[oldName];
+
+                this.saveToStorage();
+                return true;
+            }
+
+            /**
+             * Save file system to localStorage
+             */
+            saveToStorage() {
+                try {
+                    SafeStorage.setItem('win95_virtual_fs', JSON.stringify(this.root));
+                    return true;
+                } catch (e) {
+                    console.error('Failed to save file system:', e);
+                    return false;
+                }
+            }
+
+            /**
+             * Load file system from localStorage
+             * @returns {boolean} Success status
+             */
+            loadFromStorage() {
+                try {
+                    const data = SafeStorage.getItem('win95_virtual_fs');
+                    if (data) {
+                        this.root = JSON.parse(data);
+                        return true;
+                    }
+                    return false;
+                } catch (e) {
+                    console.error('Failed to load file system:', e);
+                    return false;
+                }
+            }
+
+            /**
+             * Export file system as JSON
+             * @returns {string} JSON representation
+             */
+            exportToJSON() {
+                return JSON.stringify(this.root, null, 2);
+            }
+
+            /**
+             * Import file system from JSON
+             * @param {string} jsonData - JSON representation
+             * @returns {boolean} Success status
+             */
+            importFromJSON(jsonData) {
+                try {
+                    const parsed = JSON.parse(jsonData);
+                    if (parsed.type === 'folder' && parsed.name === 'C:') {
+                        this.root = parsed;
+                        this.saveToStorage();
+                        return true;
+                    }
+                    return false;
+                } catch (e) {
+                    console.error('Failed to import file system:', e);
+                    return false;
+                }
+            }
+
+            /**
+             * Get total file system size
+             * @returns {number} Total size in bytes
+             */
+            getTotalSize() {
+                const calculateSize = (node) => {
+                    if (node.type === 'file') {
+                        return node.size || 0;
+                    }
+                    if (node.type === 'folder' && node.children) {
+                        return Object.values(node.children).reduce(
+                            (sum, child) => sum + calculateSize(child), 0
+                        );
+                    }
+                    return 0;
+                };
+                return calculateSize(this.root);
+            }
+
+            /**
+             * Get file system statistics
+             * @returns {Object} Statistics object
+             */
+            getStats() {
+                let fileCount = 0;
+                let folderCount = 0;
+
+                const traverse = (node) => {
+                    if (node.type === 'file') {
+                        fileCount++;
+                    } else if (node.type === 'folder') {
+                        folderCount++;
+                        if (node.children) {
+                            Object.values(node.children).forEach(traverse);
+                        }
+                    }
+                };
+
+                traverse(this.root);
+
+                return {
+                    totalFiles: fileCount,
+                    totalFolders: folderCount,
+                    totalSize: this.getTotalSize(),
+                    totalSizeFormatted: this.formatBytes(this.getTotalSize())
+                };
+            }
+
+            /**
+             * Format bytes to human-readable string
+             * @param {number} bytes - Number of bytes
+             * @returns {string} Formatted string
+             */
+            formatBytes(bytes) {
+                if (bytes === 0) return '0 Bytes';
+                const k = 1024;
+                const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+            }
+        }
+
+        // Create global virtual file system instance
+        window.virtualFS = new VirtualFileSystem();
+
+        // ============================================
+        // TOUCH GESTURE HANDLER
+        // ============================================
+        class TouchGestureHandler {
+            constructor() {
+                this.touches = {};
+                this.longPressTimer = null;
+                this.longPressDelay = 500; // ms
+                this.doubleTapDelay = 300; // ms
+                this.lastTap = { time: 0, x: 0, y: 0 };
+                this.swipeThreshold = 50; // pixels
+                this.pinchThreshold = 10; // pixels
+
+                this.enabled = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+
+                if (this.enabled) {
+                    this.init();
+                }
+            }
+
+            init() {
+                document.addEventListener('touchstart', this.handleTouchStart.bind(this), { passive: false });
+                document.addEventListener('touchmove', this.handleTouchMove.bind(this), { passive: false });
+                document.addEventListener('touchend', this.handleTouchEnd.bind(this), { passive: false });
+                document.addEventListener('touchcancel', this.handleTouchCancel.bind(this), { passive: false });
+            }
+
+            handleTouchStart(e) {
+                // Store touch data
+                Array.from(e.changedTouches).forEach(touch => {
+                    this.touches[touch.identifier] = {
+                        startX: touch.clientX,
+                        startY: touch.clientY,
+                        currentX: touch.clientX,
+                        currentY: touch.clientY,
+                        startTime: Date.now(),
+                        target: touch.target
+                    };
+                });
+
+                const touchCount = Object.keys(this.touches).length;
+
+                // Detect long press (single touch)
+                if (touchCount === 1) {
+                    this.startLongPress(e.touches[0]);
+
+                    // Detect double tap
+                    const now = Date.now();
+                    const touch = e.touches[0];
+                    const timeDiff = now - this.lastTap.time;
+                    const distance = Math.hypot(
+                        touch.clientX - this.lastTap.x,
+                        touch.clientY - this.lastTap.y
+                    );
+
+                    if (timeDiff < this.doubleTapDelay && distance < 30) {
+                        this.handleDoubleTap(touch);
+                        this.lastTap = { time: 0, x: 0, y: 0 }; // Reset to prevent triple tap
+                    } else {
+                        this.lastTap = {
+                            time: now,
+                            x: touch.clientX,
+                            y: touch.clientY
+                        };
+                    }
+                }
+
+                // Two-finger gestures (pinch, rotate)
+                if (touchCount === 2) {
+                    this.cancelLongPress();
+                    this.initialPinchDistance = this.getTouchDistance(e.touches);
+                }
+
+                // Three-finger swipe for task switching
+                if (touchCount === 3) {
+                    this.threeFingerStart = {
+                        x: this.getAverageTouchX(e.touches),
+                        y: this.getAverageTouchY(e.touches)
+                    };
+                }
+            }
+
+            handleTouchMove(e) {
+                // Update touch positions
+                Array.from(e.changedTouches).forEach(touch => {
+                    if (this.touches[touch.identifier]) {
+                        this.touches[touch.identifier].currentX = touch.clientX;
+                        this.touches[touch.identifier].currentY = touch.clientY;
+                    }
+                });
+
+                const touchCount = Object.keys(this.touches).length;
+
+                // Cancel long press if moved too much
+                if (touchCount === 1) {
+                    const touch = Object.values(this.touches)[0];
+                    const distance = Math.hypot(
+                        touch.currentX - touch.startX,
+                        touch.currentY - touch.startY
+                    );
+                    if (distance > 10) {
+                        this.cancelLongPress();
+                    }
+                }
+
+                // Handle pinch gesture
+                if (touchCount === 2 && this.initialPinchDistance) {
+                    const currentDistance = this.getTouchDistance(e.touches);
+                    const diff = currentDistance - this.initialPinchDistance;
+
+                    if (Math.abs(diff) > this.pinchThreshold) {
+                        this.handlePinch(diff > 0 ? 'out' : 'in', Math.abs(diff));
+                    }
+                }
+            }
+
+            handleTouchEnd(e) {
+                // Process swipe gestures
+                Array.from(e.changedTouches).forEach(touch => {
+                    const touchData = this.touches[touch.identifier];
+                    if (touchData) {
+                        const deltaX = touch.clientX - touchData.startX;
+                        const deltaY = touch.clientY - touchData.startY;
+                        const distance = Math.hypot(deltaX, deltaY);
+                        const duration = Date.now() - touchData.startTime;
+
+                        // Detect swipe
+                        if (distance > this.swipeThreshold && duration < 300) {
+                            const direction = this.getSwipeDirection(deltaX, deltaY);
+                            this.handleSwipe(direction, touchData.target);
+                        }
+
+                        delete this.touches[touch.identifier];
+                    }
+                });
+
+                this.cancelLongPress();
+
+                // Reset pinch distance when fingers lifted
+                if (Object.keys(this.touches).length < 2) {
+                    this.initialPinchDistance = null;
+                }
+            }
+
+            handleTouchCancel(e) {
+                Array.from(e.changedTouches).forEach(touch => {
+                    delete this.touches[touch.identifier];
+                });
+                this.cancelLongPress();
+            }
+
+            startLongPress(touch) {
+                this.cancelLongPress();
+                this.longPressTimer = setTimeout(() => {
+                    this.handleLongPress(touch);
+                }, this.longPressDelay);
+            }
+
+            cancelLongPress() {
+                if (this.longPressTimer) {
+                    clearTimeout(this.longPressTimer);
+                    this.longPressTimer = null;
+                }
+            }
+
+            handleLongPress(touch) {
+                // Simulate right-click context menu
+                const contextMenuEvent = new MouseEvent('contextmenu', {
+                    bubbles: true,
+                    cancelable: true,
+                    clientX: touch.clientX,
+                    clientY: touch.clientY
+                });
+                touch.target.dispatchEvent(contextMenuEvent);
+
+                // Haptic feedback if available
+                if (navigator.vibrate) {
+                    navigator.vibrate(50);
+                }
+
+                console.log('Long press detected at', touch.clientX, touch.clientY);
+            }
+
+            handleDoubleTap(touch) {
+                // Simulate double-click
+                const dblClickEvent = new MouseEvent('dblclick', {
+                    bubbles: true,
+                    cancelable: true,
+                    clientX: touch.clientX,
+                    clientY: touch.clientY
+                });
+                touch.target.dispatchEvent(dblClickEvent);
+
+                console.log('Double tap detected');
+            }
+
+            handleSwipe(direction, target) {
+                console.log('Swipe detected:', direction);
+
+                // Custom swipe actions based on context
+                if (direction === 'left') {
+                    // Could implement: Close window, next item, etc.
+                    window.soundManager?.playInfo();
+                } else if (direction === 'right') {
+                    // Could implement: Open menu, previous item, etc.
+                    window.soundManager?.playInfo();
+                } else if (direction === 'up') {
+                    // Could implement: Scroll up, minimize, etc.
+                } else if (direction === 'down') {
+                    // Could implement: Scroll down, maximize, etc.
+                }
+            }
+
+            handlePinch(direction, magnitude) {
+                console.log('Pinch detected:', direction, magnitude);
+
+                // Could implement: Zoom in/out, resize windows, etc.
+                if (direction === 'out') {
+                    // Zoom in or enlarge
+                } else {
+                    // Zoom out or shrink
+                }
+            }
+
+            getTouchDistance(touches) {
+                if (touches.length < 2) return 0;
+                const dx = touches[0].clientX - touches[1].clientX;
+                const dy = touches[0].clientY - touches[1].clientY;
+                return Math.hypot(dx, dy);
+            }
+
+            getAverageTouchX(touches) {
+                return Array.from(touches).reduce((sum, t) => sum + t.clientX, 0) / touches.length;
+            }
+
+            getAverageTouchY(touches) {
+                return Array.from(touches).reduce((sum, t) => sum + t.clientY, 0) / touches.length;
+            }
+
+            getSwipeDirection(deltaX, deltaY) {
+                if (Math.abs(deltaX) > Math.abs(deltaY)) {
+                    return deltaX > 0 ? 'right' : 'left';
+                } else {
+                    return deltaY > 0 ? 'down' : 'up';
+                }
+            }
+        }
+
+        // Create global touch gesture handler instance
+        window.touchGestureHandler = new TouchGestureHandler();
+
+        // ============================================
+        // WINDOW SNAPPING & SMART POSITIONING SYSTEM
+        // ============================================
+        class WindowSnappingSystem {
+            constructor() {
+                this.snapEnabled = true;
+                this.snapThreshold = 20; // pixels
+                this.edgeSnapZones = {
+                    left: 0,
+                    right: window.innerWidth,
+                    top: 0,
+                    bottom: window.innerHeight
+                };
+                this.snapGuides = [];
+
+                // Load preference from storage
+                const savedEnabled = SafeStorage.getItem('win95_snap_enabled');
+                if (savedEnabled !== null) {
+                    this.snapEnabled = savedEnabled === 'true';
+                }
+            }
+
+            /**
+             * Check if window should snap to edges or other windows
+             * @param {HTMLElement} windowEl - The window element being moved
+             * @param {number} x - Current X position
+             * @param {number} y - Current Y position
+             * @returns {Object} Adjusted {x, y} coordinates
+             */
+            checkSnap(windowEl, x, y) {
+                if (!this.snapEnabled) return { x, y };
+
+                const width = windowEl.offsetWidth;
+                const height = windowEl.offsetHeight;
+                let snappedX = x;
+                let snappedY = y;
+
+                // Snap to screen edges
+                const edgeSnap = this.snapToEdges(x, y, width, height);
+                snappedX = edgeSnap.x;
+                snappedY = edgeSnap.y;
+
+                // Snap to other windows
+                const windowSnap = this.snapToWindows(windowEl, snappedX, snappedY, width, height);
+                snappedX = windowSnap.x;
+                snappedY = windowSnap.y;
+
+                // Show snap guides if snapped
+                if (snappedX !== x || snappedY !== y) {
+                    this.showSnapGuide(snappedX, snappedY, width, height);
+                }
+
+                return { x: snappedX, y: snappedY };
+            }
+
+            /**
+             * Snap window to screen edges
+             */
+            snapToEdges(x, y, width, height) {
+                let snappedX = x;
+                let snappedY = y;
+
+                // Left edge
+                if (Math.abs(x) < this.snapThreshold) {
+                    snappedX = 0;
+                }
+
+                // Right edge
+                if (Math.abs((x + width) - window.innerWidth) < this.snapThreshold) {
+                    snappedX = window.innerWidth - width;
+                }
+
+                // Top edge
+                if (Math.abs(y) < this.snapThreshold) {
+                    snappedY = 0;
+                }
+
+                // Bottom edge (account for taskbar)
+                const taskbarHeight = 30;
+                if (Math.abs((y + height) - (window.innerHeight - taskbarHeight)) < this.snapThreshold) {
+                    snappedY = window.innerHeight - taskbarHeight - height;
+                }
+
+                return { x: snappedX, y: snappedY };
+            }
+
+            /**
+             * Snap window to other windows
+             */
+            snapToWindows(currentWindow, x, y, width, height) {
+                const allWindows = document.querySelectorAll('.window:not(.minimized)');
+                let snappedX = x;
+                let snappedY = y;
+
+                allWindows.forEach(otherWindow => {
+                    if (otherWindow === currentWindow) return;
+
+                    const otherRect = otherWindow.getBoundingClientRect();
+
+                    // Snap to left edge of other window
+                    if (Math.abs((x + width) - otherRect.left) < this.snapThreshold) {
+                        snappedX = otherRect.left - width;
+                    }
+
+                    // Snap to right edge of other window
+                    if (Math.abs(x - otherRect.right) < this.snapThreshold) {
+                        snappedX = otherRect.right;
+                    }
+
+                    // Snap to top edge of other window
+                    if (Math.abs((y + height) - otherRect.top) < this.snapThreshold) {
+                        snappedY = otherRect.top - height;
+                    }
+
+                    // Snap to bottom edge of other window
+                    if (Math.abs(y - otherRect.bottom) < this.snapThreshold) {
+                        snappedY = otherRect.bottom;
+                    }
+
+                    // Align horizontally with other window
+                    if (Math.abs(x - otherRect.left) < this.snapThreshold) {
+                        snappedX = otherRect.left;
+                    }
+
+                    // Align vertically with other window
+                    if (Math.abs(y - otherRect.top) < this.snapThreshold) {
+                        snappedY = otherRect.top;
+                    }
+                });
+
+                return { x: snappedX, y: snappedY };
+            }
+
+            /**
+             * Show visual guide when snapping
+             */
+            showSnapGuide(x, y, width, height) {
+                this.clearSnapGuides();
+
+                const guide = document.createElement('div');
+                guide.className = 'snap-guide';
+                guide.style.cssText = `
+                    position: fixed;
+                    left: ${x}px;
+                    top: ${y}px;
+                    width: ${width}px;
+                    height: ${height}px;
+                    border: 2px dashed #0055d4;
+                    background: rgba(0, 85, 212, 0.1);
+                    pointer-events: none;
+                    z-index: 9999;
+                    animation: snapGuideFade 0.3s ease-out;
+                `;
+
+                document.body.appendChild(guide);
+                this.snapGuides.push(guide);
+
+                // Auto-remove after animation
+                setTimeout(() => this.clearSnapGuides(), 300);
+            }
+
+            /**
+             * Clear all snap guides
+             */
+            clearSnapGuides() {
+                this.snapGuides.forEach(guide => guide.remove());
+                this.snapGuides = [];
+            }
+
+            /**
+             * Arrange windows in a cascade pattern
+             * @param {Array} windows - Array of window elements
+             */
+            cascadeWindows(windows) {
+                const offset = 30;
+                let startX = 50;
+                let startY = 50;
+
+                windows.forEach((win, index) => {
+                    win.style.left = (startX + offset * index) + 'px';
+                    win.style.top = (startY + offset * index) + 'px';
+                    win.style.zIndex = 100 + index;
+                });
+            }
+
+            /**
+             * Arrange windows in a grid pattern
+             * @param {Array} windows - Array of window elements
+             */
+            tileWindows(windows) {
+                if (windows.length === 0) return;
+
+                const taskbarHeight = 30;
+                const availableWidth = window.innerWidth;
+                const availableHeight = window.innerHeight - taskbarHeight;
+
+                const cols = Math.ceil(Math.sqrt(windows.length));
+                const rows = Math.ceil(windows.length / cols);
+
+                const windowWidth = Math.floor(availableWidth / cols);
+                const windowHeight = Math.floor(availableHeight / rows);
+
+                windows.forEach((win, index) => {
+                    const col = index % cols;
+                    const row = Math.floor(index / cols);
+
+                    win.style.left = (col * windowWidth) + 'px';
+                    win.style.top = (row * windowHeight) + 'px';
+                    win.style.width = windowWidth + 'px';
+                    win.style.height = windowHeight + 'px';
+                    win.dataset.maximized = 'false';
+                });
+            }
+
+            /**
+             * Snap window to half-screen (left or right)
+             * @param {HTMLElement} windowEl - The window element
+             * @param {string} side - 'left' or 'right'
+             */
+            snapToHalf(windowEl, side) {
+                const taskbarHeight = 30;
+                const halfWidth = Math.floor(window.innerWidth / 2);
+
+                windowEl.style.width = halfWidth + 'px';
+                windowEl.style.height = (window.innerHeight - taskbarHeight) + 'px';
+                windowEl.style.top = '0px';
+
+                if (side === 'left') {
+                    windowEl.style.left = '0px';
+                } else {
+                    windowEl.style.left = halfWidth + 'px';
+                }
+
+                windowEl.dataset.maximized = 'false';
+                window.soundManager?.playMaximize();
+            }
+
+            /**
+             * Snap window to quarter-screen
+             * @param {HTMLElement} windowEl - The window element
+             * @param {string} corner - 'top-left', 'top-right', 'bottom-left', 'bottom-right'
+             */
+            snapToQuarter(windowEl, corner) {
+                const taskbarHeight = 30;
+                const quarterWidth = Math.floor(window.innerWidth / 2);
+                const quarterHeight = Math.floor((window.innerHeight - taskbarHeight) / 2);
+
+                windowEl.style.width = quarterWidth + 'px';
+                windowEl.style.height = quarterHeight + 'px';
+
+                switch (corner) {
+                    case 'top-left':
+                        windowEl.style.left = '0px';
+                        windowEl.style.top = '0px';
+                        break;
+                    case 'top-right':
+                        windowEl.style.left = quarterWidth + 'px';
+                        windowEl.style.top = '0px';
+                        break;
+                    case 'bottom-left':
+                        windowEl.style.left = '0px';
+                        windowEl.style.top = quarterHeight + 'px';
+                        break;
+                    case 'bottom-right':
+                        windowEl.style.left = quarterWidth + 'px';
+                        windowEl.style.top = quarterHeight + 'px';
+                        break;
+                }
+
+                windowEl.dataset.maximized = 'false';
+                window.soundManager?.playMaximize();
+            }
+
+            /**
+             * Center window on screen
+             * @param {HTMLElement} windowEl - The window element
+             */
+            centerWindow(windowEl) {
+                const width = windowEl.offsetWidth;
+                const height = windowEl.offsetHeight;
+
+                windowEl.style.left = Math.floor((window.innerWidth - width) / 2) + 'px';
+                windowEl.style.top = Math.floor((window.innerHeight - height) / 2) + 'px';
+            }
+
+            /**
+             * Toggle snapping on/off
+             * @returns {boolean} New snap state
+             */
+            toggle() {
+                this.snapEnabled = !this.snapEnabled;
+                SafeStorage.setItem('win95_snap_enabled', this.snapEnabled.toString());
+                return this.snapEnabled;
+            }
+        }
+
+        // Add snap guide animation CSS
+        const snapGuideStyle = document.createElement('style');
+        snapGuideStyle.textContent = `
+            @keyframes snapGuideFade {
+                from {
+                    opacity: 1;
+                    transform: scale(1);
+                }
+                to {
+                    opacity: 0;
+                    transform: scale(1.02);
+                }
+            }
+        `;
+        document.head.appendChild(snapGuideStyle);
+
+        // Create global window snapping system instance
+        window.windowSnappingSystem = new WindowSnappingSystem();
+
+        // ============================================
+        // PERFORMANCE UTILITIES
+        // ============================================
+        const PerformanceUtils = {
+            /**
+             * Debounce function - delays execution until after wait time has passed since last call
+             * @param {Function} func - Function to debounce
+             * @param {number} wait - Wait time in milliseconds
+             * @param {boolean} immediate - If true, trigger on leading edge instead of trailing
+             * @returns {Function} Debounced function
+             */
+            debounce(func, wait, immediate = false) {
+                let timeout;
+                return function executedFunction(...args) {
+                    const context = this;
+                    const later = () => {
+                        timeout = null;
+                        if (!immediate) func.apply(context, args);
+                    };
+                    const callNow = immediate && !timeout;
+                    clearTimeout(timeout);
+                    timeout = setTimeout(later, wait);
+                    if (callNow) func.apply(context, args);
+                };
+            },
+
+            /**
+             * Throttle function - ensures function is called at most once per wait period
+             * @param {Function} func - Function to throttle
+             * @param {number} wait - Wait time in milliseconds
+             * @returns {Function} Throttled function
+             */
+            throttle(func, wait) {
+                let timeout = null;
+                let previous = 0;
+                return function executedFunction(...args) {
+                    const context = this;
+                    const now = Date.now();
+                    const remaining = wait - (now - previous);
+                    if (remaining <= 0 || remaining > wait) {
+                        if (timeout) {
+                            clearTimeout(timeout);
+                            timeout = null;
+                        }
+                        previous = now;
+                        func.apply(context, args);
+                    } else if (!timeout) {
+                        timeout = setTimeout(() => {
+                            previous = Date.now();
+                            timeout = null;
+                            func.apply(context, args);
+                        }, remaining);
+                    }
+                };
+            },
+
+            /**
+             * Request animation frame throttle - ensures function is called at most once per frame
+             * @param {Function} func - Function to throttle
+             * @returns {Function} RAF-throttled function
+             */
+            rafThrottle(func) {
+                let rafId = null;
+                return function executedFunction(...args) {
+                    const context = this;
+                    if (rafId !== null) return;
+                    rafId = requestAnimationFrame(() => {
+                        func.apply(context, args);
+                        rafId = null;
+                    });
+                };
+            }
+        };
+
         // Initialize emulator - make it globally accessible immediately
         window.emulator = null;
         // Create alias for convenience in this script
@@ -15395,7 +16451,8 @@ ${JSON.stringify(state, null, 2)}
         });
 
         // Handle window resize to keep canvas fullscreen
-        window.addEventListener('resize', () => {
+        // Debounced for better performance during rapid resize events
+        window.addEventListener('resize', PerformanceUtils.debounce(() => {
             if (window.emulator && window.emulator.canvas && window.emulator.isRunning) {
                 // Header is hidden when OS is running, don't account for it
                 const statusBar = document.querySelector('.status-bar');
@@ -15421,7 +16478,7 @@ ${JSON.stringify(state, null, 2)}
                     window.emulator.drawIcon(icon.x, icon.y, icon.label, icon.emoji, icon.selected);
                 });
             }
-        });
+        }, 150)); // 150ms debounce for smooth but efficient resize handling
 
         // WAVE 5 ENHANCEMENT: Throttle utility for performance optimization
         function throttle(func, limit) {
