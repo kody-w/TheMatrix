@@ -1625,10 +1625,10 @@
 
             <!-- Prompt Library Sub-tabs -->
             <div class="prompt-library-tabs">
-                <button class="prompt-tab-button active" onclick="switchPromptCategory('scale')">SCALE-FIRST</button>
-                <button class="prompt-tab-button" onclick="switchPromptCategory('ux')">USER EXPERIENCE</button>
-                <button class="prompt-tab-button" onclick="switchPromptCategory('creative')">CREATIVE</button>
-                <button class="prompt-tab-button" onclick="switchPromptCategory('business')">BUSINESS IMPACT</button>
+                <button class="prompt-tab-button active" data-category="scale" onclick="switchPromptCategory('scale')">SCALE-FIRST</button>
+                <button class="prompt-tab-button" data-category="ux" onclick="switchPromptCategory('ux')">USER EXPERIENCE</button>
+                <button class="prompt-tab-button" data-category="creative" onclick="switchPromptCategory('creative')">CREATIVE</button>
+                <button class="prompt-tab-button" data-category="business" onclick="switchPromptCategory('business')">BUSINESS IMPACT</button>
             </div>
 
             <!-- Prompt library content will be dynamically loaded -->
@@ -2874,20 +2874,38 @@ You take the red pill - you stay in Wonderland and I show you how deep the rabbi
             const promptTabButtons = document.querySelectorAll('.prompt-tab-button');
             promptTabButtons.forEach(button => button.classList.remove('active'));
 
-            // Add active class to clicked button (if event exists)
-            if (event && event.target) {
-                event.target.classList.add('active');
-            } else {
-                // On initial load, activate the first button (scale-first)
-                const firstButton = document.querySelector('.prompt-tab-button');
-                if (firstButton) firstButton.classList.add('active');
+            // Add active class to the button for this category
+            const targetButton = document.querySelector(`.prompt-tab-button[data-category="${category}"]`);
+            if (targetButton) {
+                targetButton.classList.add('active');
             }
 
             // Load prompts for selected category
             const promptContent = document.getElementById('prompt-library-content');
-            promptContent.innerHTML = '';
+
+            // Check if data is loaded
+            if (!dataLoadedSuccessfully) {
+                showErrorState();
+                return;
+            }
 
             const prompts = promptLibrary[category] || [];
+
+            if (prompts.length === 0) {
+                promptContent.innerHTML = `
+                    <div style="text-align: center; padding: 4rem 2rem; opacity: 0.7;">
+                        <div style="font-size: 2rem; margin-bottom: 1rem;">📂</div>
+                        <div style="font-size: 1.2rem;">No prompts available for this category</div>
+                        <div style="margin-top: 1rem; font-size: 0.9rem;">
+                            Data may still be loading or failed to fetch.
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            promptContent.innerHTML = '';
+
             prompts.forEach(prompt => {
                 const card = document.createElement('div');
                 card.className = 'capability-card';

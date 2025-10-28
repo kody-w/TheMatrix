@@ -5,6 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Windows 95 Desktop Simulator - Interactive Edition</title>
     <meta name="description" content="Fully interactive Windows 95 desktop simulator with working programs, draggable windows, and authentic UI">
+
+    <!-- PWA Configuration -->
+    <meta name="theme-color" content="#008080">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Windows 95">
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" id="pwa-manifest">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAA7AAAAOwBeShxvQAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAHdSURBVFiF7Ze/TsJQGMU/WkBjYnRwcHFxcXJzc3R0dHRzdXV1dXV1dXV1MTo4ODg4ODg4+AA+gA/gqEYSQv/cXm4vJJ7kZOj3/c7v9vYGCCGEEEII8X9FgRbQB/rAC/AOvAJvwBvwDnwAH8An8Al8AV/AF/ANfAPfwA/wA/wCv8Av8Af8AX/AH/AP/AP/wD/wD/wD/8A/8A/8A//AP/AP/AP/wD/wD/wD/8A/8A/8A//AP/AP/AP/wD/wD/wD/8A/8A/8A//AP/AP/AP/wD/wD/wD/8A/8A/8A//AP/AP/AP/wD/wD/wD/8A/8A/8A//AP/AP/AP/wD/wD/wD/8A/8A/8A//AP/AP/AP/wD/wD/wD/8A/8A/8A//AP/AP/AP/wD/wD/wD/8A/8A/8A//AP/AP/AP/wD/wD/wD/8A/8A/8A//AP/AP/AP/wD/wD/wD/8A/8A/8A//AP/AP/AP/wD/wD/wD/8A/8A/8A//AP/AP/AP/wD/wD/wD/8A/8A/8A//AP/AP/AP/wD/wD/wD/8A/8A/8A//AP/AP/AP/wD/wD/wD/8A/8A/8A//AP/AP/AP/wD/wD/wD/8A/8A/8A//AP/AP/AP/wD/wD/wD/8A/8A/8A//AP/AP/AP/wD/wD/wD/8A/8A/8A//AP/AP/AP/wD/wD/wD/8A/8A/8A//AP/AP/AP/wD/wD/wD/8A/8A/8A//AP/AP/AP/wD/wD/wD/8A/8A/8A//AH/AMCAUIAAAAAABJRU5ErkJggg==">
+    <link rel="apple-touch-icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAA7AAAAOwBeShxvQAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAHdSURBVFiF7Ze/TsJQGMU/WkBjYnRwcHFxcXJzc3R0dHRzdXV1dXV1dXV1MTo4ODg4ODg4+AA+gA/gqEYSQv/cXm4vJJ7kZOj3/c7v9vYGCCGEEEII8X9FgRbQB/rAC/AOvAJvwBvwDnwAH8An8Al8AV/AF/ANfAPfwA/wA/wCv8Av8Af8AX/AH/AP/AP/wD/wD/wD/8A/8A/8A//AP/AP/AP/wD/wD/wD/8A/8A/8A//AP/AP/AP/wD/wD/wD/8A/8A/8A//AP/AP/AP/wD/wD/wD/8A/8A/8A//AP/AP/AP/wD/wD/wD/8A/8A/8A//AP/AP/AP/wD/wD/wD/8A/8A/8A//AP/AP/AP/wD/wD/wD/8A/8A/8A//AP/AP/AP/wD/wD/wD/8A/8A/8A//AP/AP/AP/wD/wD/wD/8A/8A/8A//AP/AP/AP/wD/wD/wD/8A/8A/8A//AP/AP/AP/wD/wD/wD/8A/8A/8A//AP/AP/AP/wD/wD/wD/8A/8A/8A//AP/AP/AP/wD/wD/wD/8A/8A/8A//AP/AP/AP/wD/wD/wD/8A/8A/8A//AP/AP/AP/wD/wD/wD/8A/8A/8A//AP/AP/AP/wD/wD/wD/8A/8A/8A//AP/AP/AP/wD/wD/wD/8A/8A/8A//AP/AP/AP/wD/wD/wD/8A/8A/8A//AH/AMCAUIAAAAAABJRU5ErkJggg==">
     <style>
         /* Windows 95 Color Palette - Enhanced vibrancy while staying authentic */
         :root {
