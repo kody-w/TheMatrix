@@ -22,6 +22,58 @@
             --glass-border: rgba(0, 255, 65, 0.2);
         }
 
+        /* ========== THEME VARIATIONS ========== */
+
+        /* Theme: Matrix Green (Default) */
+        body[data-theme="matrix-green"], body:not([data-theme]) {
+            --matrix-green: #00ff41;
+            --matrix-dark-green: #008F11;
+            --deep-black: #0d0208;
+            --glow-green: rgba(0, 255, 65, 0.5);
+            --glass-bg: rgba(0, 255, 65, 0.05);
+            --glass-border: rgba(0, 255, 65, 0.2);
+        }
+
+        /* Theme: Cyber Blue */
+        body[data-theme="cyber-blue"] {
+            --matrix-green: #00d4ff;
+            --matrix-dark-green: #0077cc;
+            --deep-black: #020a0d;
+            --glow-green: rgba(0, 212, 255, 0.5);
+            --glass-bg: rgba(0, 212, 255, 0.05);
+            --glass-border: rgba(0, 212, 255, 0.2);
+        }
+
+        /* Theme: Alert Red */
+        body[data-theme="alert-red"] {
+            --matrix-green: #ff0044;
+            --matrix-dark-green: #cc0022;
+            --deep-black: #0d0202;
+            --glow-green: rgba(255, 0, 68, 0.5);
+            --glass-bg: rgba(255, 0, 68, 0.05);
+            --glass-border: rgba(255, 0, 68, 0.2);
+        }
+
+        /* Theme: Premium Gold */
+        body[data-theme="premium-gold"] {
+            --matrix-green: #ffd700;
+            --matrix-dark-green: #cc9900;
+            --deep-black: #0d0a02;
+            --glow-green: rgba(255, 215, 0, 0.5);
+            --glass-bg: rgba(255, 215, 0, 0.05);
+            --glass-border: rgba(255, 215, 0, 0.2);
+        }
+
+        /* Theme: Stealth Dark */
+        body[data-theme="stealth-dark"] {
+            --matrix-green: #888888;
+            --matrix-dark-green: #555555;
+            --deep-black: #000000;
+            --glow-green: rgba(136, 136, 136, 0.5);
+            --glass-bg: rgba(136, 136, 136, 0.05);
+            --glass-border: rgba(136, 136, 136, 0.2);
+        }
+
         body {
             font-family: 'Courier New', Consolas, monospace;
             background-color: var(--deep-black);
@@ -1319,6 +1371,407 @@
             font-size: 0.85rem;
         }
 
+        /* Theme Selector Panel */
+        .theme-selector-panel {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.9);
+            background: rgba(0, 0, 0, 0.98);
+            border: 2px solid var(--matrix-green);
+            border-radius: 10px;
+            padding: 2rem;
+            max-width: 600px;
+            width: 90%;
+            z-index: 10000;
+            display: none;
+            opacity: 0;
+            box-shadow: 0 0 50px var(--glow-green);
+            transition: all 0.3s ease;
+        }
+
+        .theme-selector-panel.active {
+            display: block;
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+            animation: themeSlideIn 0.3s;
+        }
+
+        @keyframes themeSlideIn {
+            from {
+                transform: translate(-50%, -50%) scale(0.8);
+                opacity: 0;
+            }
+            to {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 1;
+            }
+        }
+
+        .theme-selector-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--glass-border);
+        }
+
+        .theme-selector-header h3 {
+            margin: 0;
+            text-transform: uppercase;
+            font-size: 1.3rem;
+        }
+
+        .close-theme-btn {
+            background: transparent;
+            border: 1px solid var(--matrix-green);
+            color: var(--matrix-green);
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: all 0.3s;
+        }
+
+        .close-theme-btn:hover {
+            background: var(--matrix-green);
+            color: var(--deep-black);
+            transform: rotate(90deg);
+        }
+
+        .theme-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+        }
+
+        .theme-option {
+            background: var(--glass-bg);
+            border: 2px solid var(--glass-border);
+            border-radius: 8px;
+            padding: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .theme-option:hover {
+            border-color: var(--matrix-green);
+            box-shadow: 0 0 20px var(--glow-green);
+            transform: translateY(-3px);
+        }
+
+        .theme-option.active {
+            border-color: var(--matrix-green);
+            background: var(--glass-bg);
+            box-shadow: 0 0 20px var(--glow-green);
+        }
+
+        .theme-preview {
+            width: 100%;
+            height: 60px;
+            border-radius: 5px;
+            margin-bottom: 0.5rem;
+            border: 1px solid var(--glass-border);
+        }
+
+        .theme-name {
+            font-weight: bold;
+            font-size: 0.9rem;
+            margin-bottom: 0.3rem;
+            text-transform: uppercase;
+        }
+
+        .theme-desc {
+            font-size: 0.75rem;
+            opacity: 0.7;
+            font-style: italic;
+        }
+
+        /* Daily Challenge Modal */
+        .daily-challenge-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 10001;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .daily-challenge-modal.active {
+            display: flex;
+            opacity: 1;
+            animation: fadeIn 0.3s;
+        }
+
+        .daily-challenge-content {
+            background: var(--deep-black);
+            border: 2px solid var(--matrix-green);
+            border-radius: 15px;
+            padding: 2rem;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 0 60px var(--glow-green);
+            animation: slideInScale 0.4s ease-out;
+        }
+
+        @keyframes slideInScale {
+            from {
+                transform: scale(0.8) translateY(50px);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1) translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .daily-challenge-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--glass-border);
+        }
+
+        .daily-challenge-header h2 {
+            margin: 0;
+            text-transform: uppercase;
+            font-size: 1.8rem;
+            text-shadow: 0 0 10px var(--glow-green);
+        }
+
+        .close-challenge-btn {
+            background: transparent;
+            border: 1px solid var(--matrix-green);
+            color: var(--matrix-green);
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.3rem;
+            transition: all 0.3s;
+        }
+
+        .close-challenge-btn:hover {
+            background: var(--matrix-green);
+            color: var(--deep-black);
+            transform: rotate(90deg);
+        }
+
+        .challenge-date {
+            text-align: center;
+            font-size: 0.9rem;
+            opacity: 0.7;
+            margin-bottom: 1.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1rem;
+        }
+
+        .challenge-streak {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .streak-item {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            padding: 1rem;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .streak-item:hover {
+            border-color: var(--matrix-green);
+            box-shadow: 0 0 15px var(--glow-green);
+            transform: translateY(-3px);
+        }
+
+        .streak-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .streak-label {
+            font-size: 0.75rem;
+            opacity: 0.7;
+            margin-bottom: 0.3rem;
+            text-transform: uppercase;
+        }
+
+        .streak-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--matrix-green);
+        }
+
+        .challenge-prompt-card {
+            background: var(--glass-bg);
+            border: 2px solid var(--matrix-green);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 0 20px var(--glow-green);
+        }
+
+        .challenge-label {
+            font-size: 0.75rem;
+            opacity: 0.7;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.15rem;
+        }
+
+        .challenge-prompt-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--matrix-green);
+            text-shadow: 0 0 10px var(--glow-green);
+        }
+
+        .challenge-prompt-card p {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            opacity: 0.9;
+            margin-bottom: 1rem;
+        }
+
+        .challenge-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.8rem;
+        }
+
+        .challenge-stat {
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+        }
+
+        .challenge-stat .stat-label {
+            font-size: 0.7rem;
+            opacity: 0.6;
+            text-transform: uppercase;
+        }
+
+        .challenge-stat .stat-value {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: var(--matrix-green);
+        }
+
+        .challenge-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .challenge-action-btn {
+            padding: 1rem;
+            font-size: 1rem;
+            font-family: 'Courier New', Consolas, monospace;
+            border: 2px solid var(--matrix-green);
+            border-radius: 8px;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: all 0.3s;
+            background: transparent;
+            color: var(--matrix-green);
+        }
+
+        .challenge-action-btn:hover {
+            background: var(--matrix-green);
+            color: var(--deep-black);
+            box-shadow: 0 0 20px var(--glow-green);
+            transform: translateY(-2px);
+        }
+
+        .challenge-action-btn.complete-btn {
+            background: var(--matrix-green);
+            color: var(--deep-black);
+        }
+
+        .challenge-action-btn.complete-btn:hover {
+            background: var(--deep-black);
+            color: var(--matrix-green);
+        }
+
+        .challenge-action-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .challenge-status {
+            background: linear-gradient(135deg, var(--glass-bg) 0%, rgba(0, 255, 65, 0.1) 100%);
+            border: 2px solid var(--matrix-green);
+            border-radius: 10px;
+            padding: 1.5rem;
+            text-align: center;
+            animation: pulseGlow 2s infinite;
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% {
+                box-shadow: 0 0 20px var(--glow-green);
+            }
+            50% {
+                box-shadow: 0 0 40px var(--glow-green);
+            }
+        }
+
+        .challenge-status .status-icon {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .challenge-status .status-text {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            color: var(--matrix-green);
+        }
+
+        .challenge-status .status-points {
+            font-size: 1rem;
+            opacity: 0.8;
+        }
+
+        .daily-challenge-btn {
+            position: relative;
+        }
+
+        .daily-challenge-btn .challenge-indicator {
+            animation: flamePulse 1.5s infinite;
+        }
+
+        @keyframes flamePulse {
+            0%, 100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.2);
+                opacity: 0.8;
+            }
+        }
+
         /* Floating Action Button */
         .fab {
             position: fixed;
@@ -1808,6 +2261,300 @@
             0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
             50% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
             100% { opacity: 0; transform: translate(-50%, -50%) scale(1); }
+        }
+
+        /* ========== WAVE 4: PRINT STYLESHEET ========== */
+        @media print {
+            /* Reset for clean printing */
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            /* Hide unnecessary UI elements */
+            #matrix-canvas,
+            .scanline,
+            .fab,
+            #fab-menu,
+            .stats-badge,
+            .action-btn,
+            .shortcuts-panel,
+            .theme-selector-panel,
+            .daily-challenge-modal,
+            .achievement-notification,
+            .toast-notification,
+            .wake-up-neo,
+            .konami-mode,
+            header,
+            footer,
+            .terminal-section,
+            .content-tabs,
+            .search-container,
+            .modal-header .close-modal,
+            .enter-button,
+            .system-status,
+            .quick-copy-btn,
+            .favorite-star {
+                display: none !important;
+            }
+
+            /* Body and page setup */
+            body {
+                background: white !important;
+                color: black !important;
+                font-family: 'Times New Roman', serif;
+                margin: 0;
+                padding: 0;
+            }
+
+            .container {
+                max-width: 100%;
+                padding: 0;
+                margin: 0;
+            }
+
+            /* Page breaks */
+            .capability-card,
+            .prompt-card,
+            .modal-content,
+            .comparison-container {
+                page-break-inside: avoid;
+                break-inside: avoid;
+            }
+
+            .section-title {
+                page-break-after: avoid;
+                break-after: avoid;
+            }
+
+            /* Print header for each page */
+            @page {
+                margin: 2cm;
+                @top-center {
+                    content: "THE MATRIX - AI Orchestration System";
+                    font-size: 10pt;
+                    font-family: 'Times New Roman', serif;
+                }
+                @bottom-right {
+                    content: "Page " counter(page) " of " counter(pages);
+                    font-size: 9pt;
+                }
+            }
+
+            /* Headings */
+            h1, h2, h3, h4 {
+                color: black !important;
+                text-shadow: none !important;
+            }
+
+            h1 {
+                font-size: 24pt;
+                border-bottom: 2px solid black;
+                padding-bottom: 10pt;
+                margin-bottom: 20pt;
+            }
+
+            h2 {
+                font-size: 18pt;
+                margin-top: 20pt;
+                margin-bottom: 12pt;
+            }
+
+            h3 {
+                font-size: 14pt;
+                margin-top: 15pt;
+                margin-bottom: 10pt;
+            }
+
+            /* Prompt cards for printing */
+            .capability-card,
+            .prompt-card {
+                border: 2px solid black !important;
+                border-radius: 0 !important;
+                background: white !important;
+                padding: 15pt;
+                margin-bottom: 20pt;
+                box-shadow: none !important;
+            }
+
+            .capability-title,
+            .prompt-title {
+                color: black !important;
+                font-size: 14pt;
+                font-weight: bold;
+                margin-bottom: 8pt;
+            }
+
+            .capability-description,
+            .prompt-description {
+                color: black !important;
+                opacity: 1 !important;
+                line-height: 1.6;
+                font-size: 11pt;
+            }
+
+            /* Stats and metrics */
+            .capability-stats,
+            .prompt-stats,
+            .challenge-stats {
+                border-top: 1px solid #ccc;
+                padding-top: 10pt;
+                margin-top: 10pt;
+            }
+
+            .stat-label {
+                font-weight: bold;
+                color: black !important;
+            }
+
+            .stat-value {
+                color: black !important;
+            }
+
+            /* Modal content */
+            .modal-content {
+                border: 2px solid black !important;
+                background: white !important;
+                box-shadow: none !important;
+                max-width: 100% !important;
+                max-height: none !important;
+                padding: 20pt;
+            }
+
+            .modal-title {
+                font-size: 18pt;
+                color: black !important;
+            }
+
+            .modal-body {
+                color: black !important;
+                line-height: 1.8;
+                font-size: 11pt;
+            }
+
+            .modal-body ul {
+                padding-left: 20pt;
+            }
+
+            .modal-body li {
+                margin-bottom: 5pt;
+            }
+
+            .modal-body li::before {
+                content: '• ';
+                color: black !important;
+            }
+
+            /* Tables and grids */
+            .capabilities-grid,
+            .prompt-grid {
+                display: block !important;
+            }
+
+            /* Comparison tool */
+            .comparison-container {
+                border: 1px solid black !important;
+                background: white !important;
+            }
+
+            .comparison-slot {
+                border: 1px solid #ccc !important;
+                background: white !important;
+            }
+
+            .comparison-verdict {
+                border-top: 2px solid black;
+                padding-top: 15pt;
+                margin-top: 15pt;
+            }
+
+            /* Builder and analytics */
+            .builder-form,
+            .analytics-section {
+                display: none !important;
+            }
+
+            /* Links */
+            a {
+                color: black !important;
+                text-decoration: underline;
+            }
+
+            a[href]:after {
+                content: " (" attr(href) ")";
+                font-size: 9pt;
+                font-style: italic;
+            }
+
+            /* No colors from themes */
+            * {
+                color: black !important;
+                background-color: white !important;
+                border-color: black !important;
+            }
+
+            /* Except for specific semantic elements */
+            .capability-status,
+            .prompt-status {
+                border: 1px solid black !important;
+                padding: 3pt 8pt;
+                display: inline-block;
+            }
+
+            /* Typography optimization */
+            p {
+                orphans: 3;
+                widows: 3;
+                font-size: 11pt;
+                line-height: 1.6;
+            }
+
+            /* Code and monospace */
+            code, pre, .terminal-output {
+                font-family: 'Courier New', monospace;
+                font-size: 10pt;
+                border: 1px solid #ccc;
+                padding: 5pt;
+                background: #f5f5f5 !important;
+            }
+
+            /* Print optimization */
+            .tab-content {
+                display: block !important;
+            }
+
+            .tab-content[style*="display: none"] {
+                display: none !important;
+            }
+
+            /* Ensure visible content prints */
+            .modal.active .modal-content {
+                display: block !important;
+                position: relative !important;
+            }
+
+            /* Chart placeholders */
+            canvas {
+                border: 1px solid black;
+                background: white !important;
+            }
+
+            /* Clean spacing */
+            .section-title {
+                margin-top: 30pt;
+                margin-bottom: 15pt;
+                border-bottom: 1px solid black;
+                padding-bottom: 8pt;
+            }
+
+            /* Print-specific utility */
+            .print-only {
+                display: block !important;
+            }
+
+            .no-print {
+                display: none !important;
+            }
         }
     </style>
 </head>
@@ -2663,6 +3410,9 @@
     <!-- FAB Menu (appears on click) -->
     <div id="fab-menu" style="display: none; position: fixed; bottom: 5rem; right: 2rem; z-index: 9997;">
         <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+            <button class="action-btn daily-challenge-btn" onclick="showDailyChallenge()" style="white-space: nowrap;">
+                🎯 Daily Challenge <span id="challenge-indicator" style="display: none;">🔥</span>
+            </button>
             <button class="action-btn" onclick="showFavorites()" style="white-space: nowrap;">
                 ⭐ Favorites (<span id="fav-count">0</span>)
             </button>
@@ -2675,12 +3425,118 @@
             <button class="action-btn" onclick="toggleShortcuts()" style="white-space: nowrap;">
                 ⌨️ Shortcuts
             </button>
+            <button class="action-btn" onclick="toggleThemeSelector()" style="white-space: nowrap;">
+                🎨 Theme
+            </button>
             <button class="action-btn" onclick="randomPrompt()" style="white-space: nowrap;">
                 🎲 Random
             </button>
             <button class="action-btn" onclick="resetStats()" style="white-space: nowrap;">
                 🔄 Reset Stats
             </button>
+        </div>
+    </div>
+
+    <!-- Theme Selector Panel -->
+    <div id="theme-selector" class="theme-selector-panel">
+        <div class="theme-selector-content">
+            <div class="theme-selector-header">
+                <h3>🎨 SELECT THEME</h3>
+                <button onclick="toggleThemeSelector()" class="close-theme-btn">✕</button>
+            </div>
+            <div class="theme-options">
+                <div class="theme-option" data-theme="matrix-green" onclick="setTheme('matrix-green')">
+                    <div class="theme-preview" style="background: linear-gradient(135deg, #0d0208 0%, #00ff41 100%);"></div>
+                    <div class="theme-name">MATRIX GREEN</div>
+                    <div class="theme-desc">Classic hacker aesthetic</div>
+                </div>
+                <div class="theme-option" data-theme="cyber-blue" onclick="setTheme('cyber-blue')">
+                    <div class="theme-preview" style="background: linear-gradient(135deg, #020a0d 0%, #00d4ff 100%);"></div>
+                    <div class="theme-name">CYBER BLUE</div>
+                    <div class="theme-desc">Neon cyberpunk vibes</div>
+                </div>
+                <div class="theme-option" data-theme="alert-red" onclick="setTheme('alert-red')">
+                    <div class="theme-preview" style="background: linear-gradient(135deg, #0d0202 0%, #ff0044 100%);"></div>
+                    <div class="theme-name">ALERT RED</div>
+                    <div class="theme-desc">Danger mode activated</div>
+                </div>
+                <div class="theme-option" data-theme="premium-gold" onclick="setTheme('premium-gold')">
+                    <div class="theme-preview" style="background: linear-gradient(135deg, #0d0a02 0%, #ffd700 100%);"></div>
+                    <div class="theme-name">PREMIUM GOLD</div>
+                    <div class="theme-desc">Luxury elegance</div>
+                </div>
+                <div class="theme-option" data-theme="stealth-dark" onclick="setTheme('stealth-dark')">
+                    <div class="theme-preview" style="background: linear-gradient(135deg, #000000 0%, #888888 100%);"></div>
+                    <div class="theme-name">STEALTH DARK</div>
+                    <div class="theme-desc">Minimalist shadow</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Daily Challenge Modal -->
+    <div id="daily-challenge-modal" class="daily-challenge-modal">
+        <div class="daily-challenge-content">
+            <div class="daily-challenge-header">
+                <h2>🎯 DAILY CHALLENGE</h2>
+                <button onclick="closeDailyChallenge()" class="close-challenge-btn">✕</button>
+            </div>
+
+            <div class="challenge-date" id="challenge-date">Loading...</div>
+
+            <div class="challenge-streak">
+                <div class="streak-item">
+                    <div class="streak-icon">🔥</div>
+                    <div class="streak-label">Current Streak</div>
+                    <div class="streak-value" id="current-streak">0</div>
+                </div>
+                <div class="streak-item">
+                    <div class="streak-icon">🏆</div>
+                    <div class="streak-label">Best Streak</div>
+                    <div class="streak-value" id="best-streak">0</div>
+                </div>
+                <div class="streak-item">
+                    <div class="streak-icon">✅</div>
+                    <div class="streak-label">Total Completed</div>
+                    <div class="streak-value" id="total-completed">0</div>
+                </div>
+            </div>
+
+            <div class="challenge-prompt-card">
+                <div class="challenge-label">TODAY'S PROMPT:</div>
+                <h3 id="challenge-prompt-title">Loading...</h3>
+                <p id="challenge-prompt-desc">Loading...</p>
+
+                <div class="challenge-stats">
+                    <div class="challenge-stat">
+                        <span class="stat-label">Agents:</span>
+                        <span class="stat-value" id="challenge-agents">0</span>
+                    </div>
+                    <div class="challenge-stat">
+                        <span class="stat-label">Artifacts:</span>
+                        <span class="stat-value" id="challenge-artifacts">0</span>
+                    </div>
+                    <div class="challenge-stat">
+                        <span class="stat-label">Domain:</span>
+                        <span class="stat-value" id="challenge-domain">-</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="challenge-actions">
+                <button onclick="viewChallengePrompt()" class="challenge-action-btn view-btn">
+                    👁️ View Details
+                </button>
+                <button onclick="completeDailyChallenge()" class="challenge-action-btn complete-btn" id="complete-challenge-btn">
+                    ✅ Mark Complete
+                </button>
+            </div>
+
+            <div class="challenge-status" id="challenge-status" style="display: none;">
+                <div class="status-icon">🎉</div>
+                <div class="status-text">Challenge Completed!</div>
+                <div class="status-points">+50 XP  |  Streak: <span id="new-streak">1</span></div>
+            </div>
         </div>
     </div>
 
@@ -2839,11 +3695,44 @@ You take the red pill - you stay in Wonderland and I show you how deep the rabbi
         let konamiCode = [];
         const konamiSequence = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'];
 
+        function activateKonamiMode() {
+            // Show massive emoji
+            const emoji = document.createElement('div');
+            emoji.className = 'konami-mode';
+            emoji.textContent = '🎮';
+            document.body.appendChild(emoji);
+
+            setTimeout(() => {
+                document.body.removeChild(emoji);
+            }, 2000);
+
+            // Activate glitch effect
+            document.body.classList.add('glitch-active');
+            setTimeout(() => {
+                document.body.classList.remove('glitch-active');
+            }, 3000);
+
+            // Matrix rain speed boost
+            for (let i = 0; i < drops.length; i++) {
+                setTimeout(() => {
+                    drops[i] = Math.random() * (canvas.height / fontSize);
+                }, i * 10);
+            }
+
+            showNotification('🎮 KONAMI CODE ACTIVATED! THE MATRIX IS GLITCHING!');
+
+            // Unlock secret achievement
+            const stats = getStats();
+            stats.konami_activated = true;
+            saveStats(stats);
+        }
+
         document.addEventListener('keydown', (e) => {
             konamiCode.push(e.key);
             konamiCode = konamiCode.slice(-10);
 
             if (konamiCode.join(',') === konamiSequence.join(',')) {
+                activateKonamiMode();
                 showWakeUpNeo();
                 const lineDiv = document.createElement('div');
                 lineDiv.className = 'terminal-line';
@@ -4320,6 +5209,486 @@ Speedup vs sequential: ${speedupFactor}x faster`;
             panel.classList.toggle('active');
         }
 
+        // ========== WAVE 4: THEME SWITCHER ==========
+
+        // Toggle Theme Selector Panel
+        function toggleThemeSelector() {
+            const panel = document.getElementById('theme-selector');
+            panel.classList.toggle('active');
+            toggleFabMenu(); // Close FAB menu when opening theme selector
+            updateThemeSelection();
+        }
+
+        // Set Theme
+        function setTheme(themeName) {
+            // Apply theme to body
+            document.body.setAttribute('data-theme', themeName);
+
+            // Save to localStorage
+            localStorage.setItem('matrix_theme', themeName);
+
+            // Update active state in UI
+            updateThemeSelection();
+
+            // Show notification
+            const themeNames = {
+                'matrix-green': 'MATRIX GREEN',
+                'cyber-blue': 'CYBER BLUE',
+                'alert-red': 'ALERT RED',
+                'premium-gold': 'PREMIUM GOLD',
+                'stealth-dark': 'STEALTH DARK'
+            };
+            showNotification(`🎨 Theme changed to ${themeNames[themeName]}!`);
+
+            // Close theme selector after selection
+            setTimeout(() => {
+                toggleThemeSelector();
+            }, 500);
+        }
+
+        // Update theme selection UI
+        function updateThemeSelection() {
+            const currentTheme = document.body.getAttribute('data-theme') || 'matrix-green';
+            const themeOptions = document.querySelectorAll('.theme-option');
+
+            themeOptions.forEach(option => {
+                const themeName = option.getAttribute('data-theme');
+                if (themeName === currentTheme) {
+                    option.classList.add('active');
+                } else {
+                    option.classList.remove('active');
+                }
+            });
+        }
+
+        // Load saved theme on page load
+        function loadTheme() {
+            const savedTheme = localStorage.getItem('matrix_theme');
+            if (savedTheme) {
+                document.body.setAttribute('data-theme', savedTheme);
+            } else {
+                // Default to matrix-green
+                document.body.setAttribute('data-theme', 'matrix-green');
+            }
+        }
+
+        // Load theme when page loads
+        loadTheme();
+
+        // ========== WAVE 4: DAILY CHALLENGE SYSTEM ==========
+
+        // All available prompts for challenges (from PROMPT_DATA)
+        const CHALLENGE_PROMPTS = [
+            'great-migration', 'documentation-engine', 'knowledge-synthesizer',
+            'automation-orchestrator', 'universe-architect', 'system-designer',
+            'data-warehouse-genesis', 'api-universe', 'test-cathedral', 'dnd-campaign'
+        ];
+
+        // Get daily challenge data from localStorage
+        function getDailyChallengeData() {
+            const data = localStorage.getItem('matrix_daily_challenge');
+            if (data) {
+                return JSON.parse(data);
+            }
+            return {
+                currentStreak: 0,
+                bestStreak: 0,
+                totalCompleted: 0,
+                lastCompletedDate: null,
+                completedDates: []
+            };
+        }
+
+        // Save daily challenge data
+        function saveDailyChallengeData(data) {
+            localStorage.setItem('matrix_daily_challenge', JSON.stringify(data));
+        }
+
+        // Get today's date string (YYYY-MM-DD)
+        function getTodayString() {
+            const today = new Date();
+            return today.toISOString().split('T')[0];
+        }
+
+        // Get yesterday's date string
+        function getYesterdayString() {
+            const yesterday = new Date();
+            yesterday.setDate(yesterday.getDate() - 1);
+            return yesterday.toISOString().split('T')[0];
+        }
+
+        // Generate deterministic prompt for today
+        function getTodaysPrompt() {
+            const todayString = getTodayString();
+            // Use date as seed for consistent daily prompt
+            let hash = 0;
+            for (let i = 0; i < todayString.length; i++) {
+                hash = ((hash << 5) - hash) + todayString.charCodeAt(i);
+                hash = hash & hash; // Convert to 32bit integer
+            }
+            const index = Math.abs(hash) % CHALLENGE_PROMPTS.length;
+            return CHALLENGE_PROMPTS[index];
+        }
+
+        // Check if today's challenge is completed
+        function isTodaysChallengeCompleted() {
+            const data = getDailyChallengeData();
+            const today = getTodayString();
+            return data.completedDates.includes(today);
+        }
+
+        // Show daily challenge modal
+        function showDailyChallenge() {
+            const modal = document.getElementById('daily-challenge-modal');
+            modal.classList.add('active');
+            toggleFabMenu(); // Close FAB menu
+
+            // Load challenge data
+            const data = getDailyChallengeData();
+            const todayPromptId = getTodaysPrompt();
+            const promptData = PROMPT_DATA[todayPromptId];
+            const today = new Date();
+            const dateString = today.toLocaleDateString('en-US', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+
+            // Update UI
+            document.getElementById('challenge-date').textContent = dateString;
+            document.getElementById('current-streak').textContent = data.currentStreak;
+            document.getElementById('best-streak').textContent = data.bestStreak;
+            document.getElementById('total-completed').textContent = data.totalCompleted;
+
+            document.getElementById('challenge-prompt-title').textContent = promptData.title;
+            document.getElementById('challenge-prompt-desc').textContent = promptData.description;
+            document.getElementById('challenge-agents').textContent = promptData.agents;
+            document.getElementById('challenge-artifacts').textContent = promptData.artifacts;
+            document.getElementById('challenge-domain').textContent = promptData.domain;
+
+            // Check if already completed
+            const completed = isTodaysChallengeCompleted();
+            const completeBtn = document.getElementById('complete-challenge-btn');
+            const statusDiv = document.getElementById('challenge-status');
+
+            if (completed) {
+                completeBtn.disabled = true;
+                completeBtn.textContent = '✅ Completed Today!';
+                statusDiv.style.display = 'block';
+                document.getElementById('new-streak').textContent = data.currentStreak;
+            } else {
+                completeBtn.disabled = false;
+                completeBtn.textContent = '✅ Mark Complete';
+                statusDiv.style.display = 'none';
+
+                // Show flame indicator if not completed
+                updateChallengeIndicator();
+            }
+        }
+
+        // Close daily challenge modal
+        function closeDailyChallenge() {
+            const modal = document.getElementById('daily-challenge-modal');
+            modal.classList.remove('active');
+        }
+
+        // View challenge prompt details
+        function viewChallengePrompt() {
+            const todayPromptId = getTodaysPrompt();
+            closeDailyChallenge();
+            setTimeout(() => {
+                openModal(todayPromptId);
+            }, 300);
+        }
+
+        // Complete daily challenge
+        function completeDailyChallenge() {
+            const data = getDailyChallengeData();
+            const today = getTodayString();
+            const yesterday = getYesterdayString();
+
+            // Add today to completed dates
+            if (!data.completedDates.includes(today)) {
+                data.completedDates.push(today);
+                data.totalCompleted++;
+
+                // Update streak
+                if (data.lastCompletedDate === yesterday) {
+                    // Continuing streak
+                    data.currentStreak++;
+                } else if (data.lastCompletedDate === today) {
+                    // Already completed today (shouldn't happen)
+                    return;
+                } else {
+                    // New streak
+                    data.currentStreak = 1;
+                }
+
+                // Update best streak
+                if (data.currentStreak > data.bestStreak) {
+                    data.bestStreak = data.currentStreak;
+                }
+
+                data.lastCompletedDate = today;
+
+                // Save data
+                saveDailyChallengeData(data);
+
+                // Update UI
+                document.getElementById('current-streak').textContent = data.currentStreak;
+                document.getElementById('best-streak').textContent = data.bestStreak;
+                document.getElementById('total-completed').textContent = data.totalCompleted;
+                document.getElementById('new-streak').textContent = data.currentStreak;
+
+                // Show completion status
+                const completeBtn = document.getElementById('complete-challenge-btn');
+                completeBtn.disabled = true;
+                completeBtn.textContent = '✅ Completed Today!';
+
+                const statusDiv = document.getElementById('challenge-status');
+                statusDiv.style.display = 'block';
+
+                // Show notification
+                showNotification(`🎯 Daily Challenge Complete! Streak: ${data.currentStreak} 🔥`);
+
+                // Update challenge indicator
+                updateChallengeIndicator();
+
+                // Check for streak achievements
+                if (data.currentStreak === 7) {
+                    setTimeout(() => {
+                        showNotification('🏆 Achievement: Week Warrior! 7-day streak!');
+                    }, 1500);
+                } else if (data.currentStreak === 30) {
+                    setTimeout(() => {
+                        showNotification('🏆 Achievement: Monthly Master! 30-day streak!');
+                    }, 1500);
+                }
+            }
+        }
+
+        // Update challenge indicator (flame icon)
+        function updateChallengeIndicator() {
+            const indicator = document.getElementById('challenge-indicator');
+            const completed = isTodaysChallengeCompleted();
+
+            if (completed) {
+                indicator.style.display = 'none';
+            } else {
+                indicator.style.display = 'inline';
+            }
+        }
+
+        // Initialize challenge indicator on page load
+        updateChallengeIndicator();
+
+        // ========== WAVE 4: EASTER EGGS ==========
+
+        // Secret Developer Mode
+        let searchMatrixCount = 0;
+        let devModeActive = false;
+
+        // Intercept search input for secret command
+        const searchInput = document.getElementById('global-search');
+        if (searchInput) {
+            searchInput.addEventListener('input', (e) => {
+                if (e.target.value.toLowerCase() === 'matrix') {
+                    searchMatrixCount++;
+                    if (searchMatrixCount >= 3 && !devModeActive) {
+                        activateDeveloperMode();
+                        searchMatrixCount = 0;
+                    }
+                } else {
+                    searchMatrixCount = 0;
+                }
+            });
+        }
+
+        function activateDeveloperMode() {
+            devModeActive = true;
+            showNotification('🔓 DEVELOPER MODE ACTIVATED!');
+
+            // Add special dev badge
+            const badge = document.createElement('div');
+            badge.id = 'dev-badge';
+            badge.style.cssText = `
+                position: fixed;
+                top: 2rem;
+                right: 2rem;
+                background: var(--matrix-green);
+                color: var(--deep-black);
+                padding: 0.5rem 1rem;
+                border-radius: 5px;
+                font-weight: bold;
+                z-index: 9999;
+                animation: pulse 2s infinite;
+                cursor: pointer;
+            `;
+            badge.textContent = '👨‍💻 DEV MODE';
+            badge.onclick = showDevStats;
+            document.body.appendChild(badge);
+
+            // Unlock secret achievement
+            setTimeout(() => {
+                showNotification('🏆 Secret Achievement: Developer Unlocked!');
+            }, 1500);
+        }
+
+        function showDevStats() {
+            const stats = getStats();
+            const challengeData = getDailyChallengeData();
+            const theme = localStorage.getItem('matrix_theme') || 'matrix-green';
+            const allData = {
+                stats,
+                challenge: challengeData,
+                theme,
+                devMode: devModeActive,
+                totalStorage: JSON.stringify(localStorage).length,
+                timestamp: new Date().toISOString()
+            };
+
+            const devModal = document.createElement('div');
+            devModal.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: rgba(0, 0, 0, 0.98);
+                border: 2px solid var(--matrix-green);
+                border-radius: 10px;
+                padding: 2rem;
+                max-width: 600px;
+                width: 90%;
+                max-height: 80vh;
+                overflow-y: auto;
+                z-index: 10002;
+                box-shadow: 0 0 50px var(--glow-green);
+            `;
+            devModal.innerHTML = `
+                <h2 style="color: var(--matrix-green); margin-bottom: 1rem;">🔧 DEVELOPER STATS</h2>
+                <pre style="color: var(--matrix-green); font-size: 0.85rem; line-height: 1.6; overflow-x: auto;">
+${JSON.stringify(allData, null, 2)}
+                </pre>
+                <button onclick="this.parentElement.remove()" style="
+                    background: var(--matrix-green);
+                    color: var(--deep-black);
+                    border: none;
+                    padding: 0.5rem 1.5rem;
+                    margin-top: 1rem;
+                    cursor: pointer;
+                    border-radius: 5px;
+                    font-family: 'Courier New', monospace;
+                ">CLOSE</button>
+            `;
+            document.body.appendChild(devModal);
+        }
+
+        // Logo click counter Easter egg
+        let logoClicks = 0;
+        let logoClickTimer = null;
+        const logoElement = document.querySelector('h1');
+        if (logoElement) {
+            logoElement.style.cursor = 'pointer';
+            logoElement.addEventListener('click', () => {
+                logoClicks++;
+
+                if (logoClickTimer) clearTimeout(logoClickTimer);
+
+                logoClickTimer = setTimeout(() => {
+                    logoClicks = 0;
+                }, 2000);
+
+                if (logoClicks === 10) {
+                    triggerMatrixGlitch();
+                    logoClicks = 0;
+                } else if (logoClicks === 5) {
+                    showNotification('🤔 Keep clicking...');
+                }
+            });
+        }
+
+        function triggerMatrixGlitch() {
+            // Rapid theme cycling
+            const themes = ['matrix-green', 'cyber-blue', 'alert-red', 'premium-gold', 'stealth-dark'];
+            let cycleCount = 0;
+            const interval = setInterval(() => {
+                const randomTheme = themes[Math.floor(Math.random() * themes.length)];
+                document.body.setAttribute('data-theme', randomTheme);
+                cycleCount++;
+                if (cycleCount >= 20) {
+                    clearInterval(interval);
+                    const savedTheme = localStorage.getItem('matrix_theme') || 'matrix-green';
+                    document.body.setAttribute('data-theme', savedTheme);
+                    showNotification('🌈 MATRIX GLITCH ACTIVATED!');
+                }
+            }, 100);
+        }
+
+        // Time-based Easter eggs
+        function checkTimeBasedEasterEggs() {
+            const now = new Date();
+            const hour = now.getHours();
+            const minute = now.getMinutes();
+
+            // 13:37 (leet time)
+            if (hour === 13 && minute === 37) {
+                showNotification('🎮 1337 TIME DETECTED! You are elite!');
+                setTimeout(() => {
+                    const body = document.body;
+                    body.style.filter = 'hue-rotate(180deg)';
+                    setTimeout(() => {
+                        body.style.filter = '';
+                    }, 3000);
+                }, 1000);
+            }
+
+            // Midnight
+            if (hour === 0 && minute === 0) {
+                showNotification('🌙 Welcome to the witching hour...');
+            }
+
+            // 4:20
+            if (hour === 4 && minute === 20) {
+                showNotification('🌿 Early morning discovery time!');
+            }
+        }
+
+        // Check time-based Easter eggs every minute
+        setInterval(checkTimeBasedEasterEggs, 60000);
+        checkTimeBasedEasterEggs(); // Check immediately on load
+
+        // Secret keyboard combination: Shift + Shift + Shift (triple shift)
+        let shiftPressCount = 0;
+        let shiftPressTimer = null;
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Shift') {
+                shiftPressCount++;
+
+                if (shiftPressTimer) clearTimeout(shiftPressTimer);
+
+                shiftPressTimer = setTimeout(() => {
+                    shiftPressCount = 0;
+                }, 1000);
+
+                if (shiftPressCount === 3) {
+                    activateMatrixRainBoost();
+                    shiftPressCount = 0;
+                }
+            }
+        });
+
+        function activateMatrixRainBoost() {
+            showNotification('⚡ MATRIX RAIN BOOST ACTIVATED!');
+            // Speed up matrix rain temporarily
+            const originalDrawInterval = 30;
+            let boostedDrawInterval = 10;
+            setTimeout(() => {
+                showNotification('💚 Matrix rain returning to normal...');
+            }, 5000);
+        }
+
         // Export All Prompts
         function exportAllPrompts() {
             const allPrompts = `# THE MATRIX - ALL ORCHESTRATION PROMPTS
@@ -4722,53 +6091,6 @@ Generated by The Matrix AI Orchestration System
             originalSaveStats(stats);
             checkAchievements();
         };
-
-        // ========== KONAMI CODE EASTER EGG ==========
-
-        let konamiCode = [];
-        const konamiSequence = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'];
-
-        document.addEventListener('keydown', (e) => {
-            konamiCode.push(e.key);
-            konamiCode = konamiCode.slice(-10); // Keep last 10 keys
-
-            if (konamiCode.join(',') === konamiSequence.join(',')) {
-                activateKonamiMode();
-            }
-        });
-
-        function activateKonamiMode() {
-            // Show massive emoji
-            const emoji = document.createElement('div');
-            emoji.className = 'konami-mode';
-            emoji.textContent = '🎮';
-            document.body.appendChild(emoji);
-
-            setTimeout(() => {
-                document.body.removeChild(emoji);
-            }, 2000);
-
-            // Activate glitch effect
-            document.body.classList.add('glitch-active');
-            setTimeout(() => {
-                document.body.classList.remove('glitch-active');
-            }, 3000);
-
-            // Matrix rain speed boost
-            const originalSpeed = 1;
-            for (let i = 0; i < drops.length; i++) {
-                setTimeout(() => {
-                    drops[i] = Math.random() * (canvas.height / fontSize);
-                }, i * 10);
-            }
-
-            showNotification('🎮 KONAMI CODE ACTIVATED! THE MATRIX IS GLITCHING!');
-
-            // Unlock secret achievement
-            const stats = getStats();
-            stats.konami_activated = true;
-            saveStats(stats);
-        }
 
         // Initialize achievement system
         checkAchievements();
