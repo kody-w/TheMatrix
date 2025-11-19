@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="LocalFirst Apps Gallery - 100+ Self-Contained HTML Applications">
+    <title>Apps Gallery | The Matrix</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --matrix-green: #00ff41;
+            --matrix-dark-green: #008F11;
+            --deep-black: #0d0208;
+            --glow-green: rgba(0, 255, 65, 0.5);
+            --glass-bg: rgba(0, 255, 65, 0.05);
+            --glass-border: rgba(0, 255, 65, 0.2);
+            --card-bg: rgba(0, 30, 10, 0.7);
+        }
+
+        body {
+            font-family: 'Courier New', Consolas, monospace;
+            background: linear-gradient(135deg, #0d0208 0%, #1a0f0f 50%, #0d0208 100%);
+            color: var(--matrix-green);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px 20px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0, 255, 65, 0.1);
+        }
+
+        .header h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 0 0 20px var(--glow-green);
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { text-shadow: 0 0 20px var(--glow-green); }
+            to { text-shadow: 0 0 30px var(--matrix-green), 0 0 40px var(--matrix-green); }
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.8;
+        }
+
+        .header .back-link {
+            display: inline-block;
+            margin-top: 15px;
+            padding: 10px 20px;
+            background: var(--glass-bg);
+            border: 1px solid var(--matrix-green);
+            border-radius: 8px;
+            color: var(--matrix-green);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .header .back-link:hover {
+            background: var(--matrix-green);
+            color: var(--deep-black);
+            box-shadow: 0 0 20px var(--glow-green);
+        }
+
+        .controls {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 12px 20px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            color: var(--matrix-green);
+            font-family: 'Courier New', Consolas, monospace;
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--matrix-green);
+            box-shadow: 0 0 15px var(--glow-green);
+        }
+
+        .search-box input::placeholder {
+            color: rgba(0, 255, 65, 0.4);
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 10px 20px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            color: var(--matrix-green);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Courier New', Consolas, monospace;
+            font-size: 0.9em;
+        }
+
+        .filter-btn:hover {
+            background: var(--glass-border);
+            border-color: var(--matrix-green);
+        }
+
+        .filter-btn.active {
+            background: var(--matrix-green);
+            color: var(--deep-black);
+            border-color: var(--matrix-green);
+        }
+
+        .stats {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 1.1em;
+            opacity: 0.7;
+        }
+
+        .apps-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .app-card {
+            background: var(--card-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .app-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 255, 65, 0.1), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .app-card:hover::before {
+            left: 100%;
+        }
+
+        .app-card:hover {
+            border-color: var(--matrix-green);
+            box-shadow: 0 8px 32px rgba(0, 255, 65, 0.2);
+            transform: translateY(-5px);
+        }
+
+        .app-icon {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .app-title {
+            font-size: 1.3em;
+            margin-bottom: 10px;
+            color: var(--matrix-green);
+        }
+
+        .app-description {
+            font-size: 0.9em;
+            opacity: 0.7;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+
+        .app-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .tag {
+            padding: 4px 10px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 4px;
+            font-size: 0.8em;
+            opacity: 0.8;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 60px 20px;
+            font-size: 1.5em;
+            opacity: 0.5;
+        }
+
+        .category-headers {
+            margin-bottom: 40px;
+        }
+
+        .category-section {
+            margin-bottom: 50px;
+        }
+
+        .category-title {
+            font-size: 2em;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--glass-border);
+            text-shadow: 0 0 10px var(--glow-green);
+        }
+
+        .footer {
+            text-align: center;
+            padding: 30px 20px;
+            margin-top: 40px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 15px;
+            opacity: 0.7;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .controls {
+                flex-direction: column;
+            }
+
+            .filter-buttons {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .apps-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🚀 APPS GALLERY</h1>
+        <p>100+ Local-First HTML Applications</p>
+        <p style="font-size: 0.9em; margin-top: 10px;">Self-contained • No dependencies • Works offline</p>
+        <a href="index.html" class="back-link">← Back to Matrix</a>
+    </div>
+
+    <div class="controls">
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="🔍 Search apps...">
+        </div>
+        <div class="filter-buttons">
+            <button class="filter-btn active" data-category="all">All</button>
+            <button class="filter-btn" data-category="ai-tools">🤖 AI Tools</button>
+            <button class="filter-btn" data-category="games">🎮 Games</button>
+            <button class="filter-btn" data-category="development">💻 Development</button>
+            <button class="filter-btn" data-category="business">💼 Business</button>
+            <button class="filter-btn" data-category="education">🎓 Education</button>
+            <button class="filter-btn" data-category="productivity">📋 Productivity</button>
+            <button class="filter-btn" data-category="media">📹 Media</button>
+            <button class="filter-btn" data-category="health">❤️ Health</button>
+            <button class="filter-btn" data-category="utilities">🔧 Utilities</button>
+        </div>
+    </div>
+
+    <div class="stats" id="stats">Loading apps...</div>
+
+    <div id="appsContainer"></div>
+
+    <div class="footer">
+        <p>Powered by <strong>The Matrix</strong> • AI Orchestration Framework</p>
+        <p style="margin-top: 10px; font-size: 0.9em;">All applications are self-contained HTML files following local-first principles</p>
+    </div>
+
+    <script>
+        // Apps data - will be loaded from manifest or embedded
+        let allApps = [];
+        let currentCategory = 'all';
+        let searchTerm = '';
+
+        // Category mapping for icons
+        const categoryIcons = {
+            'ai-tools': '🤖',
+            'business': '💼',
+            'development': '💻',
+            'education': '🎓',
+            'games': '🎮',
+            'health': '❤️',
+            'media': '📹',
+            'productivity': '📋',
+            'utilities': '🔧',
+            'index-variants': '📄'
+        };
+
+        // Load apps data
+        async function loadApps() {
+            try {
+                // Try to load from manifest file
+                const response = await fetch('./data/config/utility_apps_config.json');
+                const data = await response.json();
+                allApps = data.apps;
+            } catch (error) {
+                console.error('Error loading apps manifest:', error);
+                // Fallback to local list if manifest fails
+                allApps = [];
+            }
+
+            renderApps();
+            updateStats();
+        }
+
+        // Filter apps by category
+        function filterByCategory(category) {
+            currentCategory = category;
+
+            // Update active button
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.dataset.category === category) {
+                    btn.classList.add('active');
+                }
+            });
+
+            renderApps();
+        }
+
+        // Search apps
+        function searchApps(term) {
+            searchTerm = term.toLowerCase();
+            renderApps();
+        }
+
+        // Render apps grid
+        function renderApps() {
+            const container = document.getElementById('appsContainer');
+
+            // Filter apps
+            let filteredApps = allApps.filter(app => {
+                const matchesCategory = currentCategory === 'all' ||
+                    app.tags.some(tag => tag.toLowerCase().includes(currentCategory)) ||
+                    app.path.includes(`/apps/${currentCategory}/`);
+
+                const matchesSearch = searchTerm === '' ||
+                    app.title.toLowerCase().includes(searchTerm) ||
+                    app.description.toLowerCase().includes(searchTerm) ||
+                    app.tags.some(tag => tag.toLowerCase().includes(searchTerm));
+
+                return matchesCategory && matchesSearch;
+            });
+
+            if (filteredApps.length === 0) {
+                container.innerHTML = '<div class="no-results">No apps found matching your criteria</div>';
+                updateStats();
+                return;
+            }
+
+            // Group by category if showing all
+            if (currentCategory === 'all' && searchTerm === '') {
+                renderByCategory(container, filteredApps);
+            } else {
+                renderFlat(container, filteredApps);
+            }
+
+            updateStats();
+        }
+
+        // Render apps grouped by category
+        function renderByCategory(container, apps) {
+            const categories = {};
+
+            apps.forEach(app => {
+                const category = extractCategory(app);
+                if (!categories[category]) {
+                    categories[category] = [];
+                }
+                categories[category].push(app);
+            });
+
+            let html = '';
+            Object.keys(categories).sort().forEach(category => {
+                const categoryApps = categories[category];
+                const icon = categoryIcons[category] || '📦';
+                const displayName = category.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+
+                html += `
+                    <div class="category-section">
+                        <h2 class="category-title">${icon} ${displayName} (${categoryApps.length})</h2>
+                        <div class="apps-grid">
+                            ${categoryApps.map(app => renderAppCard(app)).join('')}
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        // Render apps in flat grid
+        function renderFlat(container, apps) {
+            container.innerHTML = `
+                <div class="apps-grid">
+                    ${apps.map(app => renderAppCard(app)).join('')}
+                </div>
+            `;
+        }
+
+        // Render individual app card
+        function renderAppCard(app) {
+            const icon = app.icon || categoryIcons[extractCategory(app)] || '📦';
+            return `
+                <div class="app-card" onclick="openApp('${app.path}')">
+                    <span class="app-icon">${icon}</span>
+                    <h3 class="app-title">${app.title}</h3>
+                    <p class="app-description">${app.description || 'No description available'}</p>
+                    <div class="app-tags">
+                        ${app.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        // Extract category from app path
+        function extractCategory(app) {
+            const match = app.path.match(/\/apps\/([^\/]+)\//);
+            return match ? match[1] : 'other';
+        }
+
+        // Open app
+        function openApp(path) {
+            window.location.href = path;
+        }
+
+        // Update stats
+        function updateStats() {
+            const statsEl = document.getElementById('stats');
+            const total = allApps.length;
+            const filtered = document.querySelectorAll('.app-card').length;
+
+            if (currentCategory === 'all' && searchTerm === '') {
+                statsEl.textContent = `${total} applications available`;
+            } else {
+                statsEl.textContent = `Showing ${filtered} of ${total} applications`;
+            }
+        }
+
+        // Event listeners
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            searchApps(e.target.value);
+        });
+
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                filterByCategory(btn.dataset.category);
+            });
+        });
+
+        // Initialize
+        loadApps();
+    </script>
+</body>
+</html>

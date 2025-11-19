@@ -474,6 +474,37 @@ Demonstrates advanced AI engineering principles:
 
 ---
 
+## 🎮 Apps Gallery
+
+The Matrix now includes **100+ local-first HTML applications** demonstrating the power of parallel orchestration and self-contained architecture.
+
+**[→ Browse the Apps Gallery](https://kody-w.github.io/TheMatrix/apps-gallery.html)**
+
+### Categories
+
+- 🤖 **AI Tools** (17 apps): Agent browsers, voice assistants, MCP registry, Claude subagents tutorials
+- 🎮 **Games** (50+ apps): 3D worlds, emulators, card games, simulations, puzzle games
+- 💻 **Development** (13 apps): GitHub managers, artifact converters, browser VMs, Mermaid viewers
+- 💼 **Business** (6 apps): CRM systems, presentation apps, email automation, sales demos
+- 🎓 **Education** (16 apps): Physics playgrounds, quantum simulations, learning tools
+- 📋 **Productivity** (6 apps): Journals, prompt libraries, task managers, workflow tools
+- 📹 **Media** (5 apps): Dual camera recorders, hologram tools, webcam sync
+- ❤️ **Health** (2 apps): Breathwork guides, wellness trackers
+- 🔧 **Utilities** (1 app): Text file splitter and more
+
+### Features
+
+- ✅ **Self-Contained**: Each app is a single HTML file (no dependencies)
+- ✅ **Local-First**: Works offline, data stays in browser
+- ✅ **No Build Process**: Direct HTML files, no compilation
+- ✅ **Searchable**: Real-time search across all apps
+- ✅ **Filterable**: Browse by category
+- ✅ **Mobile-Friendly**: Responsive design for all devices
+
+**[See Migration Guide](APPS_MIGRATION_GUIDE.md)** for setup instructions.
+
+---
+
 **Transform your AI automation workflow. Deploy The Matrix today.** 🔮
 
 ```bash

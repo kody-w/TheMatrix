@@ -2643,6 +2643,7 @@
                 <button class="tab-button active" onclick="switchTab('prompts')">MIND-BLOWING PROMPTS</button>
                 <button class="tab-button" onclick="switchTab('demos')">INTERACTIVE DEMOS</button>
                 <button class="tab-button" onclick="switchTab('docs')">DOCUMENTATION</button>
+                <button class="tab-button" onclick="switchTab('apps')">LOCAL APPS</button>
                 <button class="tab-button" onclick="switchTab('library')">PROMPT LIBRARY</button>
                 <button class="tab-button" onclick="switchTab('builder')">PROMPT BUILDER</button>
                 <button class="tab-button" onclick="switchTab('analytics')">ANALYTICS</button>
@@ -2932,6 +2933,87 @@
                         <span>Various Topics</span>
                     </div>
                 </div>
+            </div>
+        </section>
+
+        <!-- Tab Content: Local Apps -->
+        <section class="tab-content" id="apps-tab">
+            <h2 class="section-title breathing">LOCAL APPS</h2>
+            <p style="text-align: center; opacity: 0.8; margin-bottom: 1rem; font-size: 1.1rem;">
+                100+ Self-Contained HTML Tools - Games, Development, AI, Business & More
+            </p>
+
+            <!-- Apps Gallery CTA -->
+            <div style="text-align: center; margin-bottom: 3rem;">
+                <a href="apps-gallery.html" style="display: inline-block; padding: 1.2rem 3rem; background: linear-gradient(135deg, var(--matrix-green) 0%, var(--matrix-dark-green) 100%); color: var(--deep-black); font-size: 1.2rem; font-weight: bold; text-decoration: none; border-radius: 10px; box-shadow: 0 0 30px var(--glow-green); transition: all 0.3s ease; border: 2px solid var(--matrix-green);">
+                    🚀 OPEN FULL APPS GALLERY →
+                </a>
+                <p style="margin-top: 1rem; opacity: 0.7; font-size: 0.9rem;">
+                    Browse all 100+ apps with advanced search, filtering, and categorization
+                </p>
+            </div>
+
+            <!-- App Statistics Badge -->
+            <div class="stats-badge" id="app-stats" style="top: auto; bottom: 2rem; left: 2rem;">
+                <h4>APP STATISTICS</h4>
+                <div class="stat-row">
+                    <span>Total Apps:</span>
+                    <span class="stat-value" id="total-apps-count">0</span>
+                </div>
+                <div class="stat-row">
+                    <span>Showing:</span>
+                    <span class="stat-value" id="filtered-apps-count">0</span>
+                </div>
+                <div class="stat-row">
+                    <span>Categories:</span>
+                    <span class="stat-value" id="categories-count">0</span>
+                </div>
+            </div>
+
+            <!-- Search and Filters -->
+            <div class="filter-panel">
+                <div class="filter-group">
+                    <label class="filter-label">SEARCH APPS</label>
+                    <input
+                        type="text"
+                        id="app-search-input"
+                        placeholder="Search by name, description, or tags..."
+                        style="width: 100%; padding: 0.8rem; background: rgba(0, 0, 0, 0.5); border: 2px solid var(--glass-border); border-radius: 5px; color: var(--matrix-green); font-family: 'Courier New', Consolas, monospace; font-size: 0.95rem;"
+                        oninput="filterApps()"
+                    >
+                </div>
+
+                <div class="filter-group">
+                    <label class="filter-label">FILTER BY CATEGORY</label>
+                    <div class="filter-pills" id="category-filters">
+                        <!-- Category pills will be dynamically added here -->
+                    </div>
+                </div>
+
+                <div class="filter-group">
+                    <label class="filter-label">LAUNCH PREFERENCE</label>
+                    <div class="filter-pills">
+                        <button class="filter-pill active" id="launch-modal-btn" onclick="setLaunchMode('modal')">📱 MODAL</button>
+                        <button class="filter-pill" id="launch-window-btn" onclick="setLaunchMode('window')">🪟 NEW WINDOW</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Apps Grid -->
+            <div class="capabilities-grid" id="apps-grid">
+                <!-- App cards will be dynamically added here -->
+            </div>
+
+            <!-- Loading indicator -->
+            <div id="apps-loading" style="text-align: center; padding: 3rem; opacity: 0.8;">
+                <div style="font-size: 2rem; margin-bottom: 1rem;">⚡</div>
+                <div>Loading local apps...</div>
+            </div>
+
+            <!-- No results message -->
+            <div id="apps-no-results" style="text-align: center; padding: 3rem; opacity: 0.8; display: none;">
+                <div style="font-size: 2rem; margin-bottom: 1rem;">🔍</div>
+                <div>No apps match your search criteria</div>
             </div>
         </section>
 
@@ -3337,6 +3419,21 @@
             <div class="modal-body" id="modal-body">
                 <!-- Content injected by JavaScript -->
             </div>
+        </div>
+    </div>
+
+    <!-- App Modal (for iframe display) -->
+    <div class="modal" id="app-modal">
+        <div class="modal-content" style="max-width: 90vw; max-height: 90vh; width: 100%; height: 90vh; padding: 0; overflow: hidden;">
+            <div class="modal-header" style="padding: 1rem 2rem; margin: 0; border-radius: 10px 10px 0 0;">
+                <h2 class="modal-title" id="app-modal-title">App Viewer</h2>
+                <button class="close-modal" onclick="closeAppModal()">CLOSE</button>
+            </div>
+            <iframe
+                id="app-modal-iframe"
+                style="width: 100%; height: calc(100% - 80px); border: none; background: white;"
+                sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals"
+            ></iframe>
         </div>
     </div>
 
@@ -5486,6 +5583,288 @@ Speedup vs sequential: ${speedupFactor}x faster`;
 
         // Initialize challenge indicator on page load
         updateChallengeIndicator();
+
+        // ========== LOCAL APPS SYSTEM ==========
+
+        // Global state for apps
+        let allApps = [];
+        let filteredApps = [];
+        let activeCategories = new Set();
+        let launchMode = 'modal'; // 'modal' or 'window'
+
+        // Load apps configuration from JSON
+        async function loadApps() {
+            try {
+                const response = await fetch('localFirstTools/data/config/utility_apps_config.json');
+                const data = await response.json();
+                allApps = data.apps || [];
+                filteredApps = [...allApps];
+
+                renderCategoryFilters();
+                renderApps();
+                updateAppStats();
+
+                // Hide loading indicator
+                document.getElementById('apps-loading').style.display = 'none';
+            } catch (error) {
+                console.error('Error loading apps:', error);
+                document.getElementById('apps-loading').innerHTML = `
+                    <div style="font-size: 2rem; margin-bottom: 1rem;">⚠️</div>
+                    <div>Error loading apps. Please ensure utility_apps_config.json exists.</div>
+                `;
+            }
+        }
+
+        // Render category filter pills
+        function renderCategoryFilters() {
+            const categoriesSet = new Set();
+            allApps.forEach(app => {
+                app.tags?.forEach(tag => categoriesSet.add(tag));
+            });
+
+            const categories = Array.from(categoriesSet).sort();
+            const filterContainer = document.getElementById('category-filters');
+
+            // Add "All" filter
+            const allPill = document.createElement('button');
+            allPill.className = 'filter-pill active';
+            allPill.textContent = `🌐 ALL (${allApps.length})`;
+            allPill.onclick = () => toggleCategoryFilter('all');
+            allPill.setAttribute('data-category', 'all');
+            filterContainer.appendChild(allPill);
+
+            // Add category filters
+            categories.forEach(category => {
+                const count = allApps.filter(app => app.tags?.includes(category)).length;
+                const pill = document.createElement('button');
+                pill.className = 'filter-pill';
+                pill.textContent = `${getCategoryIcon(category)} ${category.toUpperCase()} (${count})`;
+                pill.onclick = () => toggleCategoryFilter(category);
+                pill.setAttribute('data-category', category);
+                filterContainer.appendChild(pill);
+            });
+        }
+
+        // Get category icon
+        function getCategoryIcon(category) {
+            const icons = {
+                'ai': '🤖',
+                'tools': '🛠️',
+                'business': '💼',
+                'development': '💻',
+                'games': '🎮',
+                'education': '🎓',
+                'media': '📹',
+                'productivity': '📋',
+                'utility': '🔧',
+                'archive': '📦',
+                'health': '❤️',
+                'p2p': '🌐',
+                'multiplayer': '👥',
+                'experimental': '🧪',
+                'quantum-worlds': '🌌'
+            };
+            return icons[category] || '📄';
+        }
+
+        // Toggle category filter
+        function toggleCategoryFilter(category) {
+            const allPill = document.querySelector('[data-category="all"]');
+            const categoryPills = document.querySelectorAll(`[data-category="${category}"]`);
+
+            if (category === 'all') {
+                // Clear all filters
+                activeCategories.clear();
+                document.querySelectorAll('.filter-pill').forEach(pill => {
+                    pill.classList.remove('active');
+                });
+                allPill.classList.add('active');
+            } else {
+                // Toggle specific category
+                if (activeCategories.has(category)) {
+                    activeCategories.delete(category);
+                    categoryPills.forEach(pill => pill.classList.remove('active'));
+                } else {
+                    activeCategories.add(category);
+                    categoryPills.forEach(pill => pill.classList.add('active'));
+                }
+
+                // Update "All" pill
+                if (activeCategories.size === 0) {
+                    allPill.classList.add('active');
+                } else {
+                    allPill.classList.remove('active');
+                }
+            }
+
+            filterApps();
+        }
+
+        // Filter apps based on search and category
+        function filterApps() {
+            const searchTerm = document.getElementById('app-search-input').value.toLowerCase();
+
+            filteredApps = allApps.filter(app => {
+                // Search filter
+                const matchesSearch = !searchTerm ||
+                    app.title?.toLowerCase().includes(searchTerm) ||
+                    app.description?.toLowerCase().includes(searchTerm) ||
+                    app.tags?.some(tag => tag.toLowerCase().includes(searchTerm));
+
+                // Category filter
+                const matchesCategory = activeCategories.size === 0 ||
+                    app.tags?.some(tag => activeCategories.has(tag));
+
+                return matchesSearch && matchesCategory;
+            });
+
+            renderApps();
+            updateAppStats();
+        }
+
+        // Render apps grid
+        function renderApps() {
+            const grid = document.getElementById('apps-grid');
+            const noResults = document.getElementById('apps-no-results');
+
+            grid.innerHTML = '';
+
+            if (filteredApps.length === 0) {
+                grid.style.display = 'none';
+                noResults.style.display = 'block';
+                return;
+            }
+
+            grid.style.display = 'grid';
+            noResults.style.display = 'none';
+
+            filteredApps.forEach(app => {
+                const card = document.createElement('div');
+                card.className = 'capability-card';
+                card.onclick = () => launchApp(app);
+
+                const tags = app.tags?.map(tag =>
+                    `<span style="background: rgba(0,255,65,0.2); padding: 2px 6px; border-radius: 3px; font-size: 0.7rem; margin-right: 4px;">${tag}</span>`
+                ).join('') || '';
+
+                card.innerHTML = `
+                    <div class="capability-header">
+                        <div class="capability-title">${app.icon || '📄'} ${app.title}</div>
+                        <div class="capability-status ready">AVAILABLE</div>
+                    </div>
+                    <div class="capability-description">
+                        ${app.description || 'No description available'}
+                    </div>
+                    <div class="capability-stats" style="flex-wrap: wrap; gap: 4px;">
+                        ${tags}
+                    </div>
+                `;
+
+                grid.appendChild(card);
+            });
+        }
+
+        // Update app statistics
+        function updateAppStats() {
+            const categoriesCount = new Set();
+            allApps.forEach(app => {
+                app.tags?.forEach(tag => categoriesCount.add(tag));
+            });
+
+            document.getElementById('total-apps-count').textContent = allApps.length;
+            document.getElementById('filtered-apps-count').textContent = filteredApps.length;
+            document.getElementById('categories-count').textContent = categoriesCount.size;
+        }
+
+        // Set launch mode
+        function setLaunchMode(mode) {
+            launchMode = mode;
+
+            // Update UI
+            document.getElementById('launch-modal-btn').classList.toggle('active', mode === 'modal');
+            document.getElementById('launch-window-btn').classList.toggle('active', mode === 'window');
+
+            // Save preference
+            localStorage.setItem('app_launch_mode', mode);
+
+            showNotification(`🚀 Launch mode: ${mode === 'modal' ? 'Modal' : 'New Window'}`);
+        }
+
+        // Launch app
+        function launchApp(app) {
+            if (launchMode === 'modal') {
+                openAppModal(app);
+            } else {
+                window.open(app.path, '_blank');
+            }
+
+            // Track app launch
+            trackAppLaunch(app);
+        }
+
+        // Open app in modal
+        function openAppModal(app) {
+            const modal = document.getElementById('app-modal');
+            const title = document.getElementById('app-modal-title');
+            const iframe = document.getElementById('app-modal-iframe');
+
+            title.textContent = app.title;
+            iframe.src = app.path;
+            modal.classList.add('active');
+        }
+
+        // Close app modal
+        function closeAppModal() {
+            const modal = document.getElementById('app-modal');
+            const iframe = document.getElementById('app-modal-iframe');
+
+            modal.classList.remove('active');
+            iframe.src = ''; // Clear iframe to stop any running processes
+        }
+
+        // Close app modal on background click
+        document.getElementById('app-modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeAppModal();
+            }
+        });
+
+        // Close app modal on ESC key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                const appModal = document.getElementById('app-modal');
+                if (appModal.classList.contains('active')) {
+                    closeAppModal();
+                }
+            }
+        });
+
+        // Track app launches
+        function trackAppLaunch(app) {
+            const launches = JSON.parse(localStorage.getItem('app_launches') || '{}');
+            launches[app.id] = (launches[app.id] || 0) + 1;
+            localStorage.setItem('app_launches', JSON.stringify(launches));
+        }
+
+        // Load saved launch mode preference
+        const savedLaunchMode = localStorage.getItem('app_launch_mode');
+        if (savedLaunchMode) {
+            setLaunchMode(savedLaunchMode);
+        }
+
+        // Initialize apps when apps tab is opened
+        const appsTabButton = document.querySelector('[onclick="switchTab(\'apps\')"]');
+        if (appsTabButton) {
+            const originalSwitchTab = window.switchTab;
+            window.switchTab = function(tabName) {
+                originalSwitchTab.call(this, tabName);
+
+                // Load apps when apps tab is first opened
+                if (tabName === 'apps' && allApps.length === 0) {
+                    loadApps();
+                }
+            };
+        }
 
         // ========== WAVE 4: EASTER EGGS ==========
 
