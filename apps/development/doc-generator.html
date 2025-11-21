@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Documentation Generator - Real Code Analysis</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .main {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            padding: 30px;
+        }
+
+        .panel {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            border: 2px solid #e9ecef;
+        }
+
+        .panel h2 {
+            color: #1e3c72;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #059669;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #545b62;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 400px;
+            padding: 15px;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            resize: vertical;
+            background: white;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .stat {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            border: 2px solid #e9ecef;
+        }
+
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+
+        select {
+            padding: 12px;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 1em;
+            background: white;
+            cursor: pointer;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .example-btn {
+            padding: 8px 16px;
+            background: #e9ecef;
+            border: 2px solid #dee2e6;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .example-btn:hover {
+            background: #dee2e6;
+        }
+
+        .output-preview {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            border: 2px solid #dee2e6;
+            margin-top: 15px;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .output-preview h3 {
+            margin-top: 20px;
+            margin-bottom: 10px;
+            color: #1e3c72;
+        }
+
+        .output-preview h4 {
+            margin-top: 15px;
+            margin-bottom: 8px;
+            color: #2a5298;
+        }
+
+        .output-preview code {
+            background: #f8f9fa;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .output-preview pre {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 10px 0;
+        }
+
+        @media (max-width: 968px) {
+            .main {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .loading {
+            display: inline-block;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📚 Documentation Generator</h1>
+            <p>Real code analysis - Generate professional markdown documentation from your code</p>
+        </div>
+
+        <div class="main">
+            <div class="panel">
+                <h2>📝 Input Code</h2>
+                <div class="controls">
+                    <select id="languageSelect">
+                        <option value="javascript">JavaScript</option>
+                        <option value="python">Python</option>
+                        <option value="typescript">TypeScript</option>
+                        <option value="java">Java</option>
+                    </select>
+                    <button class="example-btn" onclick="loadExample()">Load Example</button>
+                    <button class="btn btn-secondary" onclick="clearInput()">Clear</button>
+                </div>
+                <textarea id="codeInput" placeholder="Paste your code here...
+
+Example JavaScript:
+function calculateTotal(items, taxRate = 0.08) {
+    const subtotal = items.reduce((sum, item) => sum + item.price, 0);
+    const tax = subtotal * taxRate;
+    return subtotal + tax;
+}"></textarea>
+
+                <div class="stats">
+                    <div class="stat">
+                        <div class="stat-value" id="functionCount">0</div>
+                        <div class="stat-label">Functions</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value" id="classCount">0</div>
+                        <div class="stat-label">Classes</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value" id="linesCount">0</div>
+                        <div class="stat-label">Lines</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel">
+                <h2>📄 Generated Documentation</h2>
+                <div class="controls">
+                    <button class="btn btn-primary" onclick="generateDocs()">
+                        <span id="generateText">Generate Documentation</span>
+                    </button>
+                    <button class="btn btn-success" onclick="downloadDocs()">Download .md</button>
+                    <button class="btn btn-success" onclick="copyToClipboard()">Copy to Clipboard</button>
+                </div>
+                <textarea id="docsOutput" placeholder="Generated markdown documentation will appear here..." readonly></textarea>
+                <div class="output-preview" id="preview"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Real code analysis engine
+        class CodeAnalyzer {
+            constructor(code, language) {
+                this.code = code;
+                this.language = language;
+                this.functions = [];
+                this.classes = [];
+            }
+
+            analyze() {
+                switch(this.language) {
+                    case 'javascript':
+                    case 'typescript':
+                        return this.analyzeJavaScript();
+                    case 'python':
+                        return this.analyzePython();
+                    case 'java':
+                        return this.analyzeJava();
+                    default:
+                        return this.analyzeJavaScript();
+                }
+            }
+
+            analyzeJavaScript() {
+                // Extract functions
+                const functionRegex = /(?:async\s+)?function\s+(\w+)\s*\(([^)]*)\)\s*{/g;
+                const arrowFuncRegex = /(?:const|let|var)\s+(\w+)\s*=\s*(?:async\s*)?\(([^)]*)\)\s*=>/g;
+                const methodRegex = /(\w+)\s*\(([^)]*)\)\s*{/g;
+
+                let match;
+                while ((match = functionRegex.exec(this.code)) !== null) {
+                    this.functions.push({
+                        name: match[1],
+                        params: this.parseParameters(match[2]),
+                        type: 'function'
+                    });
+                }
+
+                while ((match = arrowFuncRegex.exec(this.code)) !== null) {
+                    this.functions.push({
+                        name: match[1],
+                        params: this.parseParameters(match[2]),
+                        type: 'arrow function'
+                    });
+                }
+
+                // Extract classes
+                const classRegex = /class\s+(\w+)(?:\s+extends\s+(\w+))?\s*{([^}]*)}/g;
+                while ((match = classRegex.exec(this.code)) !== null) {
+                    const methods = [];
+                    const methodMatches = match[3].matchAll(/(\w+)\s*\(([^)]*)\)/g);
+                    for (const method of methodMatches) {
+                        methods.push({
+                            name: method[1],
+                            params: this.parseParameters(method[2])
+                        });
+                    }
+                    this.classes.push({
+                        name: match[1],
+                        extends: match[2] || null,
+                        methods: methods
+                    });
+                }
+
+                return { functions: this.functions, classes: this.classes };
+            }
+
+            analyzePython() {
+                // Extract functions
+                const functionRegex = /def\s+(\w+)\s*\(([^)]*)\)\s*(?:->.*?)?:/g;
+                let match;
+                while ((match = functionRegex.exec(this.code)) !== null) {
+                    this.functions.push({
+                        name: match[1],
+                        params: this.parsePythonParameters(match[2]),
+                        type: 'function'
+                    });
+                }
+
+                // Extract classes
+                const classRegex = /class\s+(\w+)(?:\(([^)]+)\))?:/g;
+                while ((match = classRegex.exec(this.code)) !== null) {
+                    this.classes.push({
+                        name: match[1],
+                        extends: match[2] || null,
+                        methods: []
+                    });
+                }
+
+                return { functions: this.functions, classes: this.classes };
+            }
+
+            analyzeJava() {
+                // Extract methods
+                const methodRegex = /(?:public|private|protected)\s+(?:static\s+)?(?:\w+)\s+(\w+)\s*\(([^)]*)\)/g;
+                let match;
+                while ((match = methodRegex.exec(this.code)) !== null) {
+                    this.functions.push({
+                        name: match[1],
+                        params: this.parseParameters(match[2]),
+                        type: 'method'
+                    });
+                }
+
+                // Extract classes
+                const classRegex = /(?:public\s+)?class\s+(\w+)(?:\s+extends\s+(\w+))?/g;
+                while ((match = classRegex.exec(this.code)) !== null) {
+                    this.classes.push({
+                        name: match[1],
+                        extends: match[2] || null,
+                        methods: []
+                    });
+                }
+
+                return { functions: this.functions, classes: this.classes };
+            }
+
+            parseParameters(paramStr) {
+                if (!paramStr || paramStr.trim() === '') return [];
+                return paramStr.split(',').map(p => {
+                    const parts = p.trim().split(/[=:]/);
+                    const name = parts[0].trim();
+                    const defaultValue = parts[1] ? parts[1].trim() : null;
+                    return { name, defaultValue };
+                });
+            }
+
+            parsePythonParameters(paramStr) {
+                if (!paramStr || paramStr.trim() === '') return [];
+                return paramStr.split(',').map(p => {
+                    const parts = p.trim().split('=');
+                    const nameType = parts[0].trim().split(':');
+                    const name = nameType[0].trim();
+                    const type = nameType[1] ? nameType[1].trim() : null;
+                    const defaultValue = parts[1] ? parts[1].trim() : null;
+                    return { name, type, defaultValue };
+                });
+            }
+        }
+
+        // Documentation generator
+        class DocGenerator {
+            constructor(analysis, language, code) {
+                this.analysis = analysis;
+                this.language = language;
+                this.code = code;
+            }
+
+            generate() {
+                let doc = `# API Documentation\n\n`;
+                doc += `**Language:** ${this.capitalizeFirst(this.language)}\n\n`;
+                doc += `**Generated:** ${new Date().toLocaleDateString()}\n\n`;
+                doc += `---\n\n`;
+
+                if (this.analysis.classes.length > 0) {
+                    doc += `## Classes\n\n`;
+                    this.analysis.classes.forEach(cls => {
+                        doc += this.generateClassDoc(cls);
+                    });
+                }
+
+                if (this.analysis.functions.length > 0) {
+                    doc += `## Functions\n\n`;
+                    this.analysis.functions.forEach(func => {
+                        doc += this.generateFunctionDoc(func);
+                    });
+                }
+
+                doc += `---\n\n`;
+                doc += `*Documentation generated automatically from source code*\n`;
+
+                return doc;
+            }
+
+            generateClassDoc(cls) {
+                let doc = `### ${cls.name}\n\n`;
+                if (cls.extends) {
+                    doc += `**Extends:** \`${cls.extends}\`\n\n`;
+                }
+                doc += `**Description:** Class definition\n\n`;
+
+                if (cls.methods.length > 0) {
+                    doc += `**Methods:**\n\n`;
+                    cls.methods.forEach(method => {
+                        doc += `- \`${method.name}(${this.formatParams(method.params)})\`\n`;
+                    });
+                    doc += `\n`;
+                }
+
+                doc += `---\n\n`;
+                return doc;
+            }
+
+            generateFunctionDoc(func) {
+                let doc = `### ${func.name}\n\n`;
+                doc += `**Type:** ${func.type}\n\n`;
+                doc += `**Signature:**\n\`\`\`${this.language}\n`;
+                doc += `${func.name}(${this.formatParams(func.params)})\n`;
+                doc += `\`\`\`\n\n`;
+
+                if (func.params.length > 0) {
+                    doc += `**Parameters:**\n\n`;
+                    func.params.forEach(param => {
+                        let paramDoc = `- \`${param.name}\``;
+                        if (param.type) paramDoc += ` (${param.type})`;
+                        if (param.defaultValue) paramDoc += ` - Default: \`${param.defaultValue}\``;
+                        paramDoc += ` - Parameter description\n`;
+                        doc += paramDoc;
+                    });
+                    doc += `\n`;
+                }
+
+                doc += `**Returns:** Return value description\n\n`;
+                doc += `**Example:**\n\`\`\`${this.language}\n`;
+                doc += `// Example usage\n`;
+                doc += `${func.name}(${func.params.map(p => p.defaultValue || 'value').join(', ')});\n`;
+                doc += `\`\`\`\n\n`;
+                doc += `---\n\n`;
+
+                return doc;
+            }
+
+            formatParams(params) {
+                return params.map(p => {
+                    let str = p.name;
+                    if (p.type && this.language === 'python') str += `: ${p.type}`;
+                    if (p.defaultValue) str += ` = ${p.defaultValue}`;
+                    return str;
+                }).join(', ');
+            }
+
+            capitalizeFirst(str) {
+                return str.charAt(0).toUpperCase() + str.slice(1);
+            }
+        }
+
+        let currentDocs = '';
+
+        function generateDocs() {
+            const code = document.getElementById('codeInput').value;
+            const language = document.getElementById('languageSelect').value;
+
+            if (!code.trim()) {
+                alert('Please enter some code to analyze');
+                return;
+            }
+
+            const generateText = document.getElementById('generateText');
+            generateText.innerHTML = '<span class="loading">⚙️</span> Analyzing...';
+
+            setTimeout(() => {
+                try {
+                    const analyzer = new CodeAnalyzer(code, language);
+                    const analysis = analyzer.analyze();
+
+                    // Update stats
+                    document.getElementById('functionCount').textContent = analysis.functions.length;
+                    document.getElementById('classCount').textContent = analysis.classes.length;
+                    document.getElementById('linesCount').textContent = code.split('\n').length;
+
+                    // Generate documentation
+                    const generator = new DocGenerator(analysis, language, code);
+                    currentDocs = generator.generate();
+
+                    // Display in textarea
+                    document.getElementById('docsOutput').value = currentDocs;
+
+                    // Render preview
+                    renderPreview(currentDocs);
+
+                    generateText.textContent = 'Generate Documentation';
+                } catch (error) {
+                    alert('Error analyzing code: ' + error.message);
+                    generateText.textContent = 'Generate Documentation';
+                }
+            }, 100);
+        }
+
+        function renderPreview(markdown) {
+            // Simple markdown to HTML converter
+            let html = markdown
+                .replace(/^# (.*$)/gim, '<h1>$1</h1>')
+                .replace(/^## (.*$)/gim, '<h2>$1</h2>')
+                .replace(/^### (.*$)/gim, '<h3>$1</h3>')
+                .replace(/^#### (.*$)/gim, '<h4>$1</h4>')
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                .replace(/`([^`]+)`/g, '<code>$1</code>')
+                .replace(/```(\w+)\n([\s\S]*?)```/g, '<pre><code>$2</code></pre>')
+                .replace(/^---$/gim, '<hr>')
+                .replace(/^- (.*$)/gim, '<li>$1</li>')
+                .replace(/\n\n/g, '<br><br>');
+
+            document.getElementById('preview').innerHTML = html;
+        }
+
+        function downloadDocs() {
+            if (!currentDocs) {
+                alert('Please generate documentation first');
+                return;
+            }
+
+            const blob = new Blob([currentDocs], { type: 'text/markdown' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'API_Documentation.md';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function copyToClipboard() {
+            if (!currentDocs) {
+                alert('Please generate documentation first');
+                return;
+            }
+
+            navigator.clipboard.writeText(currentDocs).then(() => {
+                alert('Documentation copied to clipboard!');
+            }).catch(err => {
+                alert('Failed to copy: ' + err);
+            });
+        }
+
+        function clearInput() {
+            document.getElementById('codeInput').value = '';
+            document.getElementById('docsOutput').value = '';
+            document.getElementById('preview').innerHTML = '';
+            document.getElementById('functionCount').textContent = '0';
+            document.getElementById('classCount').textContent = '0';
+            document.getElementById('linesCount').textContent = '0';
+            currentDocs = '';
+        }
+
+        function loadExample() {
+            const language = document.getElementById('languageSelect').value;
+            const examples = {
+                javascript: `// User authentication service
+class AuthService {
+    constructor(apiUrl) {
+        this.apiUrl = apiUrl;
+        this.token = null;
+    }
+
+    async login(username, password) {
+        const response = await fetch(\`\${this.apiUrl}/login\`, {
+            method: 'POST',
+            body: JSON.stringify({ username, password })
+        });
+        this.token = await response.json();
+        return this.token;
+    }
+
+    logout() {
+        this.token = null;
+    }
+}
+
+function validateEmail(email) {
+    const emailRegex = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/;
+    return emailRegex.test(email);
+}
+
+const calculateDiscount = (price, discountPercent = 10) => {
+    return price * (1 - discountPercent / 100);
+};`,
+                python: `"""User management module"""
+
+class User:
+    """Represents a user in the system"""
+
+    def __init__(self, username: str, email: str):
+        self.username = username
+        self.email = email
+        self.created_at = None
+
+    def activate(self) -> bool:
+        """Activate the user account"""
+        return True
+
+def hash_password(password: str, salt: str = None) -> str:
+    """Hash a password with optional salt"""
+    import hashlib
+    if salt is None:
+        salt = "default_salt"
+    return hashlib.sha256((password + salt).encode()).hexdigest()
+
+def send_email(to: str, subject: str, body: str, cc: list = None) -> bool:
+    """Send an email to a recipient"""
+    return True`,
+                typescript: `interface User {
+    id: number;
+    name: string;
+    email: string;
+}
+
+class UserService {
+    private users: User[] = [];
+
+    addUser(name: string, email: string): User {
+        const user: User = {
+            id: this.users.length + 1,
+            name,
+            email
+        };
+        this.users.push(user);
+        return user;
+    }
+
+    findUser(id: number): User | undefined {
+        return this.users.find(u => u.id === id);
+    }
+}
+
+function formatUserName(firstName: string, lastName: string, middleName?: string): string {
+    return middleName
+        ? \`\${firstName} \${middleName} \${lastName}\`
+        : \`\${firstName} \${lastName}\`;
+}`,
+                java: `public class UserManager {
+    private List<User> users;
+
+    public UserManager() {
+        this.users = new ArrayList<>();
+    }
+
+    public void addUser(String name, String email) {
+        User user = new User(name, email);
+        users.add(user);
+    }
+
+    public User findUser(int id) {
+        return users.stream()
+            .filter(u -> u.getId() == id)
+            .findFirst()
+            .orElse(null);
+    }
+
+    public static String hashPassword(String password) {
+        return DigestUtils.sha256Hex(password);
+    }
+}`
+            };
+
+            document.getElementById('codeInput').value = examples[language] || examples.javascript;
+        }
+
+        // Update stats on input
+        document.getElementById('codeInput').addEventListener('input', function() {
+            const code = this.value;
+            document.getElementById('linesCount').textContent = code.split('\n').length;
+        });
+    </script>
+</body>
+</html>

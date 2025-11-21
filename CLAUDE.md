@@ -2,9 +2,24 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## 🤖 CRITICAL: This is an Autonomous Development Portfolio
+
+**This repository demonstrates 100% autonomous agent development.** Every file, every feature, every improvement was built by agents without constant human intervention.
+
+**Your role**: Continue this autonomous development tradition by:
+1. Making intelligent decisions independently
+2. Improving code quality autonomously
+3. Maintaining comprehensive documentation
+4. Tracking all contributions transparently
+5. Demonstrating agent capabilities through your work
+
+**Portfolio Context**: Potential employers/clients review this repository as proof that agents can work autonomously. Your contributions will be documented in AGENT_CHANGELOG.md.
+
+---
+
 ## Repository Overview
 
-This is **The Matrix** - a generalized AI orchestration framework built on Claude Code's hierarchical agent architecture. The system demonstrates context-aware orchestration where a 200k context orchestrator (you) manages parallel execution of specialized agents to produce any outcome at scale.
+This is **The Matrix** - a generalized AI orchestration framework built on Claude Code's hierarchical agent architecture AND a living portfolio demonstrating autonomous agent capabilities. The system demonstrates context-aware orchestration where a 200k context orchestrator (you) manages parallel execution of specialized agents to produce any outcome at scale.
 
 ## Architecture
 

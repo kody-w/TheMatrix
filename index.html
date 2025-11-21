@@ -4187,28 +4187,33 @@ You take the red pill - you stay in Wonderland and I show you how deep the rabbi
                 title: 'Cathedral Showcase',
                 content: `
                     <h3>Overview</h3>
-                    <p>The Cathedral Showcase is a collection of interactive demonstrations visualizing The Matrix's orchestration power in action.</p>
+                    <p>The Cathedral Showcase is a collection of 7 interactive demonstrations visualizing The Matrix's orchestration power in action.</p>
 
-                    <h3>What's Coming</h3>
+                    <h3>Live Demonstrations</h3>
                     <ul>
-                        <li>Interactive visualizations of parallel agent execution</li>
-                        <li>Real-time demonstrations of work breakdown structures</li>
-                        <li>Live metrics showing orchestration performance</li>
-                        <li>Side-by-side comparisons: sequential vs parallel execution</li>
-                        <li>Gallery of completed orchestration outcomes</li>
+                        <li><strong>The Great Migration</strong> - 2,500 legacy files → modern React stack</li>
+                        <li><strong>Universe Architect</strong> - Story concept → 300 world elements</li>
+                        <li><strong>Knowledge Synthesizer</strong> - 75 papers → 200 articles</li>
+                        <li><strong>API Factory</strong> - Requirements → 500 endpoints (50 services)</li>
+                        <li><strong>Automation Cascade</strong> - 50 processes → 300 artifacts (meta-orchestration)</li>
+                        <li><strong>Documentation Engine</strong> - 3,500 files → 400 doc pages</li>
+                        <li><strong>Component Library</strong> - Design system → 100 React components</li>
                     </ul>
 
                     <h3>Features</h3>
                     <ul>
-                        <li>Visual representation of N×M outcome generation</li>
-                        <li>Agent activity timelines and coordination views</li>
-                        <li>Context usage visualization</li>
-                        <li>Integration synthesis demonstration</li>
-                        <li>Interactive exploration of generated artifacts</li>
+                        <li>Real-time parallel agent execution visualization</li>
+                        <li>Interactive playback controls (start, pause, reset, speed)</li>
+                        <li>Live metrics showing orchestration performance</li>
+                        <li>Agent coordination and work breakdown display</li>
+                        <li>Generated artifact preview and exploration</li>
+                        <li>Time and cost savings calculations</li>
                     </ul>
 
-                    <h3>Status</h3>
-                    <p>The Cathedral Showcase is currently in development. Check back soon for interactive demonstrations of orchestration in action!</p>
+                    <h3>Explore Now</h3>
+                    <p><a href="cathedral-index.html" style="display: inline-block; margin-top: 15px; padding: 12px 30px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; text-decoration: none; border-radius: 8px; font-weight: 600;">Launch Cathedral Gallery →</a></p>
+
+                    <p style="margin-top: 20px;">All demonstrations are pure local-first implementations - no external dependencies required!</p>
                 `
             }
         };
@@ -5674,7 +5679,7 @@ Speedup vs sequential: ${speedupFactor}x faster`;
         // Load apps configuration from JSON
         async function loadApps() {
             try {
-                const response = await fetch('localFirstTools/data/config/utility_apps_config.json');
+                const response = await fetch('data/config/utility_apps_config.json');
                 const data = await response.json();
                 allApps = data.apps || [];
                 filteredApps = [...allApps];

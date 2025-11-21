@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Generator - Real Test Suite Creation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #c31432 0%, #240b36 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .main {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            padding: 30px;
+        }
+
+        .panel {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            border: 2px solid #e9ecef;
+        }
+
+        .panel h2 {
+            color: #c31432;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+
+        .btn-primary {
+            background: #f5576c;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #e4465b;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(245, 87, 108, 0.4);
+        }
+
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #059669;
+            transform: translateY(-2px);
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 400px;
+            padding: 15px;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            resize: vertical;
+            background: white;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #f5576c;
+            box-shadow: 0 0 0 3px rgba(245, 87, 108, 0.1);
+        }
+
+        select {
+            padding: 12px;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 1em;
+            background: white;
+            cursor: pointer;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .stat {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            border: 2px solid #e9ecef;
+        }
+
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #f5576c;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+
+        .test-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            border: 2px solid #e9ecef;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .checkbox-group label {
+            cursor: pointer;
+            user-select: none;
+        }
+
+        @media (max-width: 968px) {
+            .main {
+                grid-template-columns: 1fr;
+            }
+            .test-options {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧪 Test Generator</h1>
+            <p>Generate real, runnable test suites from your code</p>
+        </div>
+
+        <div class="main">
+            <div class="panel">
+                <h2>📝 Function Code</h2>
+                <div class="controls">
+                    <select id="frameworkSelect">
+                        <option value="jest">Jest (JavaScript)</option>
+                        <option value="mocha">Mocha/Chai (JavaScript)</option>
+                        <option value="pytest">pytest (Python)</option>
+                        <option value="unittest">unittest (Python)</option>
+                        <option value="junit">JUnit (Java)</option>
+                    </select>
+                    <button class="btn" style="background: #e9ecef; color: #333;" onclick="loadExample()">Load Example</button>
+                </div>
+
+                <div class="test-options">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="includeEdgeCases" checked>
+                        <label for="includeEdgeCases">Edge Cases</label>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="includeMocks" checked>
+                        <label for="includeMocks">Mock Data</label>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="includeAsync">
+                        <label for="includeAsync">Async Tests</label>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="includeNegative" checked>
+                        <label for="includeNegative">Negative Cases</label>
+                    </div>
+                </div>
+
+                <textarea id="codeInput" placeholder="Paste your function code here...
+
+Example:
+function calculateTotal(items, taxRate = 0.08) {
+    if (!Array.isArray(items)) {
+        throw new Error('Items must be an array');
+    }
+    const subtotal = items.reduce((sum, item) => sum + item.price, 0);
+    const tax = subtotal * taxRate;
+    return subtotal + tax;
+}"></textarea>
+
+                <div class="stats">
+                    <div class="stat">
+                        <div class="stat-value" id="functionCount">0</div>
+                        <div class="stat-label">Functions</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value" id="testCount">0</div>
+                        <div class="stat-label">Tests</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel">
+                <h2>🧪 Generated Tests</h2>
+                <div class="controls">
+                    <button class="btn btn-primary" onclick="generateTests()">Generate Tests</button>
+                    <button class="btn btn-success" onclick="downloadTests()">Download Test File</button>
+                    <button class="btn btn-success" onclick="copyTests()">Copy to Clipboard</button>
+                </div>
+                <textarea id="testOutput" placeholder="Generated test code will appear here..." readonly></textarea>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class TestGenerator {
+            constructor(code, framework, options) {
+                this.code = code;
+                this.framework = framework;
+                this.options = options;
+                this.functions = [];
+            }
+
+            extractFunctions() {
+                // Extract function information
+                const functionRegex = /(?:async\s+)?function\s+(\w+)\s*\(([^)]*)\)|(?:const|let|var)\s+(\w+)\s*=\s*(?:async\s*)?\(([^)]*)\)\s*=>/g;
+                const pythonFuncRegex = /def\s+(\w+)\s*\(([^)]*)\)/g;
+                const javaMethodRegex = /(?:public|private|protected)\s+(?:static\s+)?(\w+)\s+(\w+)\s*\(([^)]*)\)/g;
+
+                let match;
+
+                if (this.framework.includes('jest') || this.framework.includes('mocha')) {
+                    while ((match = functionRegex.exec(this.code)) !== null) {
+                        this.functions.push({
+                            name: match[1] || match[3],
+                            params: this.parseParams(match[2] || match[4])
+                        });
+                    }
+                } else if (this.framework.includes('pytest') || this.framework.includes('unittest')) {
+                    while ((match = pythonFuncRegex.exec(this.code)) !== null) {
+                        this.functions.push({
+                            name: match[1],
+                            params: this.parseParams(match[2])
+                        });
+                    }
+                } else if (this.framework === 'junit') {
+                    while ((match = javaMethodRegex.exec(this.code)) !== null) {
+                        this.functions.push({
+                            name: match[2],
+                            params: this.parseParams(match[3]),
+                            returnType: match[1]
+                        });
+                    }
+                }
+            }
+
+            parseParams(paramStr) {
+                if (!paramStr || paramStr.trim() === '') return [];
+                return paramStr.split(',').map(p => {
+                    const parts = p.trim().split(/[=:]/);
+                    return {
+                        name: parts[0].trim(),
+                        defaultValue: parts[1] ? parts[1].trim() : null
+                    };
+                });
+            }
+
+            generate() {
+                this.extractFunctions();
+
+                switch(this.framework) {
+                    case 'jest':
+                        return this.generateJest();
+                    case 'mocha':
+                        return this.generateMocha();
+                    case 'pytest':
+                        return this.generatePytest();
+                    case 'unittest':
+                        return this.generateUnittest();
+                    case 'junit':
+                        return this.generateJUnit();
+                    default:
+                        return this.generateJest();
+                }
+            }
+
+            generateJest() {
+                let tests = `// Jest Test Suite\n`;
+                tests += `// Generated: ${new Date().toLocaleString()}\n\n`;
+
+                this.functions.forEach(func => {
+                    tests += `describe('${func.name}', () => {\n`;
+
+                    // Basic test
+                    tests += `  test('should work with valid input', () => {\n`;
+                    tests += `    const result = ${func.name}(${this.generateMockArgs(func.params)});\n`;
+                    tests += `    expect(result).toBeDefined();\n`;
+                    tests += `  });\n\n`;
+
+                    if (this.options.includeEdgeCases) {
+                        tests += `  test('should handle empty input', () => {\n`;
+                        tests += `    const result = ${func.name}();\n`;
+                        tests += `    expect(result).toBeDefined();\n`;
+                        tests += `  });\n\n`;
+                    }
+
+                    if (this.options.includeNegative) {
+                        tests += `  test('should throw on invalid input', () => {\n`;
+                        tests += `    expect(() => ${func.name}(null)).toThrow();\n`;
+                        tests += `  });\n\n`;
+                    }
+
+                    if (this.options.includeAsync) {
+                        tests += `  test('should handle async operations', async () => {\n`;
+                        tests += `    const result = await ${func.name}(${this.generateMockArgs(func.params)});\n`;
+                        tests += `    expect(result).toBeDefined();\n`;
+                        tests += `  });\n\n`;
+                    }
+
+                    tests += `});\n\n`;
+                });
+
+                return tests;
+            }
+
+            generateMocha() {
+                let tests = `// Mocha/Chai Test Suite\n`;
+                tests += `const { expect } = require('chai');\n\n`;
+
+                this.functions.forEach(func => {
+                    tests += `describe('${func.name}', function() {\n`;
+
+                    tests += `  it('should work with valid input', function() {\n`;
+                    tests += `    const result = ${func.name}(${this.generateMockArgs(func.params)});\n`;
+                    tests += `    expect(result).to.exist;\n`;
+                    tests += `  });\n\n`;
+
+                    if (this.options.includeEdgeCases) {
+                        tests += `  it('should handle boundary conditions', function() {\n`;
+                        tests += `    const result = ${func.name}(0);\n`;
+                        tests += `    expect(result).to.exist;\n`;
+                        tests += `  });\n\n`;
+                    }
+
+                    if (this.options.includeNegative) {
+                        tests += `  it('should reject invalid input', function() {\n`;
+                        tests += `    expect(() => ${func.name}(null)).to.throw();\n`;
+                        tests += `  });\n\n`;
+                    }
+
+                    tests += `});\n\n`;
+                });
+
+                return tests;
+            }
+
+            generatePytest() {
+                let tests = `# pytest Test Suite\n`;
+                tests += `# Generated: ${new Date().toLocaleString()}\n`;
+                tests += `import pytest\n\n`;
+
+                this.functions.forEach(func => {
+                    tests += `class Test${this.capitalize(func.name)}:\n`;
+
+                    tests += `    def test_valid_input(self):\n`;
+                    tests += `        result = ${func.name}(${this.generateMockArgsPython(func.params)})\n`;
+                    tests += `        assert result is not None\n\n`;
+
+                    if (this.options.includeEdgeCases) {
+                        tests += `    def test_empty_input(self):\n`;
+                        tests += `        result = ${func.name}()\n`;
+                        tests += `        assert result is not None\n\n`;
+                    }
+
+                    if (this.options.includeNegative) {
+                        tests += `    def test_invalid_input(self):\n`;
+                        tests += `        with pytest.raises(Exception):\n`;
+                        tests += `            ${func.name}(None)\n\n`;
+                    }
+
+                    if (this.options.includeAsync) {
+                        tests += `    @pytest.mark.asyncio\n`;
+                        tests += `    async def test_async_operation(self):\n`;
+                        tests += `        result = await ${func.name}(${this.generateMockArgsPython(func.params)})\n`;
+                        tests += `        assert result is not None\n\n`;
+                    }
+                });
+
+                return tests;
+            }
+
+            generateUnittest() {
+                let tests = `# unittest Test Suite\n`;
+                tests += `import unittest\n\n`;
+
+                this.functions.forEach(func => {
+                    tests += `class Test${this.capitalize(func.name)}(unittest.TestCase):\n\n`;
+
+                    tests += `    def test_valid_input(self):\n`;
+                    tests += `        result = ${func.name}(${this.generateMockArgsPython(func.params)})\n`;
+                    tests += `        self.assertIsNotNone(result)\n\n`;
+
+                    if (this.options.includeEdgeCases) {
+                        tests += `    def test_edge_case(self):\n`;
+                        tests += `        result = ${func.name}(0)\n`;
+                        tests += `        self.assertIsNotNone(result)\n\n`;
+                    }
+
+                    if (this.options.includeNegative) {
+                        tests += `    def test_invalid_input(self):\n`;
+                        tests += `        with self.assertRaises(Exception):\n`;
+                        tests += `            ${func.name}(None)\n\n`;
+                    }
+                });
+
+                tests += `\nif __name__ == '__main__':\n`;
+                tests += `    unittest.main()\n`;
+
+                return tests;
+            }
+
+            generateJUnit() {
+                let tests = `// JUnit Test Suite\n`;
+                tests += `import org.junit.Test;\n`;
+                tests += `import static org.junit.Assert.*;\n\n`;
+
+                this.functions.forEach(func => {
+                    tests += `public class ${this.capitalize(func.name)}Test {\n\n`;
+
+                    tests += `    @Test\n`;
+                    tests += `    public void testValidInput() {\n`;
+                    tests += `        ${func.returnType || 'var'} result = ${func.name}(${this.generateMockArgsJava(func.params)});\n`;
+                    tests += `        assertNotNull(result);\n`;
+                    tests += `    }\n\n`;
+
+                    if (this.options.includeNegative) {
+                        tests += `    @Test(expected = Exception.class)\n`;
+                        tests += `    public void testInvalidInput() {\n`;
+                        tests += `        ${func.name}(null);\n`;
+                        tests += `    }\n\n`;
+                    }
+
+                    tests += `}\n\n`;
+                });
+
+                return tests;
+            }
+
+            generateMockArgs(params) {
+                if (params.length === 0) return '';
+                return params.map(p => {
+                    if (p.defaultValue) return p.defaultValue;
+                    if (p.name.includes('array') || p.name.includes('items')) return '[]';
+                    if (p.name.includes('obj') || p.name.includes('object')) return '{}';
+                    if (p.name.includes('str') || p.name.includes('name')) return '"test"';
+                    if (p.name.includes('num') || p.name.includes('count')) return '1';
+                    return '"value"';
+                }).join(', ');
+            }
+
+            generateMockArgsPython(params) {
+                if (params.length === 0) return '';
+                return params.map(p => {
+                    if (p.defaultValue) return p.defaultValue;
+                    if (p.name.includes('list') || p.name.includes('items')) return '[]';
+                    if (p.name.includes('dict') || p.name.includes('obj')) return '{}';
+                    if (p.name.includes('str') || p.name.includes('name')) return '"test"';
+                    if (p.name.includes('num') || p.name.includes('count')) return '1';
+                    return '"value"';
+                }).join(', ');
+            }
+
+            generateMockArgsJava(params) {
+                if (params.length === 0) return '';
+                return params.map(p => {
+                    if (p.defaultValue) return p.defaultValue;
+                    return 'null';
+                }).join(', ');
+            }
+
+            capitalize(str) {
+                return str.charAt(0).toUpperCase() + str.slice(1);
+            }
+        }
+
+        let currentTests = '';
+
+        function generateTests() {
+            const code = document.getElementById('codeInput').value;
+            const framework = document.getElementById('frameworkSelect').value;
+
+            if (!code.trim()) {
+                alert('Please enter some code to generate tests for');
+                return;
+            }
+
+            const options = {
+                includeEdgeCases: document.getElementById('includeEdgeCases').checked,
+                includeMocks: document.getElementById('includeMocks').checked,
+                includeAsync: document.getElementById('includeAsync').checked,
+                includeNegative: document.getElementById('includeNegative').checked
+            };
+
+            const generator = new TestGenerator(code, framework, options);
+            currentTests = generator.generate();
+
+            document.getElementById('testOutput').value = currentTests;
+            document.getElementById('functionCount').textContent = generator.functions.length;
+
+            // Count test cases
+            const testCount = (currentTests.match(/test|it\(/g) || []).length;
+            document.getElementById('testCount').textContent = testCount;
+        }
+
+        function downloadTests() {
+            if (!currentTests) {
+                alert('Please generate tests first');
+                return;
+            }
+
+            const framework = document.getElementById('frameworkSelect').value;
+            const extensions = {
+                jest: '.test.js',
+                mocha: '.test.js',
+                pytest: '_test.py',
+                unittest: '_test.py',
+                junit: 'Test.java'
+            };
+
+            const blob = new Blob([currentTests], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `generated${extensions[framework] || '.test.js'}`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function copyTests() {
+            if (!currentTests) {
+                alert('Please generate tests first');
+                return;
+            }
+
+            navigator.clipboard.writeText(currentTests).then(() => {
+                alert('Tests copied to clipboard!');
+            });
+        }
+
+        function loadExample() {
+            const framework = document.getElementById('frameworkSelect').value;
+
+            const examples = {
+                jest: `function calculateTotal(items, taxRate = 0.08) {
+    if (!Array.isArray(items)) {
+        throw new Error('Items must be an array');
+    }
+    const subtotal = items.reduce((sum, item) => sum + item.price, 0);
+    const tax = subtotal * taxRate;
+    return subtotal + tax;
+}
+
+function validateEmail(email) {
+    const regex = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/;
+    if (!regex.test(email)) {
+        throw new Error('Invalid email format');
+    }
+    return true;
+}`,
+                pytest: `def calculate_discount(price, discount_percent=10):
+    if price < 0:
+        raise ValueError("Price cannot be negative")
+    if discount_percent < 0 or discount_percent > 100:
+        raise ValueError("Discount must be between 0 and 100")
+    return price * (1 - discount_percent / 100)
+
+def format_name(first, last, middle=None):
+    if not first or not last:
+        raise ValueError("First and last name required")
+    return f"{first} {middle} {last}" if middle else f"{first} {last}"`,
+                junit: `public int calculateSum(int a, int b) {
+    return a + b;
+}
+
+public String formatMessage(String name) {
+    if (name == null || name.isEmpty()) {
+        throw new IllegalArgumentException("Name cannot be empty");
+    }
+    return "Hello, " + name + "!";
+}`
+            };
+
+            const code = examples[framework] || examples.jest;
+            document.getElementById('codeInput').value = code;
+        }
+    </script>
+</body>
+</html>

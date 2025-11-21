@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Regex Builder & Tester</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --background: #ffffff;
+            --surface: #f9fafb;
+            --border: #e5e7eb;
+            --text: #111827;
+            --text-secondary: #6b7280;
+            --code-bg: #1e293b;
+            --shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --primary: #818cf8;
+                --primary-dark: #6366f1;
+                --success: #34d399;
+                --warning: #fbbf24;
+                --danger: #f87171;
+                --background: #0f172a;
+                --surface: #1e293b;
+                --border: #334155;
+                --text: #f1f5f9;
+                --text-secondary: #94a3b8;
+                --code-bg: #0f172a;
+            }
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--background);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            padding: 40px 0;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border-radius: 20px;
+            margin-bottom: 40px;
+            box-shadow: var(--shadow);
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .section {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: var(--shadow);
+        }
+
+        .section h2 {
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            color: var(--primary);
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 0.95em;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px 15px;
+            background: var(--background);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 14px;
+            color: var(--text);
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        textarea.form-control {
+            resize: vertical;
+            min-height: 150px;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 13px;
+        }
+
+        .regex-input {
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 16px;
+        }
+
+        .pattern-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .pattern-btn {
+            padding: 10px;
+            background: var(--background);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: left;
+        }
+
+        .pattern-btn:hover {
+            border-color: var(--primary);
+            background: var(--surface);
+        }
+
+        .pattern-btn strong {
+            display: block;
+            color: var(--primary);
+            font-family: monospace;
+            margin-bottom: 5px;
+        }
+
+        .pattern-btn small {
+            color: var(--text-secondary);
+            font-size: 0.85em;
+        }
+
+        .flags {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+        .checkbox-label input {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .button {
+            padding: 10px 20px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .button:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+        }
+
+        .button.secondary {
+            background: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+
+        .button.success {
+            background: var(--success);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .matches-output {
+            background: var(--code-bg);
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 14px;
+            line-height: 1.8;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .match {
+            background: rgba(16, 185, 129, 0.3);
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+
+        .code-output {
+            background: var(--code-bg);
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 13px;
+            white-space: pre;
+            overflow-x: auto;
+        }
+
+        .explanation {
+            background: var(--background);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            margin-top: 15px;
+        }
+
+        .explanation h3 {
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: var(--background);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9em;
+        }
+
+        .alert {
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .alert.success {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: var(--success);
+        }
+
+        .alert.error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: var(--danger);
+        }
+
+        .saved-patterns {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .saved-pattern {
+            background: var(--background);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .saved-pattern-info {
+            flex: 1;
+        }
+
+        .saved-pattern-name {
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .saved-pattern-regex {
+            font-family: monospace;
+            color: var(--text-secondary);
+            font-size: 0.9em;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s;
+            z-index: 1000;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .pattern-buttons {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔍 Regex Builder & Tester</h1>
+            <p>Build, test, and understand regular expressions</p>
+        </div>
+
+        <div class="section">
+            <h2>Quick Patterns</h2>
+            <div class="pattern-buttons" id="patternButtons"></div>
+        </div>
+
+        <div class="section">
+            <h2>Regular Expression</h2>
+            <div class="input-group">
+                <label for="regexInput">Pattern</label>
+                <input type="text" id="regexInput" class="form-control regex-input" placeholder="^[a-zA-Z0-9]+$">
+            </div>
+            <div class="input-group">
+                <label>Flags</label>
+                <div class="flags">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="flagG">
+                        <span>g (global)</span>
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="flagI">
+                        <span>i (case-insensitive)</span>
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="flagM">
+                        <span>m (multiline)</span>
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="flagS">
+                        <span>s (dotAll)</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Test Input</h2>
+            <textarea id="testInput" class="form-control" placeholder="Enter text to test against your regex..."></textarea>
+            <div style="margin-top: 15px;">
+                <button class="button" onclick="testRegex()">Test Regex</button>
+            </div>
+        </div>
+
+        <div id="resultsSection" class="section" style="display: none;">
+            <h2>Results</h2>
+            <div class="stats" id="stats"></div>
+            <div id="matchesOutput" class="matches-output"></div>
+            <div id="explanation" class="explanation"></div>
+        </div>
+
+        <div class="section">
+            <h2>Generate Code</h2>
+            <div class="button-group">
+                <button class="button secondary" onclick="generateCode('javascript')">JavaScript</button>
+                <button class="button secondary" onclick="generateCode('python')">Python</button>
+                <button class="button secondary" onclick="generateCode('php')">PHP</button>
+                <button class="button secondary" onclick="generateCode('java')">Java</button>
+            </div>
+            <div id="codeOutput" class="code-output" style="display: none; margin-top: 15px;"></div>
+        </div>
+
+        <div class="section">
+            <h2>Saved Patterns</h2>
+            <div class="input-group">
+                <label for="patternName">Pattern Name</label>
+                <input type="text" id="patternName" class="form-control" placeholder="My Pattern">
+            </div>
+            <div class="button-group">
+                <button class="button success" onclick="savePattern()">💾 Save Pattern</button>
+                <button class="button secondary" onclick="exportPatterns()">📥 Export All</button>
+            </div>
+            <div id="savedPatterns" class="saved-patterns" style="margin-top: 20px;"></div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        const commonPatterns = [
+            { name: 'Email', pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$', desc: 'Validate email addresses' },
+            { name: 'URL', pattern: '^https?:\\/\\/(www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b', desc: 'Match URLs' },
+            { name: 'Phone', pattern: '^\\+?[1-9]\\d{1,14}$', desc: 'International phone numbers' },
+            { name: 'Date (YYYY-MM-DD)', pattern: '^\\d{4}-\\d{2}-\\d{2}$', desc: 'ISO date format' },
+            { name: 'IPv4', pattern: '^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$', desc: 'IP addresses' },
+            { name: 'Hex Color', pattern: '^#?([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$', desc: 'Hex color codes' },
+            { name: 'Username', pattern: '^[a-zA-Z0-9_-]{3,16}$', desc: '3-16 chars, letters, numbers, _, -' },
+            { name: 'Password', pattern: '^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)[a-zA-Z\\d]{8,}$', desc: 'Min 8 chars, 1 upper, 1 lower, 1 number' },
+            { name: 'Alphanumeric', pattern: '^[a-zA-Z0-9]+$', desc: 'Only letters and numbers' },
+            { name: 'HTML Tag', pattern: '<([a-z]+)([^<]+)*(?:>(.*)<\\/\\1>|\\s+\\/>)', desc: 'Match HTML tags' },
+            { name: 'Credit Card', pattern: '^(?:4[0-9]{12}(?:[0-9]{3})?|5[1-5][0-9]{14})$', desc: 'Visa/Mastercard' },
+            { name: 'ZIP Code (US)', pattern: '^\\d{5}(?:-\\d{4})?$', desc: 'US postal codes' }
+        ];
+
+        let savedPatterns = [];
+
+        function init() {
+            renderPatternButtons();
+            loadSavedPatterns();
+            loadFromLocalStorage();
+        }
+
+        function renderPatternButtons() {
+            const container = document.getElementById('patternButtons');
+            container.innerHTML = commonPatterns.map(p => `
+                <div class="pattern-btn" onclick="usePattern('${p.pattern.replace(/'/g, "\\'")}')">
+                    <strong>${p.name}</strong>
+                    <small>${p.desc}</small>
+                </div>
+            `).join('');
+        }
+
+        function usePattern(pattern) {
+            document.getElementById('regexInput').value = pattern;
+            showToast('Pattern loaded!');
+        }
+
+        function testRegex() {
+            const pattern = document.getElementById('regexInput').value;
+            const testInput = document.getElementById('testInput').value;
+
+            if (!pattern) {
+                showToast('Please enter a regex pattern', 'error');
+                return;
+            }
+
+            if (!testInput) {
+                showToast('Please enter test input', 'error');
+                return;
+            }
+
+            try {
+                const flags = getFlags();
+                const regex = new RegExp(pattern, flags);
+                const matches = [...testInput.matchAll(new RegExp(pattern, flags + (flags.includes('g') ? '' : 'g')))];
+
+                displayResults(regex, testInput, matches);
+                saveToLocalStorage();
+            } catch (error) {
+                showToast('Invalid regex: ' + error.message, 'error');
+            }
+        }
+
+        function getFlags() {
+            let flags = '';
+            if (document.getElementById('flagG').checked) flags += 'g';
+            if (document.getElementById('flagI').checked) flags += 'i';
+            if (document.getElementById('flagM').checked) flags += 'm';
+            if (document.getElementById('flagS').checked) flags += 's';
+            return flags;
+        }
+
+        function displayResults(regex, input, matches) {
+            const resultsSection = document.getElementById('resultsSection');
+            resultsSection.style.display = 'block';
+
+            // Stats
+            const stats = document.getElementById('stats');
+            stats.innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-number">${matches.length}</div>
+                    <div class="stat-label">Matches</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${regex.test(input) ? 'Yes' : 'No'}</div>
+                    <div class="stat-label">Valid</div>
+                </div>
+            `;
+
+            // Highlighted output
+            const output = document.getElementById('matchesOutput');
+            let highlighted = input;
+            matches.forEach(match => {
+                highlighted = highlighted.replace(match[0], `<span class="match">${match[0]}</span>`);
+            });
+            output.innerHTML = highlighted || 'No matches found';
+
+            // Explanation
+            const explanation = document.getElementById('explanation');
+            explanation.innerHTML = `
+                <h3>Pattern Explanation</h3>
+                <p>${explainRegex(document.getElementById('regexInput').value)}</p>
+                ${matches.length > 0 ? `
+                    <h3 style="margin-top: 15px;">Captured Groups</h3>
+                    ${matches.map((m, i) => `
+                        <div style="margin-top: 10px;">
+                            <strong>Match ${i + 1}:</strong> ${m[0]}<br>
+                            ${m.slice(1).map((g, gi) => `<span style="color: var(--text-secondary);">Group ${gi + 1}: ${g || 'N/A'}</span><br>`).join('')}
+                        </div>
+                    `).join('')}
+                ` : ''}
+            `;
+
+            resultsSection.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function explainRegex(pattern) {
+            const explanations = {
+                '^': 'Start of string',
+                '$': 'End of string',
+                '.': 'Any character',
+                '*': 'Zero or more times',
+                '+': 'One or more times',
+                '?': 'Zero or one time',
+                '\\d': 'Any digit',
+                '\\w': 'Any word character',
+                '\\s': 'Any whitespace',
+                '[': 'Character set',
+                '(': 'Capture group',
+                '|': 'OR operator'
+            };
+
+            let explanation = 'This pattern ';
+            for (let char in explanations) {
+                if (pattern.includes(char)) {
+                    explanation += `uses "${char}" (${explanations[char]}), `;
+                }
+            }
+            return explanation.slice(0, -2) || 'matches the specified pattern';
+        }
+
+        function generateCode(language) {
+            const pattern = document.getElementById('regexInput').value;
+            const flags = getFlags();
+            const codeOutput = document.getElementById('codeOutput');
+
+            if (!pattern) {
+                showToast('Please enter a regex pattern first', 'error');
+                return;
+            }
+
+            let code = '';
+            switch(language) {
+                case 'javascript':
+                    code = `// JavaScript\nconst regex = /${pattern}/${flags};\nconst text = "your text here";\nconst matches = text.match(regex);\n\nif (matches) {\n    console.log('Found:', matches);\n} else {\n    console.log('No matches');\n}`;
+                    break;
+                case 'python':
+                    code = `# Python\nimport re\n\npattern = r"${pattern}"\nflags = ${flags ? `re.${flags.toUpperCase().split('').join(' | re.')}` : '0'}\ntext = "your text here"\nmatches = re.findall(pattern, text, flags)\n\nif matches:\n    print(f"Found: {matches}")\nelse:\n    print("No matches")`;
+                    break;
+                case 'php':
+                    code = `// PHP\n$pattern = '/${pattern}/${flags}';\n$text = 'your text here';\npreg_match_all($pattern, $text, $matches);\n\nif ($matches[0]) {\n    print_r($matches);\n} else {\n    echo "No matches";\n}`;
+                    break;
+                case 'java':
+                    code = `// Java\nimport java.util.regex.*;\n\nString pattern = "${pattern}";\nString text = "your text here";\nPattern p = Pattern.compile(pattern${flags ? `, Pattern.${flags.toUpperCase().split('').map(f => f === 'g' ? 'MULTILINE' : f === 'i' ? 'CASE_INSENSITIVE' : 'DOTALL').join(' | Pattern.')}` : ''});\nMatcher m = p.matcher(text);\n\nwhile (m.find()) {\n    System.out.println("Found: " + m.group());\n}`;
+                    break;
+            }
+
+            codeOutput.textContent = code;
+            codeOutput.style.display = 'block';
+        }
+
+        function savePattern() {
+            const name = document.getElementById('patternName').value;
+            const pattern = document.getElementById('regexInput').value;
+            const flags = getFlags();
+
+            if (!name || !pattern) {
+                showToast('Please enter pattern name and regex', 'error');
+                return;
+            }
+
+            savedPatterns.push({
+                id: Date.now(),
+                name,
+                pattern,
+                flags,
+                created: new Date().toISOString()
+            });
+
+            localStorage.setItem('regexPatterns', JSON.stringify(savedPatterns));
+            document.getElementById('patternName').value = '';
+            renderSavedPatterns();
+            showToast('Pattern saved!');
+        }
+
+        function loadSavedPatterns() {
+            const stored = localStorage.getItem('regexPatterns');
+            if (stored) {
+                savedPatterns = JSON.parse(stored);
+                renderSavedPatterns();
+            }
+        }
+
+        function renderSavedPatterns() {
+            const container = document.getElementById('savedPatterns');
+            if (savedPatterns.length === 0) {
+                container.innerHTML = '<p style="color: var(--text-secondary);">No saved patterns yet</p>';
+                return;
+            }
+
+            container.innerHTML = savedPatterns.map(p => `
+                <div class="saved-pattern">
+                    <div class="saved-pattern-info">
+                        <div class="saved-pattern-name">${p.name}</div>
+                        <div class="saved-pattern-regex">/${p.pattern}/${p.flags}</div>
+                    </div>
+                    <div class="button-group">
+                        <button class="button secondary" onclick="loadPattern(${p.id})">Load</button>
+                        <button class="button" onclick="deletePattern(${p.id})" style="background: var(--danger);">Delete</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function loadPattern(id) {
+            const pattern = savedPatterns.find(p => p.id === id);
+            if (pattern) {
+                document.getElementById('regexInput').value = pattern.pattern;
+                const flags = pattern.flags || '';
+                document.getElementById('flagG').checked = flags.includes('g');
+                document.getElementById('flagI').checked = flags.includes('i');
+                document.getElementById('flagM').checked = flags.includes('m');
+                document.getElementById('flagS').checked = flags.includes('s');
+                showToast('Pattern loaded!');
+            }
+        }
+
+        function deletePattern(id) {
+            if (confirm('Delete this pattern?')) {
+                savedPatterns = savedPatterns.filter(p => p.id !== id);
+                localStorage.setItem('regexPatterns', JSON.stringify(savedPatterns));
+                renderSavedPatterns();
+                showToast('Pattern deleted');
+            }
+        }
+
+        function exportPatterns() {
+            if (savedPatterns.length === 0) {
+                showToast('No patterns to export', 'error');
+                return;
+            }
+
+            const data = JSON.stringify(savedPatterns, null, 2);
+            const blob = new Blob([data], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'regex-patterns.json';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            showToast('Patterns exported!');
+        }
+
+        function saveToLocalStorage() {
+            localStorage.setItem('regexBuilderState', JSON.stringify({
+                pattern: document.getElementById('regexInput').value,
+                testInput: document.getElementById('testInput').value,
+                flags: getFlags()
+            }));
+        }
+
+        function loadFromLocalStorage() {
+            const stored = localStorage.getItem('regexBuilderState');
+            if (stored) {
+                const state = JSON.parse(stored);
+                document.getElementById('regexInput').value = state.pattern || '';
+                document.getElementById('testInput').value = state.testInput || '';
+                const flags = state.flags || '';
+                document.getElementById('flagG').checked = flags.includes('g');
+                document.getElementById('flagI').checked = flags.includes('i');
+                document.getElementById('flagM').checked = flags.includes('m');
+                document.getElementById('flagS').checked = flags.includes('s');
+            }
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast ${type} show`;
+
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        init();
+    </script>
+</body>
+</html>
