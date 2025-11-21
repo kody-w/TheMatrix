@@ -1,6 +1,6 @@
 # Index Variants Collection
 
-This directory contains 6 alternative versions of the main index.html gateway, optimized for different deployment scenarios and platforms.
+This directory contains 7 alternative versions of the main index.html gateway, optimized for different deployment scenarios and platforms.
 
 ## Variants
 
@@ -94,19 +94,14 @@ Each variant can be customized:
 
 ## Performance
 
-| Variant | Size | Load Time | Features | Dependencies |
-|---------|------|-----------|----------|--------------|
-| index_slim.html | 124KB | <300ms | Essential | Self-contained |
-| index_MAC.html | 108KB | <250ms | Production | Self-contained |
-| index_MAC_local.html | 108KB | <250ms | Full Dev | Self-contained |
-| index_slim_cloud.html | 208KB | <400ms | Standard | External CDN |
-| index_slim_cloud_qr.html | 192KB | <380ms | QR Features | External CDN |
-| index_slim_cloud_tools.html | 220KB | <420ms | Dev Tools | External CDN |
-
-**Note**: Cloud variants with external CDN dependencies may require network connectivity and violate the framework's "zero dependencies" principle. Consider using self-contained variants for offline capability.
+| Variant | Size | Load Time | Features |
+|---------|------|-----------|----------|
+| index_slim.html | ~20KB | <100ms | Essential |
+| index_slim_cloud.html | ~35KB | <200ms | Standard |
+| index_MAC_local.html | ~50KB | <300ms | Full |
 
 ---
 
-**Total Variants**: 6
+**Total Variants**: 7
 **Category**: Gateway Configurations
-**Last Updated**: 2025-11-21 (by Portfolio Steward Agent)
+**Last Updated**: 2025-11-20
