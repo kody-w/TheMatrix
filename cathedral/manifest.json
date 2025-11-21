@@ -8,164 +8,184 @@
   "categories": [
     {
       "id": "transformation",
-      "label": "Data Transformation",
-      "description": "Large-scale data transformations and migrations",
+      "label": "Code Transformation",
+      "description": "Large-scale code migrations and transformations",
       "color": "#667eea"
+    },
+    {
+      "id": "analysis",
+      "label": "Strategic Analysis",
+      "description": "Multi-perspective analysis and scenario planning",
+      "color": "#764ba2"
     },
     {
       "id": "synthesis",
       "label": "Knowledge Synthesis",
-      "description": "Combining and analyzing information at scale",
-      "color": "#764ba2"
-    },
-    {
-      "id": "generation",
-      "label": "Content Generation",
-      "description": "Creating structured content from inputs",
+      "description": "Extracting and connecting information at scale",
       "color": "#f093fb"
     },
     {
-      "id": "orchestration",
-      "label": "Process Orchestration",
-      "description": "Coordinating parallel and sequential operations",
+      "id": "simulation",
+      "label": "Behavioral Simulation",
+      "description": "Agent-based simulations with emergent behaviors",
       "color": "#4facfe"
+    },
+    {
+      "id": "localization",
+      "label": "Cultural Localization",
+      "description": "Multi-language and multi-cultural adaptation",
+      "color": "#fa709a"
+    },
+    {
+      "id": "comprehension",
+      "label": "Code Comprehension",
+      "description": "Reverse-engineering and documentation from legacy code",
+      "color": "#fee140"
     }
   ],
   "demonstrations": [
     {
-      "id": "great-migration",
-      "title": "The Great Migration",
+      "id": "polyglot-codebase-migration",
+      "title": "Polyglot Codebase Migration",
       "category": "transformation",
-      "description": "2,500 PHP files transformed to React through parallel orchestration",
-      "shortDescription": "Parallel file transformation at scale",
+      "description": "Translate an entire codebase to 25 programming languages in parallel",
+      "shortDescription": "70 Python files transformed into 1,750 polyglot files across 25 languages",
       "visualization": {
         "type": "cascade-flow",
         "config": {
-          "stages": ["2,500 PHP Files", "Transform", "2,500 React Files"],
-          "itemCount": 2500,
-          "duration": 8000
+          "stages": ["Python Source (70 files)", "Parallel Translation", "25 Languages (1,750 files)"],
+          "itemCount": 70,
+          "duration": 12000
         }
       },
       "metrics": {
-        "inputItems": 2500,
-        "outputItems": 2500,
-        "parallelProcesses": 50,
-        "speedup": 2.67
+        "inputFiles": 70,
+        "outputFiles": 1750,
+        "targetLanguages": 25,
+        "parallelProcesses": 25,
+        "averageTranslationTime": "2.3s per language"
       },
       "order": 1,
       "enabled": true
     },
     {
-      "id": "knowledge-synthesizer",
-      "title": "Knowledge Synthesizer",
-      "category": "synthesis",
-      "description": "75 research papers synthesized into 200 interconnected articles",
-      "shortDescription": "Semantic analysis and synthesis",
+      "id": "quantum-business-plan-multiverse",
+      "title": "Quantum Business Plan Multiverse",
+      "category": "analysis",
+      "description": "Generate 500 parallel business plan analyses from multiple expert perspectives",
+      "shortDescription": "1 business plan analyzed by 50 experts across 10 scenarios",
       "visualization": {
         "type": "network-graph",
         "config": {
-          "inputNodes": 75,
-          "outputNodes": 200,
-          "connections": 450
+          "nodes": 500,
+          "edges": 2000,
+          "clusters": 10
         }
       },
       "metrics": {
-        "inputItems": 75,
-        "outputItems": 200,
-        "relationships": 450,
-        "qualityScore": 94.2
+        "expertPerspectives": 50,
+        "scenarios": 10,
+        "totalAnalyses": 500,
+        "relationships": 2000,
+        "consensusScore": 87.4
       },
       "order": 2,
       "enabled": true
     },
     {
-      "id": "documentation-engine",
-      "title": "Documentation Engine",
-      "category": "generation",
-      "description": "3,500 source files transformed into 400 comprehensive documentation pages",
-      "shortDescription": "Intelligent documentation generation",
+      "id": "alexandria-protocol",
+      "title": "Alexandria Protocol",
+      "category": "synthesis",
+      "description": "Extract knowledge graph from research papers with semantic relationship discovery",
+      "shortDescription": "1,000 research papers mapped into 25,000 semantic relationships",
       "visualization": {
-        "type": "hierarchy-tree",
+        "type": "network-graph",
         "config": {
-          "sourceFiles": 3500,
-          "outputDocs": 400,
-          "categories": 12
+          "nodes": 1000,
+          "edges": 25000,
+          "clusters": 50
         }
       },
       "metrics": {
-        "sourceFiles": 3500,
-        "outputPages": 400,
-        "coverage": 96.8,
-        "averageWordsPerPage": 800
+        "researchPapers": 1000,
+        "semanticRelationships": 25000,
+        "knowledgeClusters": 50,
+        "citationDepth": 7,
+        "coverageScore": 96.2
       },
       "order": 3,
       "enabled": true
     },
     {
-      "id": "automation-orchestrator",
-      "title": "Automation Orchestrator",
-      "category": "orchestration",
-      "description": "50 parallel processes coordinated with intelligent dependency resolution",
-      "shortDescription": "Distributed process coordination",
+      "id": "social-simulation-engine",
+      "title": "Social Simulation Engine",
+      "category": "simulation",
+      "description": "Simulate 1,000 agents over 365 days with emergent social behaviors",
+      "shortDescription": "365 million simulation steps revealing emergent social dynamics",
       "visualization": {
         "type": "timeline",
         "config": {
-          "processes": 50,
-          "artifacts": 300,
-          "parallelism": 16
+          "processes": 1000,
+          "duration": 365,
+          "parallelism": 50,
+          "events": 365000
         }
       },
       "metrics": {
-        "totalProcesses": 50,
-        "artifacts": 300,
-        "maxParallel": 16,
-        "successRate": 99.2
+        "totalAgents": 1000,
+        "simulationDays": 365,
+        "simulationSteps": 365000000,
+        "emergentBehaviors": 47,
+        "socialNetworks": 12
       },
       "order": 4,
       "enabled": true
     },
     {
-      "id": "universe-architect",
-      "title": "Universe Architect",
-      "category": "generation",
-      "description": "Story premise expanded into 300+ coherent world-building elements",
-      "shortDescription": "Creative hierarchical generation",
+      "id": "babel-fish-protocol",
+      "title": "Babel Fish Protocol",
+      "category": "localization",
+      "description": "Transform one marketing campaign into thousands of culturally-adapted variants",
+      "shortDescription": "1 campaign expanded to 2,400 culturally-adapted variants across 48 languages",
       "visualization": {
         "type": "hierarchy-tree",
         "config": {
           "rootElement": 1,
-          "generatedElements": 300,
-          "depth": 5
+          "generatedElements": 2400,
+          "depth": 3
         }
       },
       "metrics": {
-        "generatedElements": 312,
-        "hierarchyDepth": 5,
-        "uniqueConcepts": 47,
-        "consistencyScore": 92.5
+        "baseCampaign": 1,
+        "targetLanguages": 48,
+        "culturalVariants": 50,
+        "totalVariants": 2400,
+        "localizationDepth": 3
       },
       "order": 5,
       "enabled": true
     },
     {
-      "id": "system-designer",
-      "title": "System Designer",
-      "category": "orchestration",
-      "description": "Requirements document transformed into complete system architecture",
-      "shortDescription": "Requirements to architecture transformation",
+      "id": "code-archaeologist",
+      "title": "Code Archaeologist",
+      "category": "comprehension",
+      "description": "Reverse-engineer complete understanding from undocumented legacy code",
+      "shortDescription": "500K lines of legacy code transformed into comprehensive documentation",
       "visualization": {
-        "type": "network-graph",
+        "type": "hierarchy-tree",
         "config": {
-          "requirements": 15,
-          "components": 47,
-          "dependencies": 83
+          "sourceFiles": 500000,
+          "outputDocs": 500,
+          "categories": 20,
+          "depth": 5
         }
       },
       "metrics": {
-        "inputRequirements": 15,
-        "architectureComponents": 47,
-        "dependencies": 83,
-        "validationScore": 91.3
+        "linesOfCode": 500000,
+        "documentationPages": 500,
+        "architectureComponents": 147,
+        "dependencyGraphs": 23,
+        "coverageScore": 94.8
       },
       "order": 6,
       "enabled": true
