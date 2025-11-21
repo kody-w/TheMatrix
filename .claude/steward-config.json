@@ -1,0 +1,241 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "$comment": "Configuration for the Steward Agent - autonomous code improvement specialist. See .claude/agents/steward.md for complete documentation and workflow details.",
+  "version": "1.0.0",
+  "safetyLevel": "conservative",
+  "targetDirectory": "./",
+  "excludePatterns": [
+    ".git/**",
+    "node_modules/**",
+    "__pycache__/**",
+    "*.pyc",
+    ".steward-backups/**",
+    ".steward-reports/**",
+    "venv/**",
+    "env/**",
+    "dist/**",
+    "build/**",
+    ".next/**",
+    ".nuxt/**",
+    "coverage/**",
+    ".pytest_cache/**",
+    "*.egg-info/**",
+    ".DS_Store",
+    "*.log"
+  ],
+  "backupDirectory": "./.steward-backups",
+  "reportDirectory": "./.steward-reports",
+  "logFile": "./.steward-log.jsonl",
+  "metricsFile": "./.steward-metrics.json",
+  "validationRules": {
+    "requireTests": false,
+    "requireBackup": true,
+    "maxChangesPerRun": 10,
+    "validationLevel": "import",
+    "allowHighRisk": false,
+    "minConfidence": 0.70,
+    "backupRetention": 50,
+    "backupRetentionDays": 30
+  },
+  "improvementPriorities": [
+    "security",
+    "error-handling",
+    "documentation",
+    "performance",
+    "code-quality",
+    "maintainability",
+    "testing"
+  ],
+  "safetyLevels": {
+    "conservative": {
+      "description": "Minimal risk, maximum safety. Only low-risk improvements with high confidence.",
+      "maxChangesPerRun": 5,
+      "allowedRisk": ["low"],
+      "requireValidation": true,
+      "minConfidence": 0.85,
+      "allowMultiFileChanges": false,
+      "allowRefactoring": false,
+      "allowedTypes": ["documentation", "error-handling", "performance"]
+    },
+    "moderate": {
+      "description": "Balanced approach. Low to medium risk improvements with good validation.",
+      "maxChangesPerRun": 10,
+      "allowedRisk": ["low", "medium"],
+      "requireValidation": true,
+      "minConfidence": 0.75,
+      "allowMultiFileChanges": true,
+      "allowRefactoring": true,
+      "allowedTypes": ["documentation", "error-handling", "performance", "code-quality", "refactor"]
+    },
+    "aggressive": {
+      "description": "Maximum improvement velocity. All risk levels with comprehensive validation.",
+      "maxChangesPerRun": 20,
+      "allowedRisk": ["low", "medium", "high"],
+      "requireValidation": true,
+      "minConfidence": 0.65,
+      "allowMultiFileChanges": true,
+      "allowRefactoring": true,
+      "allowedTypes": ["documentation", "error-handling", "performance", "code-quality", "refactor", "testing", "security"]
+    }
+  },
+  "improvementTypes": {
+    "error-handling": {
+      "description": "Add try-catch, error validation, edge case handling",
+      "basePriority": 9,
+      "baseRisk": "low",
+      "enabled": true
+    },
+    "documentation": {
+      "description": "Add docstrings, type hints, comments, usage examples",
+      "basePriority": 8,
+      "baseRisk": "low",
+      "enabled": true
+    },
+    "performance": {
+      "description": "Optimize algorithms, reduce complexity, improve efficiency",
+      "basePriority": 7,
+      "baseRisk": "medium",
+      "enabled": true
+    },
+    "code-quality": {
+      "description": "Fix code smells, improve naming, reduce duplication",
+      "basePriority": 6,
+      "baseRisk": "low",
+      "enabled": true
+    },
+    "refactor": {
+      "description": "Extract functions, simplify logic, improve structure",
+      "basePriority": 5,
+      "baseRisk": "medium",
+      "enabled": true
+    },
+    "security": {
+      "description": "Fix security vulnerabilities, add input validation",
+      "basePriority": 10,
+      "baseRisk": "medium",
+      "enabled": true
+    },
+    "testing": {
+      "description": "Add unit tests, integration tests, edge case coverage",
+      "basePriority": 7,
+      "baseRisk": "low",
+      "enabled": true
+    },
+    "maintainability": {
+      "description": "Improve code organization, reduce coupling, enhance cohesion",
+      "basePriority": 6,
+      "baseRisk": "medium",
+      "enabled": true
+    }
+  },
+  "validationStrategies": {
+    "syntax": {
+      "description": "Compile/parse file to check for syntax errors",
+      "commands": {
+        "python": "python -m py_compile {file}",
+        "javascript": "node --check {file}",
+        "typescript": "tsc --noEmit {file}"
+      }
+    },
+    "import": {
+      "description": "Import module to verify all dependencies resolve",
+      "commands": {
+        "python": "python -c 'import {module}'",
+        "javascript": "node -e \"require('./{file}')\""
+      }
+    },
+    "test": {
+      "description": "Run test suite to verify functionality",
+      "commands": {
+        "python": "python -m pytest {test_dir} -v",
+        "javascript": "npm test",
+        "jest": "npx jest"
+      }
+    },
+    "lint": {
+      "description": "Run linter to check code quality",
+      "commands": {
+        "python": "python -m pylint {file}",
+        "javascript": "npx eslint {file}",
+        "typescript": "npx eslint {file}"
+      }
+    }
+  },
+  "fileTypeConfig": {
+    "python": {
+      "extensions": [".py"],
+      "validationOrder": ["syntax", "import", "test"],
+      "testDirectories": ["tests/", "test/", "__tests__/"],
+      "complexityThreshold": 10,
+      "maxFunctionLength": 50
+    },
+    "javascript": {
+      "extensions": [".js", ".jsx"],
+      "validationOrder": ["syntax", "import", "test"],
+      "testDirectories": ["tests/", "test/", "__tests__/", "spec/"],
+      "complexityThreshold": 10,
+      "maxFunctionLength": 50
+    },
+    "typescript": {
+      "extensions": [".ts", ".tsx"],
+      "validationOrder": ["syntax", "import", "test"],
+      "testDirectories": ["tests/", "test/", "__tests__/", "spec/"],
+      "complexityThreshold": 10,
+      "maxFunctionLength": 50
+    }
+  },
+  "riskFactors": {
+    "highDependencyCount": {
+      "description": "File is imported by many other files",
+      "threshold": 5,
+      "riskIncrease": "medium-to-high"
+    },
+    "noTests": {
+      "description": "File has no associated test coverage",
+      "riskIncrease": "low-to-medium"
+    },
+    "complexFile": {
+      "description": "File has high cyclomatic complexity",
+      "threshold": 15,
+      "riskIncrease": "low-to-medium"
+    },
+    "coreModule": {
+      "description": "File is in core/ or lib/ directory",
+      "patterns": ["core/**", "lib/**", "src/core/**"],
+      "riskIncrease": "medium-to-high"
+    },
+    "largeFile": {
+      "description": "File exceeds line count threshold",
+      "threshold": 500,
+      "riskIncrease": "low-to-medium"
+    }
+  },
+  "learningConfig": {
+    "enabled": true,
+    "trackPatterns": true,
+    "adjustPriorities": true,
+    "minSampleSize": 10,
+    "learningRate": 0.1
+  },
+  "reportConfig": {
+    "generateMarkdown": true,
+    "generateJson": true,
+    "includeCodeDiffs": true,
+    "includeConfidenceBreakdown": true,
+    "includeRecommendations": true
+  },
+  "notifications": {
+    "enabled": false,
+    "onSuccess": false,
+    "onFailure": true,
+    "onComplete": true
+  },
+  "advancedOptions": {
+    "dryRun": false,
+    "interactive": false,
+    "parallelValidation": false,
+    "autoCleanupBackups": true,
+    "createGitCommits": false,
+    "gitCommitMessage": "🤖 Steward: {improvement_type} - {description}"
+  }
+}

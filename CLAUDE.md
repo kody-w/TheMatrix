@@ -178,6 +178,27 @@ If a tracking system is detected:
 - Agents store metadata with context: package, item, outcome_id, status, metrics
 - Orchestrator aggregates and verifies metadata post-generation
 
+### 5. Error Handling & Failure Recovery
+When orchestrating parallel agent execution, implement robust error handling:
+
+**Agent Failure Scenarios:**
+- **Individual Agent Failure**: If one agent fails, others continue. Log failure and proceed with remaining agents.
+- **Validation Failure**: If outcome validation fails, flag for manual review but complete remaining work.
+- **Integration Failure**: If integrator encounters errors, provide partial results with clear error documentation.
+
+**Recovery Strategies:**
+- **Graceful Degradation**: Deliver partial results (N-1 packages) if one agent fails
+- **Retry Logic**: For transient failures (network, rate limits), implement exponential backoff
+- **Rollback**: If integration fails critically, preserve all generated outcomes for manual integration
+- **Error Logging**: Document all failures with context: agent_id, package, work items, error message, timestamp
+
+**Best Practices:**
+- Always validate agent briefing before spawning (check for missing required fields)
+- Set reasonable timeouts for agent execution (15-30 minutes typical)
+- Monitor agent progress through status checks
+- Maintain audit trail of all orchestration operations
+- Provide clear error messages with actionable recovery steps
+
 ## Repository Structure
 
 ```

@@ -195,6 +195,48 @@ Parallel agent coordination to generate N×M outcomes simultaneously.
 
 ---
 
+## ♿ **ACCESSIBILITY FEATURES**
+
+The Matrix Gateway is designed with accessibility in mind:
+
+### **Keyboard Navigation**
+- Full keyboard navigation support
+- Tab through all interactive elements
+- ESC key to dismiss modals
+- Enter to activate buttons
+- Space to toggle checkboxes/radios
+
+### **Screen Reader Support**
+- Semantic HTML structure
+- ARIA labels on all interactive elements
+- Alt text for visual elements
+- Clear heading hierarchy (h1 → h6)
+- Descriptive button labels
+
+### **Visual Accessibility**
+- High contrast color schemes
+- Readable font sizes (minimum 14px)
+- Focus indicators on all interactive elements
+- No reliance on color alone for information
+- Resizable text (zoom up to 200% without loss)
+
+### **Motion & Animation**
+- Reduced motion support (respects prefers-reduced-motion)
+- Optional: Disable Matrix rain animation
+- No auto-playing content
+- Smooth scrolling can be disabled
+
+### **Cognitive Accessibility**
+- Clear, consistent navigation
+- Simple language and terminology
+- Logical reading order
+- Breadcrumbs and progress indicators
+- Error messages with clear instructions
+
+**Need Assistance?** Contact support or file accessibility issues on GitHub.
+
+---
+
 ## 🔧 **TROUBLESHOOTING**
 
 ### **Search not working?**

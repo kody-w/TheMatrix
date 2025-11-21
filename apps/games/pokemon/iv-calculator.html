@@ -1,0 +1,1232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pokemon GO IV Calculator & Optimizer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #e0e0e0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            color: #00d4ff;
+            text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #b0b0b0;
+            font-size: 1.1em;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: rgba(22, 33, 62, 0.8);
+            border: 2px solid #00d4ff;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0, 212, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            border-color: #00ff88;
+            box-shadow: 0 8px 32px rgba(0, 255, 136, 0.2);
+        }
+
+        .card h2 {
+            color: #00ff88;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            border-bottom: 2px solid #00d4ff;
+            padding-bottom: 10px;
+        }
+
+        .pokemon-selector {
+            margin-bottom: 20px;
+        }
+
+        .pokemon-selector label {
+            display: block;
+            color: #00d4ff;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .pokemon-selector input {
+            width: 100%;
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid #00d4ff;
+            border-radius: 6px;
+            color: #e0e0e0;
+            font-size: 1em;
+        }
+
+        .pokemon-selector input:focus {
+            outline: none;
+            border-color: #00ff88;
+            box-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+        }
+
+        .pokemon-info {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            display: none;
+        }
+
+        .pokemon-info.active {
+            display: block;
+        }
+
+        .pokemon-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .pokemon-sprite {
+            width: 80px;
+            height: 80px;
+            background: rgba(0, 212, 255, 0.1);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .pokemon-sprite img {
+            width: 64px;
+            height: 64px;
+            image-rendering: pixelated;
+        }
+
+        .pokemon-details {
+            flex: 1;
+        }
+
+        .pokemon-name {
+            color: #00ff88;
+            font-size: 1.3em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .pokemon-types {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .type {
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.9em;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .type-normal { background: #a8a878; }
+        .type-fire { background: #f08030; }
+        .type-water { background: #6890f0; }
+        .type-grass { background: #78c850; }
+        .type-electric { background: #f8d030; color: #333; }
+        .type-ice { background: #98d8d8; }
+        .type-fighting { background: #c03028; }
+        .type-poison { background: #a040a0; }
+        .type-ground { background: #e0c068; }
+        .type-flying { background: #a890f0; }
+        .type-psychic { background: #f85888; }
+        .type-bug { background: #a8b820; }
+        .type-rock { background: #b8a038; }
+        .type-ghost { background: #705898; }
+        .type-dragon { background: #7038f8; }
+        .type-dark { background: #705848; }
+        .type-steel { background: #b8b8d0; }
+        .type-fairy { background: #ee99ac; }
+
+        .base-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+            font-size: 0.9em;
+        }
+
+        .base-stat {
+            background: rgba(0, 255, 136, 0.1);
+            padding: 8px;
+            border-radius: 4px;
+            border-left: 3px solid #00ff88;
+        }
+
+        .base-stat-label {
+            color: #b0b0b0;
+            font-size: 0.85em;
+        }
+
+        .base-stat-value {
+            color: #00ff88;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+
+        .slider-group {
+            margin-bottom: 20px;
+        }
+
+        .slider-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            color: #00d4ff;
+            font-weight: 600;
+        }
+
+        .slider-label-value {
+            color: #00ff88;
+            font-weight: bold;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: linear-gradient(to right, #00d4ff, #00ff88);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #00ff88;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #00ff88;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .result-box {
+            background: rgba(0, 255, 136, 0.1);
+            border-left: 4px solid #00ff88;
+            padding: 15px;
+            border-radius: 6px;
+        }
+
+        .result-label {
+            color: #b0b0b0;
+            font-size: 0.9em;
+            margin-bottom: 5px;
+        }
+
+        .result-value {
+            color: #00ff88;
+            font-size: 1.8em;
+            font-weight: bold;
+        }
+
+        .result-subvalue {
+            color: #00d4ff;
+            font-size: 0.9em;
+            margin-top: 3px;
+        }
+
+        .iv-spread {
+            margin-top: 15px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 6px;
+        }
+
+        .iv-spread h3 {
+            color: #00d4ff;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .iv-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(0, 212, 255, 0.2);
+        }
+
+        .iv-item:last-child {
+            border-bottom: none;
+        }
+
+        .iv-name {
+            color: #b0b0b0;
+        }
+
+        .iv-value {
+            color: #00ff88;
+            font-weight: bold;
+        }
+
+        .league-checker {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(0, 212, 255, 0.05);
+            border-radius: 6px;
+        }
+
+        .league-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .league-btn {
+            flex: 1;
+            padding: 10px;
+            background: rgba(0, 212, 255, 0.2);
+            border: 2px solid #00d4ff;
+            border-radius: 6px;
+            color: #00d4ff;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .league-btn.active {
+            background: #00d4ff;
+            color: #1a1a2e;
+            border-color: #00ff88;
+        }
+
+        .league-btn:hover {
+            background: rgba(0, 255, 136, 0.2);
+            border-color: #00ff88;
+        }
+
+        .league-ranks {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .rank-item {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 10px;
+            border-radius: 4px;
+            border-left: 3px solid #00d4ff;
+        }
+
+        .rank-position {
+            color: #00ff88;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+
+        .rank-detail {
+            color: #b0b0b0;
+            font-size: 0.85em;
+            margin-top: 3px;
+        }
+
+        .breakpoint-section {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(0, 212, 255, 0.05);
+            border-radius: 6px;
+        }
+
+        .breakpoint-section h3 {
+            color: #00d4ff;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .breakpoint-info {
+            color: #b0b0b0;
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+
+        .powerup-section {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(0, 212, 255, 0.05);
+            border-radius: 6px;
+        }
+
+        .powerup-section h3 {
+            color: #00d4ff;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .powerup-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .powerup-item {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 12px;
+            border-radius: 4px;
+            border-left: 3px solid #00d4ff;
+        }
+
+        .powerup-label {
+            color: #b0b0b0;
+            font-size: 0.85em;
+            margin-bottom: 5px;
+        }
+
+        .powerup-cost {
+            color: #00ff88;
+            font-size: 1.3em;
+            font-weight: bold;
+        }
+
+        .optimizer-section {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(0, 212, 255, 0.05);
+            border-radius: 6px;
+        }
+
+        .optimizer-section h3 {
+            color: #00d4ff;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .optimizer-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #00d4ff, #00ff88);
+            border: none;
+            border-radius: 6px;
+            color: #1a1a2e;
+            font-weight: bold;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 10px;
+        }
+
+        .optimizer-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 212, 255, 0.4);
+        }
+
+        .optimizer-btn:active {
+            transform: translateY(0);
+        }
+
+        .optimizer-results {
+            margin-top: 15px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 6px;
+            display: none;
+        }
+
+        .optimizer-results.active {
+            display: block;
+        }
+
+        .optimizer-result-item {
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(0, 212, 255, 0.2);
+        }
+
+        .optimizer-result-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .optimizer-rank {
+            color: #00d4ff;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .optimizer-ivs {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+            gap: 8px;
+            font-size: 0.9em;
+        }
+
+        .optimizer-iv {
+            background: rgba(0, 255, 136, 0.1);
+            padding: 6px;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .optimizer-iv-label {
+            color: #b0b0b0;
+            font-size: 0.8em;
+        }
+
+        .optimizer-iv-value {
+            color: #00ff88;
+            font-weight: bold;
+        }
+
+        .help-text {
+            color: #808080;
+            font-size: 0.85em;
+            margin-top: 5px;
+            font-style: italic;
+        }
+
+        .loading {
+            text-align: center;
+            color: #00d4ff;
+            padding: 20px;
+        }
+
+        .error {
+            color: #ff6b6b;
+            padding: 15px;
+            background: rgba(255, 107, 107, 0.1);
+            border-left: 3px solid #ff6b6b;
+            border-radius: 4px;
+            margin-bottom: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .results-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .league-ranks {
+                grid-template-columns: 1fr;
+            }
+
+            .powerup-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .optimizer-ivs {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>IV Calculator & Optimizer</h1>
+            <p>Calculate and optimize Individual Values for Pokemon GO PvP</p>
+        </div>
+
+        <div class="main-grid">
+            <!-- Left Card: Pokemon Selection & IV Input -->
+            <div class="card">
+                <h2>Pokemon & IVs</h2>
+
+                <div class="pokemon-selector">
+                    <label for="pokemonInput">Select Pokemon:</label>
+                    <input
+                        type="text"
+                        id="pokemonInput"
+                        placeholder="Search by name... (e.g., Azumarill, Venusaur)"
+                        autocomplete="off"
+                    >
+                    <div class="help-text">Start typing to search from 1000+ Pokemon</div>
+                </div>
+
+                <div class="pokemon-info" id="pokemonInfo">
+                    <div class="pokemon-header">
+                        <div class="pokemon-sprite">
+                            <img id="pokemonSprite" src="" alt="Pokemon" onerror="this.style.display='none'">
+                        </div>
+                        <div class="pokemon-details">
+                            <div class="pokemon-name" id="pokemonName"></div>
+                            <div class="pokemon-types" id="pokemonTypes"></div>
+                            <div class="base-stats">
+                                <div class="base-stat">
+                                    <div class="base-stat-label">ATK</div>
+                                    <div class="base-stat-value" id="baseAtk">-</div>
+                                </div>
+                                <div class="base-stat">
+                                    <div class="base-stat-label">DEF</div>
+                                    <div class="base-stat-value" id="baseDef">-</div>
+                                </div>
+                                <div class="base-stat">
+                                    <div class="base-stat-label">HP</div>
+                                    <div class="base-stat-value" id="baseHp">-</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- IV Sliders -->
+                <div class="slider-group">
+                    <div class="slider-label">
+                        <span>Attack IV</span>
+                        <span class="slider-label-value" id="atkLabel">0</span>
+                    </div>
+                    <input
+                        type="range"
+                        id="atkSlider"
+                        min="0"
+                        max="15"
+                        value="0"
+                        disabled
+                    >
+                </div>
+
+                <div class="slider-group">
+                    <div class="slider-label">
+                        <span>Defense IV</span>
+                        <span class="slider-label-value" id="defLabel">0</span>
+                    </div>
+                    <input
+                        type="range"
+                        id="defSlider"
+                        min="0"
+                        max="15"
+                        value="0"
+                        disabled
+                    >
+                </div>
+
+                <div class="slider-group">
+                    <div class="slider-label">
+                        <span>HP IV</span>
+                        <span class="slider-label-value" id="hpLabel">0</span>
+                    </div>
+                    <input
+                        type="range"
+                        id="hpSlider"
+                        min="0"
+                        max="15"
+                        value="0"
+                        disabled
+                    >
+                </div>
+
+                <div class="slider-group">
+                    <div class="slider-label">
+                        <span>Level</span>
+                        <span class="slider-label-value" id="levelLabel">1</span>
+                    </div>
+                    <input
+                        type="range"
+                        id="levelSlider"
+                        min="1"
+                        max="50"
+                        value="1"
+                        disabled
+                    >
+                </div>
+
+                <div class="iv-spread">
+                    <h3>IV Summary</h3>
+                    <div class="iv-item">
+                        <span class="iv-name">Total IV %</span>
+                        <span class="iv-value" id="ivPercent">0%</span>
+                    </div>
+                    <div class="iv-item">
+                        <span class="iv-name">Stat Product</span>
+                        <span class="iv-value" id="statProduct">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Card: CP & Stats Calculation -->
+            <div class="card">
+                <h2>Stats & Calculation</h2>
+
+                <div class="results-grid">
+                    <div class="result-box">
+                        <div class="result-label">CP (Combat Power)</div>
+                        <div class="result-value" id="cpValue">-</div>
+                        <div class="result-subvalue" id="cpRange">-</div>
+                    </div>
+                    <div class="result-box">
+                        <div class="result-label">Attack Stat</div>
+                        <div class="result-value" id="atkStat">-</div>
+                    </div>
+                    <div class="result-box">
+                        <div class="result-label">Defense Stat</div>
+                        <div class="result-value" id="defStat">-</div>
+                    </div>
+                    <div class="result-box">
+                        <div class="result-label">HP Stat</div>
+                        <div class="result-value" id="hpStat">-</div>
+                    </div>
+                </div>
+
+                <!-- League Rank Checker -->
+                <div class="league-checker">
+                    <h3 style="color: #00d4ff; margin-bottom: 10px;">League Rankings</h3>
+                    <div class="league-tabs">
+                        <button class="league-btn active" data-league="great">Great League</button>
+                        <button class="league-btn" data-league="ultra">Ultra League</button>
+                        <button class="league-btn" data-league="master">Master League</button>
+                    </div>
+                    <div class="league-ranks" id="leagueRanks">
+                        <div class="rank-item">
+                            <div class="rank-position">-</div>
+                            <div class="rank-detail">Select a Pokemon</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Breakpoint Calculator -->
+                <div class="breakpoint-section">
+                    <h3>Breakpoint Calculator</h3>
+                    <div class="breakpoint-info">
+                        <p><strong>Breakpoint:</strong> The minimum IV needed to deal one additional damage against specific defenses.</p>
+                        <p style="margin-top: 8px; color: #00ff88;">Set opponent's Defense IV to find when your next damage increase occurs.</p>
+                    </div>
+                </div>
+
+                <!-- Power-up Cost Estimator -->
+                <div class="powerup-section">
+                    <h3>Power-up Cost (to next level)</h3>
+                    <div class="powerup-grid">
+                        <div class="powerup-item">
+                            <div class="powerup-label">Stardust Cost</div>
+                            <div class="powerup-cost" id="stardustCost">-</div>
+                        </div>
+                        <div class="powerup-item">
+                            <div class="powerup-label">Candy Cost</div>
+                            <div class="powerup-cost" id="candyCost">-</div>
+                        </div>
+                    </div>
+                    <div class="help-text" style="margin-top: 10px;">Costs scale with Pokemon level (higher levels = higher costs)</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Optimizer Section (Full Width) -->
+        <div class="card">
+            <h2>IV Optimizer</h2>
+            <p style="color: #b0b0b0; margin-bottom: 15px;">Find the best IV spread for rank #1 in your selected league</p>
+
+            <div class="optimizer-section">
+                <div class="league-tabs">
+                    <button class="league-btn active" data-opt-league="great">Great League</button>
+                    <button class="league-btn" data-opt-league="ultra">Ultra League</button>
+                    <button class="league-btn" data-opt-league="master">Master League</button>
+                </div>
+
+                <button class="optimizer-btn" id="optimizeBtn" disabled>
+                    🔍 Find Best IV Spread for Rank #1
+                </button>
+
+                <div class="optimizer-results" id="optimizerResults">
+                    <div id="optimizerContent"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ====================================================================
+        // DATA LOADING & INITIALIZATION
+        // ====================================================================
+
+        let gamemaster = null;
+        let selectedPokemon = null;
+        let currentLeague = 'great';
+        let currentOptLeague = 'great';
+
+        // CPM (CP Multiplier) values for levels 1-50
+        const CPM = [
+            0.094, 0.16639787, 0.21573247, 0.25572005, 0.29024988, 0.3210876,
+            0.34921268, 0.37523559, 0.39956728, 0.42250001, 0.44310755, 0.46279839,
+            0.48168495, 0.49985844, 0.51739395, 0.53435433, 0.55079269, 0.56676671,
+            0.58227891, 0.59740001, 0.61215729, 0.62656713, 0.64065295, 0.65443856,
+            0.66793651, 0.68116492, 0.69414365, 0.70688421, 0.71939909, 0.73170271,
+            0.7437972, 0.75581711, 0.76755529, 0.77903431, 0.79027001, 0.80127939,
+            0.8120799, 0.82266233, 0.83304312, 0.84321865, 0.85319519, 0.86297834,
+            0.87256436, 0.88196044, 0.89117409, 0.90020378, 0.90906718, 0.91777188,
+            0.92632568, 0.93474019
+        ];
+
+        // League CP limits
+        const LEAGUE_LIMITS = {
+            great: 1500,
+            ultra: 2500,
+            master: Infinity
+        };
+
+        // Load gamemaster data
+        async function loadGamemaster() {
+            try {
+                const response = await fetch('https://raw.githubusercontent.com/pvpoke/pvpoke/master/src/data/gamemaster.json');
+                gamemaster = await response.json();
+                initializeApp();
+            } catch (error) {
+                console.error('Failed to load gamemaster:', error);
+                document.querySelector('.header').innerHTML += '<div class="error">Failed to load Pokemon data. Please refresh.</div>';
+            }
+        }
+
+        function initializeApp() {
+            setupEventListeners();
+            setupAutocomplete();
+        }
+
+        // ====================================================================
+        // EVENT LISTENERS
+        // ====================================================================
+
+        function setupEventListeners() {
+            const atkSlider = document.getElementById('atkSlider');
+            const defSlider = document.getElementById('defSlider');
+            const hpSlider = document.getElementById('hpSlider');
+            const levelSlider = document.getElementById('levelSlider');
+
+            atkSlider.addEventListener('input', (e) => {
+                document.getElementById('atkLabel').textContent = e.target.value;
+                calculate();
+            });
+
+            defSlider.addEventListener('input', (e) => {
+                document.getElementById('defLabel').textContent = e.target.value;
+                calculate();
+            });
+
+            hpSlider.addEventListener('input', (e) => {
+                document.getElementById('hpLabel').textContent = e.target.value;
+                calculate();
+            });
+
+            levelSlider.addEventListener('input', (e) => {
+                document.getElementById('levelLabel').textContent = e.target.value;
+                calculate();
+            });
+
+            // League buttons
+            document.querySelectorAll('.league-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const league = this.dataset.league || this.dataset.optLeague;
+                    if (this.dataset.league) {
+                        currentLeague = league;
+                        document.querySelectorAll('.league-btn[data-league]').forEach(b => b.classList.remove('active'));
+                        this.classList.add('active');
+                        updateLeagueRanks();
+                    } else {
+                        currentOptLeague = league;
+                        document.querySelectorAll('.league-btn[data-opt-league]').forEach(b => b.classList.remove('active'));
+                        this.classList.add('active');
+                    }
+                });
+            });
+
+            document.getElementById('optimizeBtn').addEventListener('click', optimizeIVs);
+        }
+
+        // ====================================================================
+        // POKEMON SELECTION & AUTOCOMPLETE
+        // ====================================================================
+
+        function setupAutocomplete() {
+            const input = document.getElementById('pokemonInput');
+            let datalist = null;
+
+            input.addEventListener('input', function(e) {
+                const value = e.target.value.toLowerCase();
+
+                if (value.length < 2) {
+                    return;
+                }
+
+                // Find matching Pokemon
+                const matches = gamemaster.pokemon
+                    .filter(p => p.speciesName.toLowerCase().includes(value))
+                    .slice(0, 10);
+
+                if (matches.length > 0) {
+                    // Show first match on enter
+                    if (e.key === 'Enter') {
+                        selectPokemon(matches[0]);
+                        input.value = matches[0].speciesName;
+                    }
+                }
+            });
+
+            input.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    const value = e.target.value.toLowerCase();
+                    const match = gamemaster.pokemon.find(p => p.speciesName.toLowerCase() === value);
+                    if (match) {
+                        selectPokemon(match);
+                    }
+                }
+            });
+
+            input.addEventListener('change', function(e) {
+                const value = e.target.value.toLowerCase();
+                const match = gamemaster.pokemon.find(p => p.speciesName.toLowerCase() === value);
+                if (match) {
+                    selectPokemon(match);
+                }
+            });
+        }
+
+        function selectPokemon(pokemon) {
+            selectedPokemon = pokemon;
+
+            // Update UI
+            const info = document.getElementById('pokemonInfo');
+            info.classList.add('active');
+
+            document.getElementById('pokemonName').textContent = pokemon.speciesName;
+            document.getElementById('baseAtk').textContent = pokemon.baseStats.atk;
+            document.getElementById('baseDef').textContent = pokemon.baseStats.def;
+            document.getElementById('baseHp').textContent = pokemon.baseStats.hp;
+
+            // Types
+            const typesHtml = pokemon.types
+                .map(t => `<span class="type type-${t}">${t}</span>`)
+                .join('');
+            document.getElementById('pokemonTypes').innerHTML = typesHtml;
+
+            // Sprite
+            const sprite = document.getElementById('pokemonSprite');
+            sprite.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemon.dex}.png`;
+            sprite.style.display = 'block';
+
+            // Enable sliders
+            document.getElementById('atkSlider').disabled = false;
+            document.getElementById('defSlider').disabled = false;
+            document.getElementById('hpSlider').disabled = false;
+            document.getElementById('levelSlider').disabled = false;
+            document.getElementById('optimizeBtn').disabled = false;
+
+            // Reset IVs and calculate
+            document.getElementById('atkSlider').value = 0;
+            document.getElementById('defSlider').value = 0;
+            document.getElementById('hpSlider').value = 0;
+            document.getElementById('levelSlider').value = 1;
+            document.getElementById('atkLabel').textContent = '0';
+            document.getElementById('defLabel').textContent = '0';
+            document.getElementById('hpLabel').textContent = '0';
+            document.getElementById('levelLabel').textContent = '1';
+
+            calculate();
+        }
+
+        // ====================================================================
+        // CALCULATION FUNCTIONS
+        // ====================================================================
+
+        function getStats(pokemon, atk, def, hp, level) {
+            const cpm = CPM[level - 1];
+            const atkStat = Math.floor((pokemon.baseStats.atk + atk) * cpm);
+            const defStat = Math.floor((pokemon.baseStats.def + def) * cpm);
+            const hpStat = Math.floor((pokemon.baseStats.hp + hp) * cpm) + level;
+
+            return { atkStat, defStat, hpStat };
+        }
+
+        function calculateCP(pokemon, atk, def, hp, level) {
+            const cpm = CPM[level - 1];
+            const baseAtk = pokemon.baseStats.atk;
+            const baseDef = pokemon.baseStats.def;
+            const baseHp = pokemon.baseStats.hp;
+
+            // CP = (ATK * sqrt(DEF) * sqrt(HP) * CPM^2) / 10
+            const cp = Math.floor(
+                (baseAtk + atk) *
+                Math.sqrt(baseDef + def) *
+                Math.sqrt(baseHp + hp) *
+                Math.pow(cpm, 2) /
+                10
+            );
+
+            return Math.max(10, cp);
+        }
+
+        function calculateStatProduct(pokemon, atk, def, hp) {
+            const baseAtk = pokemon.baseStats.atk + atk;
+            const baseDef = pokemon.baseStats.def + def;
+            const baseHp = pokemon.baseStats.hp + hp;
+            return baseAtk * baseDef * baseHp;
+        }
+
+        function calculate() {
+            if (!selectedPokemon) return;
+
+            const atk = parseInt(document.getElementById('atkSlider').value);
+            const def = parseInt(document.getElementById('defSlider').value);
+            const hp = parseInt(document.getElementById('hpSlider').value);
+            const level = parseInt(document.getElementById('levelSlider').value);
+
+            const pokemon = selectedPokemon;
+
+            // Calculate CP
+            const cp = calculateCP(pokemon, atk, def, hp, level);
+            document.getElementById('cpValue').textContent = cp;
+
+            // Calculate stats
+            const { atkStat, defStat, hpStat } = getStats(pokemon, atk, def, hp, level);
+            document.getElementById('atkStat').textContent = atkStat;
+            document.getElementById('defStat').textContent = defStat;
+            document.getElementById('hpStat').textContent = hpStat;
+
+            // IV Percent
+            const ivPercent = Math.round(((atk + def + hp) / 45) * 100);
+            document.getElementById('ivPercent').textContent = ivPercent + '%';
+
+            // Stat Product
+            const statProduct = calculateStatProduct(pokemon, atk, def, hp);
+            document.getElementById('statProduct').textContent = statProduct.toLocaleString();
+
+            // CP Range (assuming max IVs at same level)
+            const maxCP = calculateCP(pokemon, 15, 15, 15, level);
+            document.getElementById('cpRange').textContent = `of ${maxCP}`;
+
+            // Power-up costs
+            const nextLevel = level + 1;
+            if (nextLevel <= 50) {
+                const stardustCost = getStardustCost(level);
+                const candyCost = getCandyCost(level);
+                document.getElementById('stardustCost').textContent = stardustCost.toLocaleString();
+                document.getElementById('candyCost').textContent = candyCost;
+            }
+
+            updateLeagueRanks();
+        }
+
+        function getStardustCost(level) {
+            // Stardust costs per level
+            const costs = [
+                200, 400, 600, 800, 1000, 1300, 1600, 1900, 2200, 2500,
+                3000, 3500, 4000, 4500, 5000, 6000, 7000, 8000, 9000, 10000,
+                11000, 12000, 13000, 14000, 15000, 16000, 17000, 18000, 19000, 20000,
+                21000, 22000, 23000, 24000, 25000, 26000, 27000, 28000, 29000, 30000,
+                31000, 32000, 33000, 34000, 35000, 36000, 37000, 38000, 39000, 40000
+            ];
+            return costs[Math.min(level - 1, 49)] || 0;
+        }
+
+        function getCandyCost(level) {
+            // Candy costs per level
+            const costs = [
+                1, 1, 1, 1, 1, 2, 2, 2, 2, 2,
+                3, 3, 3, 3, 3, 4, 4, 4, 4, 4,
+                5, 5, 5, 5, 5, 6, 6, 6, 6, 6,
+                7, 7, 7, 7, 7, 8, 8, 8, 8, 8,
+                9, 9, 9, 9, 9, 10, 10, 10, 10, 10
+            ];
+            return costs[Math.min(level - 1, 49)] || 0;
+        }
+
+        // ====================================================================
+        // LEAGUE RANK CHECKER
+        // ====================================================================
+
+        function updateLeagueRanks() {
+            if (!selectedPokemon) {
+                document.getElementById('leagueRanks').innerHTML = `
+                    <div class="rank-item">
+                        <div class="rank-position">-</div>
+                        <div class="rank-detail">Select a Pokemon</div>
+                    </div>
+                `;
+                return;
+            }
+
+            const atk = parseInt(document.getElementById('atkSlider').value);
+            const def = parseInt(document.getElementById('defSlider').value);
+            const hp = parseInt(document.getElementById('hpSlider').value);
+            const pokemon = selectedPokemon;
+
+            // Find best level for this league
+            const limit = LEAGUE_LIMITS[currentLeague];
+            let bestLevel = 1;
+            let bestCP = 0;
+            let bestRank = Infinity;
+
+            for (let level = 1; level <= 50; level++) {
+                const cp = calculateCP(pokemon, atk, def, hp, level);
+                const statProduct = calculateStatProduct(pokemon, atk, def, hp);
+
+                if (cp <= limit) {
+                    bestLevel = level;
+                    bestCP = cp;
+                    // Simple ranking based on stat product
+                    if (statProduct < bestRank) {
+                        bestRank = statProduct;
+                    }
+                }
+            }
+
+            const statProduct = calculateStatProduct(pokemon, atk, def, hp);
+
+            // Generate rank by comparing with other IV spreads
+            let rank = 1;
+            for (let a = 0; a <= 15; a++) {
+                for (let d = 0; d <= 15; d++) {
+                    for (let h = 0; h <= 15; h++) {
+                        const otherProduct = (pokemon.baseStats.atk + a) *
+                                            (pokemon.baseStats.def + d) *
+                                            (pokemon.baseStats.hp + h);
+                        if (otherProduct > statProduct) {
+                            rank++;
+                        }
+                    }
+                }
+            }
+
+            const html = `
+                <div class="rank-item">
+                    <div class="rank-position">#${rank}</div>
+                    <div class="rank-detail">Rank in ${currentLeague === 'great' ? 'Great' : currentLeague === 'ultra' ? 'Ultra' : 'Master'} League</div>
+                </div>
+                <div class="rank-item">
+                    <div class="rank-position">${bestCP}</div>
+                    <div class="rank-detail">CP at Level ${bestLevel}</div>
+                </div>
+            `;
+
+            document.getElementById('leagueRanks').innerHTML = html;
+        }
+
+        // ====================================================================
+        // IV OPTIMIZER
+        // ====================================================================
+
+        function optimizeIVs() {
+            if (!selectedPokemon) return;
+
+            const pokemon = selectedPokemon;
+            const limit = LEAGUE_LIMITS[currentOptLeague];
+
+            const results = [];
+
+            // Test all IV combinations
+            for (let atk = 0; atk <= 15; atk++) {
+                for (let def = 0; def <= 15; def++) {
+                    for (let hp = 0; hp <= 15; hp++) {
+                        // Find best level for this league
+                        let bestLevel = 1;
+                        let maxCP = 0;
+
+                        for (let level = 1; level <= 50; level++) {
+                            const cp = calculateCP(pokemon, atk, def, hp, level);
+                            if (cp <= limit) {
+                                bestLevel = level;
+                                maxCP = cp;
+                            }
+                        }
+
+                        const statProduct = calculateStatProduct(pokemon, atk, def, hp);
+
+                        results.push({
+                            atk, def, hp,
+                            level: bestLevel,
+                            cp: maxCP,
+                            statProduct,
+                            ivPercent: Math.round(((atk + def + hp) / 45) * 100)
+                        });
+                    }
+                }
+            }
+
+            // Sort by stat product (descending)
+            results.sort((a, b) => b.statProduct - a.statProduct);
+
+            // Show top results
+            const topResults = results.slice(0, 5);
+            let html = '<h3 style="color: #00d4ff; margin-bottom: 15px;">Top 5 IV Spreads for Rank #1</h3>';
+
+            topResults.forEach((result, index) => {
+                html += `
+                    <div class="optimizer-result-item">
+                        <div class="optimizer-rank">
+                            Spread #${index + 1}: IV ${result.ivPercent}%
+                            (${result.statProduct.toLocaleString()} stat product)
+                        </div>
+                        <div class="optimizer-ivs">
+                            <div class="optimizer-iv">
+                                <div class="optimizer-iv-label">ATK</div>
+                                <div class="optimizer-iv-value">${result.atk}</div>
+                            </div>
+                            <div class="optimizer-iv">
+                                <div class="optimizer-iv-label">DEF</div>
+                                <div class="optimizer-iv-value">${result.def}</div>
+                            </div>
+                            <div class="optimizer-iv">
+                                <div class="optimizer-iv-label">HP</div>
+                                <div class="optimizer-iv-value">${result.hp}</div>
+                            </div>
+                            <div class="optimizer-iv">
+                                <div class="optimizer-iv-label">L${result.level} CP</div>
+                                <div class="optimizer-iv-value">${result.cp}</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            document.getElementById('optimizerContent').innerHTML = html;
+            document.getElementById('optimizerResults').classList.add('active');
+        }
+
+        // Initialize on page load
+        loadGamemaster();
+    </script>
+</body>
+</html>

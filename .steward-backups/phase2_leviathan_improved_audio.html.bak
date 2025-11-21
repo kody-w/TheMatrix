@@ -1,0 +1,1885 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leviathan Galaxy - Civilization Meta-Game (Enhanced Audio)</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: #000;
+            color: #fff;
+            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
+            cursor: crosshair;
+        }
+
+        #container {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .ui-panel {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.95);
+            border-radius: 8px;
+            padding: 15px;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+        }
+
+        #header {
+            top: 0;
+            left: 0;
+            right: 0;
+            border-bottom: 2px solid #00ff00;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            border-radius: 0;
+        }
+
+        .header-left, .header-right {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .header-title {
+            font-size: 18px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .stat {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 14px;
+        }
+
+        #info-panel {
+            right: 20px;
+            top: 80px;
+            border: 2px solid #00ff00;
+            min-width: 300px;
+            max-width: 400px;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+
+        #controls-panel {
+            left: 20px;
+            bottom: 20px;
+            border: 2px solid #00ff00;
+            font-size: 12px;
+        }
+
+        #time-controls {
+            left: 20px;
+            top: 80px;
+            border: 2px solid #00ff00;
+            min-width: 200px;
+        }
+
+        #audio-controls {
+            left: 20px;
+            top: 300px;
+            border: 2px solid #00ffff;
+            min-width: 220px;
+            max-width: 250px;
+        }
+
+        .panel-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .info-section {
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        .info-divider {
+            margin: 10px 0;
+            padding-top: 10px;
+            border-top: 1px solid #333;
+        }
+
+        .civ-info {
+            background: rgba(100, 100, 255, 0.1);
+            padding: 10px;
+            margin: 8px 0;
+            border-radius: 4px;
+            border-left: 3px solid;
+            font-size: 11px;
+        }
+
+        .civ-name {
+            font-weight: bold;
+            font-size: 13px;
+            margin-bottom: 5px;
+        }
+
+        .civ-expanding { border-left-color: #00ff00; }
+        .civ-stable { border-left-color: #ffaa00; }
+        .civ-declining { border-left-color: #ff4444; }
+
+        #loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 24px;
+            z-index: 2000;
+            text-align: center;
+        }
+
+        .zoom-indicator {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 48px;
+            color: #00ff00;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s;
+            text-shadow: 0 0 20px #00ff00;
+            text-align: center;
+        }
+
+        .zoom-indicator.active {
+            opacity: 1;
+        }
+
+        .mode-btn {
+            padding: 10px 20px;
+            background: #ff4400;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+
+        .mode-btn:hover {
+            background: #ff6622;
+        }
+
+        .speed-btn {
+            padding: 8px 15px;
+            margin: 5px;
+            background: #1a1a2e;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+        }
+
+        .speed-btn.active {
+            background: #00ff00;
+            color: #000;
+        }
+
+        .speed-btn:hover {
+            background: #2a3a4e;
+        }
+
+        .speed-btn.active:hover {
+            background: #00dd00;
+        }
+
+        #hover-tooltip {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.95);
+            border: 2px solid #00ff00;
+            border-radius: 4px;
+            padding: 8px;
+            font-size: 11px;
+            pointer-events: none;
+            z-index: 999;
+            display: none;
+            max-width: 200px;
+        }
+
+        /* Audio Controls Styling */
+        .audio-control {
+            margin: 8px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 11px;
+        }
+
+        .audio-label {
+            min-width: 60px;
+            font-weight: bold;
+            color: #00ffff;
+        }
+
+        .audio-slider {
+            flex: 1;
+            height: 4px;
+            border-radius: 2px;
+            background: #1a1a2e;
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        .audio-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #00ffff;
+            cursor: pointer;
+        }
+
+        .audio-slider::-moz-range-thumb {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #00ffff;
+            cursor: pointer;
+            border: none;
+        }
+
+        .audio-value {
+            min-width: 30px;
+            text-align: right;
+            color: #00ff00;
+        }
+
+        /* Spectrum Analyzer */
+        #spectrumCanvas {
+            width: 100%;
+            height: 50px;
+            background: #0a0a1a;
+            border: 1px solid #00ffff;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+
+        .audio-toggle {
+            padding: 6px 12px;
+            background: #1a3a2e;
+            color: #00ffff;
+            border: 1px solid #00ffff;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            font-size: 11px;
+        }
+
+        .audio-toggle:hover {
+            background: #2a5a4e;
+        }
+
+        .audio-toggle.active {
+            background: #00ffff;
+            color: #000;
+        }
+
+        .waveform-indicator {
+            font-size: 10px;
+            color: #00ffff;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div id="loading">INITIALIZING GALACTIC CIVILIZATION<br/>META-GAME WITH AUDIO...</div>
+    <div id="container"></div>
+    <div id="hover-tooltip"></div>
+
+    <div class="zoom-indicator" id="zoomIndicator">⬇ DESCENDING TO PLANETARY SURFACE ⬇</div>
+
+    <!-- Header -->
+    <div class="ui-panel" id="header">
+        <div class="header-left">
+            <div class="header-title">
+                <span id="modeIcon">🌌</span>
+                <span id="modeTitle">LEVIATHAN GALAXY - CIVILIZATION META-GAME</span>
+            </div>
+            <div style="font-size: 12px; color: #888;">
+                <span id="modeDisplay">Galaxy View</span>
+            </div>
+        </div>
+        <div class="header-right">
+            <div class="stat">
+                <span>⭐</span>
+                <span id="civCount">0</span>
+                <span>Civilizations</span>
+            </div>
+            <div class="stat">
+                <span>🌍</span>
+                <span id="planetCount">0</span>
+                <span>Planets</span>
+            </div>
+            <div class="stat">
+                <span>⏱️</span>
+                <span id="timeDisplay">Cycle 0</span>
+            </div>
+            <div class="stat">
+                <span id="audioIcon">🔊</span>
+                <span id="audioStatus">Audio: ON</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Time Controls -->
+    <div class="ui-panel" id="time-controls">
+        <div class="panel-title">⏱️ Time Flow</div>
+        <div>
+            <button class="speed-btn" data-speed="0">⏸ Pause</button>
+            <button class="speed-btn active" data-speed="1">▶ 1x</button>
+            <button class="speed-btn" data-speed="2">▶▶ 2x</button>
+            <button class="speed-btn" data-speed="5">⏩ 5x</button>
+        </div>
+    </div>
+
+    <!-- Audio Controls -->
+    <div class="ui-panel" id="audio-controls">
+        <div class="panel-title">🎵 Audio System</div>
+        <div class="info-section">
+            <div class="audio-control">
+                <button class="audio-toggle active" id="masterToggle">Master</button>
+                <span class="audio-label">Master</span>
+                <input type="range" class="audio-slider" id="masterVolume" min="0" max="100" value="70">
+                <span class="audio-value" id="masterValue">70%</span>
+            </div>
+            <div class="audio-control">
+                <button class="audio-toggle active" id="musicToggle">Music</button>
+                <span class="audio-label">Music</span>
+                <input type="range" class="audio-slider" id="musicVolume" min="0" max="100" value="60">
+                <span class="audio-value" id="musicValue">60%</span>
+            </div>
+            <div class="audio-control">
+                <button class="audio-toggle active" id="sfxToggle">SFX</button>
+                <span class="audio-label">SFX</span>
+                <input type="range" class="audio-slider" id="sfxVolume" min="0" max="100" value="80">
+                <span class="audio-value" id="sfxValue">80%</span>
+            </div>
+            <div class="audio-control">
+                <button class="audio-toggle active" id="ambientToggle">Ambient</button>
+                <span class="audio-label">Ambient</span>
+                <input type="range" class="audio-slider" id="ambientVolume" min="0" max="100" value="50">
+                <span class="audio-value" id="ambientValue">50%</span>
+            </div>
+            <canvas id="spectrumCanvas"></canvas>
+            <div class="waveform-indicator" id="waveformIndicator">▁▂▃▄▅▆▇█▆▅▄▃▂▁</div>
+        </div>
+    </div>
+
+    <!-- Info Panel -->
+    <div class="ui-panel" id="info-panel">
+        <div class="panel-title">📊 Info</div>
+        <div class="info-section" id="infoContent">
+            Loading...
+        </div>
+    </div>
+
+    <!-- Controls Panel -->
+    <div class="ui-panel" id="controls-panel">
+        <div class="panel-title">🎮 Controls</div>
+        <div class="info-section">
+            <div><strong>Galaxy Mode:</strong></div>
+            <div>WASD: Move forward/back/left/right</div>
+            <div>Q/E: Move up/down</div>
+            <div>Mouse: Hover over planets</div>
+            <div>Click: Select civilization</div>
+            <div>Enter: Land on selected planet</div>
+            <div style="margin-top: 8px;"><strong>Planet Mode:</strong></div>
+            <div>WASD/Arrows: Move around</div>
+            <div>Escape: Return to galaxy</div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        // ==================== AUDIO SYSTEM ====================
+        let audioContext;
+        let masterGain, musicGain, sfxGain, ambientGain;
+        let analyser;
+        let audioEnabled = true;
+
+        const audioState = {
+            masterVolume: 0.7,
+            musicVolume: 0.6,
+            sfxVolume: 0.8,
+            ambientVolume: 0.5,
+            musicOscillators: [],
+            ambientOscillators: [],
+            spectrumData: new Uint8Array(256)
+        };
+
+        function initAudio() {
+            if (audioContext) return;
+
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+            // Create gain nodes for volume control
+            masterGain = audioContext.createGain();
+            masterGain.gain.value = audioState.masterVolume;
+            masterGain.connect(audioContext.destination);
+
+            musicGain = audioContext.createGain();
+            musicGain.gain.value = audioState.musicVolume;
+            musicGain.connect(masterGain);
+
+            sfxGain = audioContext.createGain();
+            sfxGain.gain.value = audioState.sfxVolume;
+            sfxGain.connect(masterGain);
+
+            ambientGain = audioContext.createGain();
+            ambientGain.gain.value = audioState.ambientVolume;
+            ambientGain.connect(masterGain);
+
+            // Create analyser for visualization
+            analyser = audioContext.createAnalyser();
+            analyser.fftSize = 256;
+            masterGain.connect(analyser);
+
+            console.log('Audio system initialized');
+        }
+
+        // ==================== PROCEDURAL MUSIC GENERATION ====================
+        function generateGalaxyAmbience() {
+            if (!audioContext || !audioEnabled) return;
+
+            // Generate layered ambient space music
+            const now = audioContext.currentTime;
+
+            // Drone layer - low, sustained frequencies
+            const droneFrequencies = [55, 82, 110]; // Low notes
+            droneFrequencies.forEach((freq, index) => {
+                const osc = audioContext.createOscillator();
+                osc.type = 'sine';
+                osc.frequency.value = freq;
+                osc.frequency.setValueCurveAtTime(
+                    [freq, freq * 0.95, freq],
+                    now,
+                    8 // 8 second cycle
+                );
+
+                const gain = audioContext.createGain();
+                gain.gain.setValueCurveAtTime(
+                    [0.08, 0.12, 0.08],
+                    now,
+                    8
+                );
+
+                osc.connect(gain);
+                gain.connect(musicGain);
+
+                osc.start(now);
+                setTimeout(() => osc.stop(), 8100);
+
+                audioState.musicOscillators.push(osc);
+            });
+
+            // Melodic layer - wandering melody
+            const melodyFrequencies = [262, 294, 330, 349, 392]; // C, D, E, F, G
+            const melodySequence = [0, 2, 1, 3, 2, 4, 3, 2];
+
+            melodySequence.forEach((noteIndex, stepIndex) => {
+                const stepTime = now + (stepIndex * 0.5);
+                const osc = audioContext.createOscillator();
+                osc.type = 'triangle';
+                osc.frequency.value = melodyFrequencies[noteIndex];
+
+                const gain = audioContext.createGain();
+                gain.gain.setValueCurveAtTime(
+                    [0, 0.06, 0],
+                    stepTime,
+                    0.4
+                );
+
+                osc.connect(gain);
+                gain.connect(musicGain);
+
+                osc.start(stepTime);
+                osc.stop(stepTime + 0.4);
+
+                audioState.musicOscillators.push(osc);
+            });
+        }
+
+        function generatePlanetAmbience() {
+            if (!audioContext || !audioEnabled) return;
+
+            // Different atmosphere - slightly higher energy
+            const now = audioContext.currentTime;
+
+            // Harmonic layers specific to planet surface
+            const baseFreq = 165; // E3
+            const harmonics = [1, 2, 3, 5];
+
+            harmonics.forEach((harmonic, index) => {
+                const freq = baseFreq * harmonic;
+                const osc = audioContext.createOscillator();
+                osc.type = 'sine';
+                osc.frequency.value = freq;
+
+                const gain = audioContext.createGain();
+                const gainValue = 0.15 / (index + 1);
+                gain.gain.setValueCurveAtTime(
+                    [gainValue, gainValue * 1.2, gainValue],
+                    now,
+                    6
+                );
+
+                osc.connect(gain);
+                gain.connect(musicGain);
+
+                osc.start(now);
+                setTimeout(() => osc.stop(), 6100);
+
+                audioState.musicOscillators.push(osc);
+            });
+        }
+
+        function generateAmbientNoise() {
+            if (!audioContext || !audioEnabled) return;
+
+            const now = audioContext.currentTime;
+            const bufferSize = audioContext.sampleRate * 2;
+            const buffer = audioContext.createBuffer(1, bufferSize, audioContext.sampleRate);
+            const data = buffer.getChannelData(0);
+
+            // Generate low-frequency noise
+            for (let i = 0; i < bufferSize; i++) {
+                data[i] = Math.random() * 2 - 1;
+            }
+
+            const source = audioContext.createBufferSource();
+            source.buffer = buffer;
+            source.loop = true;
+            source.loopStart = 0;
+            source.loopEnd = buffer.duration;
+
+            // Filter to low frequencies
+            const filter = audioContext.createBiquadFilter();
+            filter.type = 'lowpass';
+            filter.frequency.value = 200;
+            filter.Q.value = 1;
+
+            const gain = audioContext.createGain();
+            gain.gain.value = 0.05;
+
+            source.connect(filter);
+            filter.connect(gain);
+            gain.connect(ambientGain);
+
+            source.start(now);
+            audioState.ambientOscillators.push(source);
+        }
+
+        // ==================== SOUND EFFECTS ====================
+        function playCivilizationSelectSound(civilization) {
+            if (!audioContext || !audioEnabled) return;
+
+            const now = audioContext.currentTime;
+
+            // Use color to generate frequency
+            const hue = civilization.color.getHSL().h; // 0-1
+            const baseFreq = 200 + (hue * 400); // 200-600 Hz
+
+            // Three-note ascending chord
+            const notes = [baseFreq, baseFreq * 1.25, baseFreq * 1.5];
+
+            notes.forEach((freq, index) => {
+                const osc = audioContext.createOscillator();
+                osc.type = 'sine';
+                osc.frequency.value = freq;
+
+                const gain = audioContext.createGain();
+                const noteStart = now + (index * 0.1);
+                gain.gain.setValueCurveAtTime(
+                    [0, 0.15, 0],
+                    noteStart,
+                    0.15
+                );
+
+                osc.connect(gain);
+                gain.connect(sfxGain);
+
+                osc.start(noteStart);
+                osc.stop(noteStart + 0.15);
+            });
+        }
+
+        function playLandingSound() {
+            if (!audioContext || !audioEnabled) return;
+
+            const now = audioContext.currentTime;
+
+            // Descending frequency sweep
+            const osc = audioContext.createOscillator();
+            osc.type = 'square';
+            osc.frequency.setValueCurveAtTime(
+                [800, 400, 200, 100],
+                now,
+                0.5
+            );
+
+            const gain = audioContext.createGain();
+            gain.gain.setValueCurveAtTime(
+                [0.2, 0.15, 0.08, 0],
+                now,
+                0.5
+            );
+
+            osc.connect(gain);
+            gain.connect(sfxGain);
+
+            osc.start(now);
+            osc.stop(now + 0.5);
+        }
+
+        function playAscendingSound() {
+            if (!audioContext || !audioEnabled) return;
+
+            const now = audioContext.currentTime;
+
+            // Ascending frequency sweep
+            const osc = audioContext.createOscillator();
+            osc.type = 'triangle';
+            osc.frequency.setValueCurveAtTime(
+                [200, 400, 600, 800],
+                now,
+                0.4
+            );
+
+            const gain = audioContext.createGain();
+            gain.gain.setValueCurveAtTime(
+                [0, 0.15, 0.15, 0],
+                now,
+                0.4
+            );
+
+            osc.connect(gain);
+            gain.connect(sfxGain);
+
+            osc.start(now);
+            osc.stop(now + 0.4);
+        }
+
+        function playEventSound(eventType) {
+            if (!audioContext || !audioEnabled) return;
+
+            const now = audioContext.currentTime;
+
+            switch(eventType) {
+                case 'explosion':
+                    // Deep, resonant burst
+                    const oscExp = audioContext.createOscillator();
+                    oscExp.type = 'sawtooth';
+                    oscExp.frequency.setValueCurveAtTime([150, 50, 0], now, 0.3);
+
+                    const gainExp = audioContext.createGain();
+                    gainExp.gain.setValueCurveAtTime([0.2, 0.1, 0], now, 0.3);
+
+                    oscExp.connect(gainExp);
+                    gainExp.connect(sfxGain);
+
+                    oscExp.start(now);
+                    oscExp.stop(now + 0.3);
+                    break;
+
+                case 'discovery':
+                    // Ascending melodic flourish
+                    const frequencies = [330, 440, 550, 660, 440];
+                    frequencies.forEach((freq, index) => {
+                        const osc = audioContext.createOscillator();
+                        osc.type = 'sine';
+                        osc.frequency.value = freq;
+
+                        const gain = audioContext.createGain();
+                        const noteStart = now + (index * 0.08);
+                        gain.gain.setValueCurveAtTime([0, 0.12, 0], noteStart, 0.08);
+
+                        osc.connect(gain);
+                        gain.connect(sfxGain);
+
+                        osc.start(noteStart);
+                        osc.stop(noteStart + 0.08);
+                    });
+                    break;
+
+                case 'decline':
+                    // Descending minor chord
+                    const minorFreqs = [392, 330, 264, 220]; // G, E, C, A
+                    minorFreqs.forEach((freq, index) => {
+                        const osc = audioContext.createOscillator();
+                        osc.type = 'triangle';
+                        osc.frequency.value = freq;
+
+                        const gain = audioContext.createGain();
+                        const noteStart = now + (index * 0.1);
+                        gain.gain.setValueCurveAtTime([0, 0.08, 0], noteStart, 0.1);
+
+                        osc.connect(gain);
+                        gain.connect(sfxGain);
+
+                        osc.start(noteStart);
+                        osc.stop(noteStart + 0.1);
+                    });
+                    break;
+            }
+        }
+
+        function playTimeSpeedSound(speed) {
+            if (!audioContext || !audioEnabled) return;
+
+            const now = audioContext.currentTime;
+            const baseFreq = 440;
+            const freq = baseFreq + (speed * 100);
+
+            const osc = audioContext.createOscillator();
+            osc.type = 'sine';
+            osc.frequency.value = freq;
+
+            const gain = audioContext.createGain();
+            gain.gain.setValueCurveAtTime([0, 0.1, 0], now, 0.2);
+
+            osc.connect(gain);
+            gain.connect(sfxGain);
+
+            osc.start(now);
+            osc.stop(now + 0.2);
+        }
+
+        // ==================== CIVILIZATION AUDIO SIGNATURES ====================
+        function generateCivilizationSignature(civilization) {
+            if (!audioContext || !audioEnabled) return;
+
+            const now = audioContext.currentTime;
+
+            // Map civilization properties to audio signature
+            const hue = civilization.color.getHSL().h;
+            const techLevel = civilization.techLevel;
+            const population = civilization.population;
+
+            // Base frequency from hue
+            const baseFreq = 200 + (hue * 600);
+
+            // Modify based on tech level (higher tech = more harmonics)
+            const harmonicCount = Math.ceil(techLevel / 2);
+
+            // Generate radio signal-like sound
+            for (let i = 1; i <= harmonicCount; i++) {
+                const freq = baseFreq * (i * 0.5 + 0.5);
+                const osc = audioContext.createOscillator();
+                osc.type = i % 2 === 0 ? 'sine' : 'triangle';
+                osc.frequency.value = freq;
+
+                const gain = audioContext.createGain();
+                gain.gain.value = (0.1 / i) * (civilization.alive ? 1 : 0.5);
+
+                osc.connect(gain);
+                gain.connect(ambientGain);
+
+                osc.start(now);
+                setTimeout(() => osc.stop(), 1000);
+
+                audioState.ambientOscillators.push(osc);
+            }
+        }
+
+        // ==================== VISUALIZATION ====================
+        function updateSpectrumVisualization() {
+            const canvas = document.getElementById('spectrumCanvas');
+            if (!canvas || !analyser) return;
+
+            const ctx = canvas.getContext('2d');
+            analyser.getByteFrequencyData(audioState.spectrumData);
+
+            ctx.fillStyle = '#0a0a1a';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            const barWidth = canvas.width / audioState.spectrumData.length;
+            let x = 0;
+
+            // Draw spectrum bars with cyan color
+            ctx.fillStyle = '#00ffff';
+            for (let i = 0; i < audioState.spectrumData.length; i++) {
+                const barHeight = (audioState.spectrumData[i] / 255) * canvas.height;
+                ctx.fillRect(x, canvas.height - barHeight, barWidth - 1, barHeight);
+                x += barWidth;
+            }
+
+            // Update waveform indicator
+            const indicator = document.getElementById('waveformIndicator');
+            if (indicator) {
+                const avgValue = audioState.spectrumData.reduce((a, b) => a + b) / audioState.spectrumData.length;
+                const level = Math.floor((avgValue / 255) * 14);
+                const bars = ['▁', '▂', '▃', '▄', '▅', '▆', '▇', '█'];
+                const waveform = bars.map((_, i) => i < level ? '█' : '▁').join('');
+                indicator.textContent = waveform;
+            }
+        }
+
+        // ==================== AUDIO CONTROL HANDLERS ====================
+        function initAudioControls() {
+            const masterToggle = document.getElementById('masterToggle');
+            const musicToggle = document.getElementById('musicToggle');
+            const sfxToggle = document.getElementById('sfxToggle');
+            const ambientToggle = document.getElementById('ambientToggle');
+
+            const masterVolume = document.getElementById('masterVolume');
+            const musicVolume = document.getElementById('musicVolume');
+            const sfxVolume = document.getElementById('sfxVolume');
+            const ambientVolume = document.getElementById('ambientVolume');
+
+            // Master toggle
+            masterToggle.addEventListener('click', () => {
+                audioEnabled = !audioEnabled;
+                masterToggle.classList.toggle('active');
+                document.getElementById('audioIcon').textContent = audioEnabled ? '🔊' : '🔇';
+                document.getElementById('audioStatus').textContent = audioEnabled ? 'Audio: ON' : 'Audio: OFF';
+                if (!audioEnabled) {
+                    // Stop all oscillators
+                    audioState.musicOscillators.forEach(osc => {
+                        try { osc.stop(); } catch(e) {}
+                    });
+                    audioState.ambientOscillators.forEach(osc => {
+                        try { osc.stop(); } catch(e) {}
+                    });
+                    audioState.musicOscillators = [];
+                    audioState.ambientOscillators = [];
+                }
+            });
+
+            // Music toggle
+            musicToggle.addEventListener('click', () => {
+                musicToggle.classList.toggle('active');
+                musicGain.gain.value = musicToggle.classList.contains('active') ? audioState.musicVolume : 0;
+            });
+
+            // SFX toggle
+            sfxToggle.addEventListener('click', () => {
+                sfxToggle.classList.toggle('active');
+                sfxGain.gain.value = sfxToggle.classList.contains('active') ? audioState.sfxVolume : 0;
+            });
+
+            // Ambient toggle
+            ambientToggle.addEventListener('click', () => {
+                ambientToggle.classList.toggle('active');
+                ambientGain.gain.value = ambientToggle.classList.contains('active') ? audioState.ambientVolume : 0;
+            });
+
+            // Volume sliders
+            masterVolume.addEventListener('input', (e) => {
+                audioState.masterVolume = e.target.value / 100;
+                if (masterGain) masterGain.gain.value = audioState.masterVolume;
+                document.getElementById('masterValue').textContent = e.target.value + '%';
+            });
+
+            musicVolume.addEventListener('input', (e) => {
+                audioState.musicVolume = e.target.value / 100;
+                if (musicGain && musicToggle.classList.contains('active')) {
+                    musicGain.gain.value = audioState.musicVolume;
+                }
+                document.getElementById('musicValue').textContent = e.target.value + '%';
+            });
+
+            sfxVolume.addEventListener('input', (e) => {
+                audioState.sfxVolume = e.target.value / 100;
+                if (sfxGain && sfxToggle.classList.contains('active')) {
+                    sfxGain.gain.value = audioState.sfxVolume;
+                }
+                document.getElementById('sfxValue').textContent = e.target.value + '%';
+            });
+
+            ambientVolume.addEventListener('input', (e) => {
+                audioState.ambientVolume = e.target.value / 100;
+                if (ambientGain && ambientToggle.classList.contains('active')) {
+                    ambientGain.gain.value = audioState.ambientVolume;
+                }
+                document.getElementById('ambientValue').textContent = e.target.value + '%';
+            });
+        }
+
+        // ==================== CONSTANTS ====================
+        const GALAXY_SIZE = 2000;
+        const GALAXY_SPACING = 5000;
+        const NUM_CIVILIZATIONS_PER_GALAXY = 50;
+        const NUM_STARS_PER_GALAXY = 2000;
+        const PLANET_SIZE = 200;
+        const CYCLE_DURATION = 2000;
+        const SYSTEM_REVEAL_DISTANCE = 500;
+        const GALAXY_LOAD_DISTANCE = 8000;
+
+        // ==================== STATE ====================
+        let mode = 'galaxy';
+        let galaxies = new Map();
+        let civilizations = new Map();
+        let backgroundStars = [];
+        let selectedCiv = null;
+        let hoveredCiv = null;
+        let galacticCycle = 0;
+        let timeSpeed = 1;
+        let lastUpdateTime = Date.now();
+        let lastMusicUpdateTime = 0;
+        let lastAmbientUpdateTime = 0;
+
+        let viewPos = { x: 0, y: 0, z: 300 };
+        let viewVelocity = { x: 0, y: 0, z: 0 };
+        let mousePos = { x: 0, y: 0 };
+        let keys = {};
+
+        let landedPlanet = null;
+        let playerPos = { x: 0, y: 0, z: 10 };
+        let cameraAngle = { theta: 0, phi: Math.PI / 4 };
+
+        let scene, camera, renderer, animationId;
+        let civilizationMeshes = new Map();
+        let starField;
+        let hoverMarker, selectedMarker;
+        let orbitGroups = new Map();
+        let visibleSystems = new Set();
+        let starSystems = [];
+        let blackHoles = new Map();
+
+        // ==================== CIVILIZATION CLASS ====================
+        class Civilization {
+            constructor(id, x, y, z, star) {
+                this.id = id;
+                this.x = x;
+                this.y = y;
+                this.z = z;
+                this.star = star;
+                this.age = 0;
+                this.population = Math.random() * 5000000 + 1000000;
+                this.techLevel = Math.random() * 3 + 1;
+                this.planets = 1;
+                this.alive = true;
+                this.neighbors = 0;
+                this.color = new THREE.Color().setHSL(Math.random(), 0.8, 0.6);
+
+                const philosophies = ['Collectivist', 'Individualist', 'Spiritual', 'Materialist', 'Militarist', 'Pacifist'];
+                const governments = ['Democracy', 'Oligarchy', 'Hive Mind', 'Corporate', 'Empire', 'Federation'];
+                const adjectives = ['Ancient', 'Zealous', 'Synthetic', 'Harmonious', 'Warlike', 'Mercantile', 'Scientific', 'Mystical'];
+                const nouns = ['Imperium', 'Collective', 'Commonwealth', 'Dominion', 'Republic', 'Consortium', 'Alliance', 'Covenant'];
+
+                this.culture = {
+                    name: `${adjectives[Math.floor(Math.random() * adjectives.length)]} ${nouns[Math.floor(Math.random() * nouns.length)]}`,
+                    philosophy: philosophies[Math.floor(Math.random() * philosophies.length)],
+                    governance: governments[Math.floor(Math.random() * governments.length)]
+                };
+
+                this.wasAlive = true;
+            }
+
+            update() {
+                if (!this.alive) return;
+
+                this.age++;
+
+                const growthRate = 1 + (this.techLevel / 100) - (this.neighbors * 0.01);
+                this.population *= growthRate;
+
+                this.techLevel += 0.05 * (1 + Math.random() * 0.5);
+                this.techLevel = Math.min(10, this.techLevel);
+
+                if (this.techLevel > 5 && Math.random() < 0.05) {
+                    this.planets++;
+                }
+
+                const wasAlive = this.alive;
+                if (this.population < 100000 || this.age > 500 || Math.random() < 0.001) {
+                    this.alive = false;
+                }
+
+                // Play decline sound when civilization dies
+                if (wasAlive && !this.alive) {
+                    playEventSound('decline');
+                }
+            }
+
+            updatePosition() {
+                if (this.star) {
+                    this.x = this.star.x;
+                    this.y = this.star.y;
+                    this.z = this.star.z;
+                }
+            }
+
+            getState() {
+                if (this.age < 50) return 'expanding';
+                if (this.age < 300) return 'stable';
+                return 'declining';
+            }
+        }
+
+        // ==================== PLANET CLASS ====================
+        class Planet {
+            constructor(civilization) {
+                this.civilization = civilization;
+                this.cities = [];
+
+                const numCities = Math.floor(Math.random() * 5) + 3;
+                for (let i = 0; i < numCities; i++) {
+                    this.cities.push({
+                        x: Math.random() * PLANET_SIZE,
+                        z: Math.random() * PLANET_SIZE,
+                        height: Math.random() * 3 + 1,
+                        size: Math.random() * 5 + 2
+                    });
+                }
+            }
+        }
+
+        // ==================== GALAXY CLASS ====================
+        class Galaxy {
+            constructor(gridX, gridY, gridZ) {
+                this.gridX = gridX;
+                this.gridY = gridY;
+                this.gridZ = gridZ;
+                this.centerX = gridX * GALAXY_SPACING;
+                this.centerY = gridY * GALAXY_SPACING;
+                this.centerZ = gridZ * GALAXY_SPACING;
+                this.stars = [];
+                this.civilizations = [];
+                this.seed = this.hashCoords(gridX, gridY, gridZ);
+                this.loaded = false;
+
+                this.color = new THREE.Color().setHSL(this.random() * 0.2, 0.6, 0.6);
+                this.size = GALAXY_SIZE * (0.7 + this.random() * 0.6);
+                this.numStars = Math.floor(NUM_STARS_PER_GALAXY * (0.5 + this.random()));
+                this.numCivs = Math.floor(NUM_CIVILIZATIONS_PER_GALAXY * (0.3 + this.random() * 0.7));
+                this.rotationSpeed = 0.00005 + this.random() * 0.00005;
+            }
+
+            hashCoords(x, y, z) {
+                return ((x * 73856093) ^ (y * 19349663) ^ (z * 83492791)) >>> 0;
+            }
+
+            random() {
+                this.seed = (this.seed * 1664525 + 1013904223) >>> 0;
+                return (this.seed / 4294967296);
+            }
+
+            generate() {
+                if (this.loaded) return;
+                this.loaded = true;
+
+                console.log(`Generating galaxy at (${this.gridX}, ${this.gridY}, ${this.gridZ})`);
+
+                for (let i = 0; i < this.numStars; i++) {
+                    const angle = this.random() * Math.PI * 2;
+                    const radius = this.random() * this.size;
+                    const x = this.centerX + Math.cos(angle) * radius;
+                    const y = this.centerY + Math.sin(angle) * radius;
+                    const z = this.centerZ + (this.random() - 0.5) * this.size * 0.3;
+
+                    const orbitalSpeed = this.rotationSpeed / Math.max(radius / this.size, 0.3);
+
+                    const star = {
+                        x, y, z,
+                        radius: Math.sqrt((x - this.centerX)**2 + (y - this.centerY)**2),
+                        angle: Math.atan2(y - this.centerY, x - this.centerX),
+                        orbitalSpeed: orbitalSpeed,
+                        galaxy: this,
+                        hasCivilization: false,
+                        civilizationId: null
+                    };
+
+                    this.stars.push(star);
+                    backgroundStars.push(star);
+                }
+
+                const availableStars = [...this.stars];
+                for (let i = 0; i < this.numCivs; i++) {
+                    if (availableStars.length === 0) break;
+
+                    const starIndex = Math.floor(this.random() * availableStars.length);
+                    const star = availableStars[starIndex];
+                    availableStars.splice(starIndex, 1);
+
+                    const civId = `${this.gridX}_${this.gridY}_${this.gridZ}_${i}`;
+                    const civ = new Civilization(civId, star.x, star.y, star.z, star);
+                    civilizations.set(civId, civ);
+                    this.civilizations.push(civ);
+
+                    star.hasCivilization = true;
+                    star.civilizationId = civId;
+                }
+            }
+
+            unload() {
+                if (!this.loaded) return;
+                this.loaded = false;
+
+                console.log(`Unloading galaxy at (${this.gridX}, ${this.gridY}, ${this.gridZ})`);
+
+                this.stars.forEach(star => {
+                    const index = backgroundStars.indexOf(star);
+                    if (index > -1) backgroundStars.splice(index, 1);
+                });
+
+                this.civilizations.forEach(civ => {
+                    civilizations.delete(civ.id);
+                    orbitGroups.delete(civ.id);
+                    civilizationMeshes.delete(civ.id);
+                });
+
+                this.stars = [];
+                this.civilizations = [];
+            }
+        }
+
+        // ==================== GALAXY INITIALIZATION ====================
+        function initializeGalaxy() {
+            updateLoadedGalaxies();
+
+            setTimeout(() => {
+                document.getElementById('loading').style.display = 'none';
+            }, 1000);
+        }
+
+        function getGalaxyCoords(x, y, z) {
+            return {
+                gridX: Math.floor(x / GALAXY_SPACING),
+                gridY: Math.floor(y / GALAXY_SPACING),
+                gridZ: Math.floor(z / GALAXY_SPACING)
+            };
+        }
+
+        function getGalaxyKey(gridX, gridY, gridZ) {
+            return `${gridX},${gridY},${gridZ}`;
+        }
+
+        function updateLoadedGalaxies() {
+            const playerCoords = getGalaxyCoords(viewPos.x, viewPos.y, viewPos.z);
+            const loadRadius = 1;
+
+            const shouldBeLoaded = new Set();
+
+            for (let dx = -loadRadius; dx <= loadRadius; dx++) {
+                for (let dy = -loadRadius; dy <= loadRadius; dy++) {
+                    for (let dz = -loadRadius; dz <= loadRadius; dz++) {
+                        const gridX = playerCoords.gridX + dx;
+                        const gridY = playerCoords.gridY + dy;
+                        const gridZ = playerCoords.gridZ + dz;
+                        const key = getGalaxyKey(gridX, gridY, gridZ);
+                        shouldBeLoaded.add(key);
+
+                        if (!galaxies.has(key)) {
+                            const galaxy = new Galaxy(gridX, gridY, gridZ);
+                            galaxies.set(key, galaxy);
+                        }
+
+                        const galaxy = galaxies.get(key);
+                        if (!galaxy.loaded) {
+                            galaxy.generate();
+                        }
+                    }
+                }
+            }
+
+            galaxies.forEach((galaxy, key) => {
+                if (!shouldBeLoaded.has(key) && galaxy.loaded) {
+                    galaxy.unload();
+                }
+            });
+        }
+
+        // ==================== THREE.JS SETUP ====================
+        function initThreeJS() {
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 10000);
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setClearColor(0x000000);
+            document.getElementById('container').appendChild(renderer.domElement);
+
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+        }
+
+        // ==================== GALAXY RENDERING ====================
+        function renderGalaxy() {
+            scene.clear();
+            civilizationMeshes.clear();
+            starSystems = [];
+            blackHoles.clear();
+
+            galaxies.forEach(galaxy => {
+                if (!galaxy.loaded) return;
+
+                const blackHoleGeometry = new THREE.SphereGeometry(20, 32, 32);
+                const blackHoleMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 });
+                const blackHole = new THREE.Mesh(blackHoleGeometry, blackHoleMaterial);
+                blackHole.position.set(galaxy.centerX, galaxy.centerY, galaxy.centerZ);
+                scene.add(blackHole);
+
+                const horizonGeometry = new THREE.SphereGeometry(25, 32, 32);
+                const horizonMaterial = new THREE.MeshBasicMaterial({
+                    color: galaxy.color,
+                    transparent: true,
+                    opacity: 0.3
+                });
+                const horizon = new THREE.Mesh(horizonGeometry, horizonMaterial);
+                horizon.position.set(galaxy.centerX, galaxy.centerY, galaxy.centerZ);
+                scene.add(horizon);
+
+                const diskGeometry = new THREE.RingGeometry(25, 50, 64);
+                const diskMaterial = new THREE.MeshBasicMaterial({
+                    color: galaxy.color,
+                    transparent: true,
+                    opacity: 0.4,
+                    side: THREE.DoubleSide
+                });
+                const disk = new THREE.Mesh(diskGeometry, diskMaterial);
+                disk.position.set(galaxy.centerX, galaxy.centerY, galaxy.centerZ);
+                disk.rotation.x = Math.PI / 2;
+                scene.add(disk);
+
+                blackHoles.set(getGalaxyKey(galaxy.gridX, galaxy.gridY, galaxy.gridZ), {
+                    blackHole, horizon, disk
+                });
+            });
+
+            const starGeometry = new THREE.BufferGeometry();
+            const starVertices = [];
+            const starColors = [];
+
+            backgroundStars.forEach(star => {
+                starVertices.push(star.x, star.y, star.z);
+
+                if (star.hasCivilization) {
+                    const warmColor = new THREE.Color(0xffffdd);
+                    starColors.push(warmColor.r, warmColor.g, warmColor.b);
+                } else {
+                    const coolColor = new THREE.Color(0xaaaaaa);
+                    starColors.push(coolColor.r, coolColor.g, coolColor.b);
+                }
+            });
+
+            starGeometry.setAttribute('position', new THREE.Float32BufferAttribute(starVertices, 3));
+            starGeometry.setAttribute('color', new THREE.Float32BufferAttribute(starColors, 3));
+
+            const starMaterial = new THREE.PointsMaterial({
+                size: 4,
+                vertexColors: true,
+                sizeAttenuation: true
+            });
+            starField = new THREE.Points(starGeometry, starMaterial);
+            scene.add(starField);
+
+            const hoverGeometry = new THREE.RingGeometry(8, 10, 32);
+            const hoverMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide });
+            hoverMarker = new THREE.Mesh(hoverGeometry, hoverMaterial);
+            hoverMarker.visible = false;
+            scene.add(hoverMarker);
+
+            const selectedGeometry = new THREE.RingGeometry(10, 13, 32);
+            const selectedMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00, side: THREE.DoubleSide });
+            selectedMarker = new THREE.Mesh(selectedGeometry, selectedMaterial);
+            selectedMarker.visible = false;
+            scene.add(selectedMarker);
+
+            updateCamera();
+            updateVisibleSystems();
+        }
+
+        function updateVisibleSystems() {
+            const newVisibleSystems = new Set();
+
+            civilizations.forEach(civ => {
+                if (!civ.alive) return;
+
+                const dist = Math.sqrt(
+                    (civ.x - viewPos.x)**2 +
+                    (civ.y - viewPos.y)**2 +
+                    (civ.z - viewPos.z)**2
+                );
+
+                if (dist < SYSTEM_REVEAL_DISTANCE) {
+                    newVisibleSystems.add(civ.id);
+
+                    if (!orbitGroups.has(civ.id)) {
+                        createOrbitSystem(civ);
+                    }
+                }
+            });
+
+            console.log('Visible systems:', newVisibleSystems.size, 'Camera pos:', viewPos.x, viewPos.y, viewPos.z);
+
+            orbitGroups.forEach((orbitGroup, civId) => {
+                if (!newVisibleSystems.has(civId)) {
+                    scene.remove(orbitGroup);
+                    orbitGroups.delete(civId);
+                    civilizationMeshes.delete(civId);
+                }
+            });
+
+            visibleSystems = newVisibleSystems;
+        }
+
+        function createOrbitSystem(civ) {
+            console.log('Creating orbit system for', civ.culture.name, 'at', civ.x, civ.y, civ.z);
+            const orbitGroup = new THREE.Group();
+            orbitGroup.position.set(civ.x, civ.y, civ.z);
+            scene.add(orbitGroup);
+            orbitGroups.set(civ.id, orbitGroup);
+
+            // Generate civilization's audio signature when becoming visible
+            generateCivilizationSignature(civ);
+
+            const numPlanets = Math.min(civ.planets, 3);
+            for (let p = 0; p < numPlanets; p++) {
+                const orbitRadius = 15 + (p * 10);
+                const size = Math.log(civ.population / 100000) * 3 - (p * 0.5);
+
+                const geometry = new THREE.SphereGeometry(Math.max(size, 3), 16, 16);
+                const material = new THREE.MeshBasicMaterial({ color: civ.color });
+                const planet = new THREE.Mesh(geometry, material);
+
+                const startAngle = (p * Math.PI * 2 / numPlanets) + (civ.id * 0.5);
+                planet.position.set(
+                    Math.cos(startAngle) * orbitRadius,
+                    Math.sin(startAngle) * orbitRadius,
+                    0
+                );
+
+                console.log('  Planet', p, 'size:', Math.max(size, 3), 'at local pos:', planet.position.x, planet.position.y, planet.position.z);
+
+                planet.userData.civilization = civ;
+                planet.userData.orbitRadius = orbitRadius;
+                planet.userData.orbitSpeed = 0.001 / (1 + p * 0.5);
+                planet.userData.currentAngle = startAngle;
+                planet.userData.isPrimary = (p === 0);
+
+                orbitGroup.add(planet);
+
+                if (p === 0) {
+                    civilizationMeshes.set(civ.id, planet);
+                }
+
+                const glowGeometry = new THREE.SphereGeometry(Math.max(size, 3) * 1.5, 16, 16);
+                const glowMaterial = new THREE.MeshBasicMaterial({
+                    color: civ.color,
+                    transparent: true,
+                    opacity: 0.3
+                });
+                const glowMesh = new THREE.Mesh(glowGeometry, glowMaterial);
+                glowMesh.position.copy(planet.position);
+                planet.userData.glow = glowMesh;
+                orbitGroup.add(glowMesh);
+
+                const orbitCurve = new THREE.EllipseCurve(
+                    0, 0,
+                    orbitRadius, orbitRadius,
+                    0, 2 * Math.PI,
+                    false,
+                    0
+                );
+                const orbitPoints = orbitCurve.getPoints(50);
+                const orbitGeometry = new THREE.BufferGeometry().setFromPoints(orbitPoints);
+                const orbitMaterial = new THREE.LineBasicMaterial({
+                    color: 0x444444,
+                    transparent: true,
+                    opacity: 0.5
+                });
+                const orbitLine = new THREE.Line(orbitGeometry, orbitMaterial);
+                orbitLine.rotation.x = Math.PI / 2;
+                orbitGroup.add(orbitLine);
+            }
+        }
+
+        function updateCamera() {
+            camera.position.set(viewPos.x, viewPos.y, viewPos.z);
+            camera.lookAt(viewPos.x, viewPos.y, viewPos.z - 100);
+        }
+
+        // ==================== PLANET RENDERING ====================
+        function renderPlanet() {
+            scene.clear();
+
+            const groundGeometry = new THREE.PlaneGeometry(PLANET_SIZE, PLANET_SIZE, 50, 50);
+            const vertices = groundGeometry.attributes.position.array;
+            for (let i = 0; i < vertices.length; i += 3) {
+                vertices[i + 2] = Math.random() * 2;
+            }
+            groundGeometry.attributes.position.needsUpdate = true;
+            groundGeometry.computeVertexNormals();
+
+            const groundMaterial = new THREE.MeshBasicMaterial({
+                color: 0x2a4a2a,
+                wireframe: true
+            });
+            const ground = new THREE.Mesh(groundGeometry, groundMaterial);
+            ground.rotation.x = -Math.PI / 2;
+            scene.add(ground);
+
+            landedPlanet.cities.forEach(city => {
+                const geometry = new THREE.BoxGeometry(city.size, city.height, city.size);
+                const material = new THREE.MeshBasicMaterial({ color: 0x00aaff });
+                const building = new THREE.Mesh(geometry, material);
+                building.position.set(city.x - PLANET_SIZE/2, city.height/2, city.z - PLANET_SIZE/2);
+                scene.add(building);
+            });
+
+            const gridHelper = new THREE.GridHelper(PLANET_SIZE, 20, 0x444444, 0x222222);
+            scene.add(gridHelper);
+        }
+
+        // ==================== ANIMATION ====================
+        let lastGalaxyUpdatePos = { x: 0, y: 0, z: 0 };
+
+        function animate() {
+            animationId = requestAnimationFrame(animate);
+
+            const now = Date.now();
+            if (now - lastUpdateTime > CYCLE_DURATION / timeSpeed && timeSpeed > 0) {
+                galacticCycle++;
+                civilizations.forEach(civ => civ.update());
+                lastUpdateTime = now;
+                updateUI();
+            }
+
+            // Update music every 8 seconds
+            if (now - lastMusicUpdateTime > 8000 && audioEnabled) {
+                if (mode === 'galaxy') {
+                    generateGalaxyAmbience();
+                } else {
+                    generatePlanetAmbience();
+                }
+                lastMusicUpdateTime = now;
+            }
+
+            // Update ambient sounds
+            if (now - lastAmbientUpdateTime > 2000 && audioEnabled) {
+                generateAmbientNoise();
+                lastAmbientUpdateTime = now;
+            }
+
+            // Update spectrum visualization
+            updateSpectrumVisualization();
+
+            if (mode === 'galaxy') {
+                viewPos.x += viewVelocity.x;
+                viewPos.y += viewVelocity.y;
+                viewPos.z += viewVelocity.z;
+
+                viewVelocity.x *= 0.95;
+                viewVelocity.y *= 0.95;
+                viewVelocity.z *= 0.95;
+
+                const moveSpeed = 2;
+                if (keys['w'] || keys['ArrowUp']) viewVelocity.z -= moveSpeed;
+                if (keys['s'] || keys['ArrowDown']) viewVelocity.z += moveSpeed;
+                if (keys['a'] || keys['ArrowLeft']) viewVelocity.x -= moveSpeed;
+                if (keys['d'] || keys['ArrowRight']) viewVelocity.x += moveSpeed;
+                if (keys['q']) viewVelocity.y += moveSpeed;
+                if (keys['e']) viewVelocity.y -= moveSpeed;
+
+                const distMoved = Math.sqrt(
+                    (viewPos.x - lastGalaxyUpdatePos.x)**2 +
+                    (viewPos.y - lastGalaxyUpdatePos.y)**2 +
+                    (viewPos.z - lastGalaxyUpdatePos.z)**2
+                );
+                if (distMoved > GALAXY_SPACING / 2) {
+                    updateLoadedGalaxies();
+                    lastGalaxyUpdatePos = { ...viewPos };
+                    renderGalaxy();
+                }
+
+                backgroundStars.forEach(star => {
+                    if (!star.galaxy) return;
+
+                    star.angle += star.orbitalSpeed * timeSpeed;
+                    star.x = star.galaxy.centerX + Math.cos(star.angle) * star.radius;
+                    star.y = star.galaxy.centerY + Math.sin(star.angle) * star.radius;
+                });
+
+                if (starField && starField.geometry.attributes.position) {
+                    const positions = starField.geometry.attributes.position.array;
+                    backgroundStars.forEach((star, i) => {
+                        if (i * 3 + 2 < positions.length) {
+                            positions[i * 3] = star.x;
+                            positions[i * 3 + 1] = star.y;
+                            positions[i * 3 + 2] = star.z;
+                        }
+                    });
+                    starField.geometry.attributes.position.needsUpdate = true;
+                }
+
+                civilizations.forEach(civ => civ.updatePosition());
+
+                updateCamera();
+                updateVisibleSystems();
+
+                orbitGroups.forEach((orbitGroup, civId) => {
+                    const civ = civilizations.get(civId);
+                    if (civ) {
+                        orbitGroup.position.set(civ.x, civ.y, civ.z);
+                    }
+
+                    orbitGroup.children.forEach(child => {
+                        if (child.userData.orbitRadius) {
+                            child.userData.currentAngle += child.userData.orbitSpeed * timeSpeed;
+
+                            const radius = child.userData.orbitRadius;
+                            child.position.x = Math.cos(child.userData.currentAngle) * radius;
+                            child.position.y = Math.sin(child.userData.currentAngle) * radius;
+
+                            if (child.userData.glow) {
+                                child.userData.glow.position.copy(child.position);
+                            }
+                        }
+                    });
+                });
+            } else if (mode === 'planet') {
+                const distance = 30;
+                camera.position.set(
+                    playerPos.x - PLANET_SIZE/2 + Math.cos(cameraAngle.theta) * distance,
+                    playerPos.z + 15,
+                    playerPos.y - PLANET_SIZE/2 + Math.sin(cameraAngle.theta) * distance
+                );
+                camera.lookAt(playerPos.x - PLANET_SIZE/2, playerPos.z, playerPos.y - PLANET_SIZE/2);
+            }
+
+            renderer.render(scene, camera);
+        }
+
+        // ==================== MOVEMENT ====================
+        function movePlayer(dx, dy) {
+            const speed = 2;
+            playerPos.x += dx * speed;
+            playerPos.y += dy * speed;
+            playerPos.x = Math.max(0, Math.min(PLANET_SIZE, playerPos.x));
+            playerPos.y = Math.max(0, Math.min(PLANET_SIZE, playerPos.y));
+            updateUI();
+        }
+
+        // ==================== MODE SWITCHING ====================
+        function descendToPlanet(civ) {
+            const zoomIndicator = document.getElementById('zoomIndicator');
+            zoomIndicator.classList.add('active');
+
+            // Play landing sound
+            playLandingSound();
+
+            setTimeout(() => {
+                mode = 'planet';
+                landedPlanet = new Planet(civ);
+
+                const city = landedPlanet.cities[0];
+                if (city) {
+                    playerPos = { x: city.x, y: city.z, z: city.height + 2 };
+                } else {
+                    playerPos = { x: PLANET_SIZE / 2, y: PLANET_SIZE / 2, z: 15 };
+                }
+
+                if (animationId) cancelAnimationFrame(animationId);
+                const container = document.getElementById('container');
+                container.innerHTML = '';
+                initThreeJS();
+                renderPlanet();
+                animate();
+                updateUI();
+
+                zoomIndicator.classList.remove('active');
+            }, 500);
+        }
+
+        function ascendToGalaxy() {
+            const zoomIndicator = document.getElementById('zoomIndicator');
+            zoomIndicator.textContent = '⬆ ASCENDING TO GALAXY VIEW ⬆';
+            zoomIndicator.classList.add('active');
+
+            // Play ascending sound
+            playAscendingSound();
+
+            setTimeout(() => {
+                mode = 'galaxy';
+                landedPlanet = null;
+
+                if (animationId) cancelAnimationFrame(animationId);
+                const container = document.getElementById('container');
+                container.innerHTML = '';
+                initThreeJS();
+                renderGalaxy();
+                animate();
+                updateUI();
+
+                zoomIndicator.classList.remove('active');
+                zoomIndicator.textContent = '⬇ DESCENDING TO PLANETARY SURFACE ⬇';
+            }, 500);
+        }
+
+        // ==================== UI UPDATE ====================
+        function updateUI() {
+            const aliveCivs = Array.from(civilizations.values()).filter(c => c.alive).length;
+            document.getElementById('civCount').textContent = aliveCivs;
+            document.getElementById('planetCount').textContent = Array.from(civilizations.values()).reduce((sum, c) => sum + (c.alive ? c.planets : 0), 0);
+            document.getElementById('timeDisplay').textContent = `Cycle ${galacticCycle}`;
+
+            document.getElementById('modeIcon').textContent = mode === 'galaxy' ? '🌌' : '🌍';
+            document.getElementById('modeDisplay').textContent = mode === 'galaxy' ? 'Galaxy View' : 'Planet Surface';
+
+            let infoHTML = '';
+
+            if (mode === 'galaxy') {
+                const coords = getGalaxyCoords(viewPos.x, viewPos.y, viewPos.z);
+                const loadedGalaxies = Array.from(galaxies.values()).filter(g => g.loaded).length;
+
+                infoHTML += `<div>Position: (${Math.floor(viewPos.x)}, ${Math.floor(viewPos.y)}, ${Math.floor(viewPos.z)})</div>`;
+                infoHTML += `<div>Galaxy: (${coords.gridX}, ${coords.gridY}, ${coords.gridZ})</div>`;
+                infoHTML += `<div>Loaded Galaxies: ${loadedGalaxies}</div>`;
+                infoHTML += `<div>Visible Systems: ${visibleSystems.size}</div>`;
+                infoHTML += `<div>Time Speed: ${timeSpeed === 0 ? 'PAUSED' : timeSpeed + 'x'}</div>`;
+
+                if (selectedCiv) {
+                    const state = selectedCiv.getState();
+                    infoHTML += `
+                        <div class="info-divider">
+                            <div class="civ-info civ-${state}">
+                                <div class="civ-name">${selectedCiv.culture.name}</div>
+                                <div>Age: ${selectedCiv.age} cycles</div>
+                                <div>Population: ${(selectedCiv.population / 1000000).toFixed(1)}M</div>
+                                <div>Tech Level: ${selectedCiv.techLevel.toFixed(1)}/10</div>
+                                <div>Planets: ${selectedCiv.planets}</div>
+                                <div>State: ${state.toUpperCase()}</div>
+                                <div>Neighbors: ${selectedCiv.neighbors}</div>
+                                <div style="margin-top: 5px; font-size: 10px; color: #888;">
+                                    ${selectedCiv.culture.philosophy} • ${selectedCiv.culture.governance}
+                                </div>
+                                <button class="mode-btn" onclick="descendToPlanet(selectedCiv)" style="width: 100%;">
+                                    🌍 LAND ON HOMEWORLD
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                const nearby = Array.from(civilizations.values())
+                    .filter(c => c.alive)
+                    .sort((a, b) => {
+                        const distA = Math.sqrt((a.x - viewPos.x)**2 + (a.y - viewPos.y)**2 + (a.z - viewPos.z)**2);
+                        const distB = Math.sqrt((b.x - viewPos.x)**2 + (b.y - viewPos.y)**2 + (b.z - viewPos.z)**2);
+                        return distA - distB;
+                    })
+                    .slice(0, 5);
+
+                if (nearby.length > 0) {
+                    infoHTML += `<div class="info-divider"><div style="font-weight: bold;">Nearby Civilizations:</div>`;
+                    nearby.forEach(civ => {
+                        const dist = Math.sqrt((civ.x - viewPos.x)**2 + (civ.y - viewPos.y)**2 + (civ.z - viewPos.z)**2);
+                        infoHTML += `<div style="font-size: 11px; margin: 3px 0;">
+                            ${civ.culture.name} - ${Math.floor(dist)} units
+                        </div>`;
+                    });
+                    infoHTML += '</div>';
+                }
+            } else {
+                infoHTML += `<div>Planet: ${landedPlanet.civilization.culture.name} Homeworld</div>`;
+                infoHTML += `<div>Position: (${Math.floor(playerPos.x)}, ${Math.floor(playerPos.y)}, ${Math.floor(playerPos.z)})</div>`;
+                infoHTML += `<div>Cities: ${landedPlanet.cities.length}</div>`;
+                infoHTML += `<div>Planet Size: ${PLANET_SIZE}×${PLANET_SIZE}</div>`;
+
+                infoHTML += `
+                    <div class="info-divider">
+                        <button class="mode-btn" onclick="ascendToGalaxy()">
+                            🚀 RETURN TO GALAXY
+                        </button>
+                    </div>
+                `;
+            }
+
+            document.getElementById('infoContent').innerHTML = infoHTML;
+        }
+
+        // ==================== HOVER DETECTION ====================
+        function findNearestCivilization(mousePos) {
+            if (!camera) return null;
+
+            const raycaster = new THREE.Raycaster();
+            raycaster.setFromCamera(mousePos, camera);
+
+            const allPlanets = [];
+            orbitGroups.forEach((orbitGroup) => {
+                orbitGroup.updateMatrixWorld(true);
+                orbitGroup.children.forEach(child => {
+                    if (child.userData.civilization && child.userData.isPrimary) {
+                        allPlanets.push(child);
+                    }
+                });
+            });
+
+            const intersects = raycaster.intersectObjects(allPlanets, false);
+
+            if (intersects.length > 0 && intersects[0].object.userData.civilization) {
+                return intersects[0].object.userData.civilization;
+            }
+            return null;
+        }
+
+        function updateHoverMarker() {
+            if (hoveredCiv && hoverMarker) {
+                hoverMarker.position.set(hoveredCiv.x, hoveredCiv.y, 0);
+                hoverMarker.visible = true;
+            } else if (hoverMarker) {
+                hoverMarker.visible = false;
+            }
+        }
+
+        function updateSelectedMarker() {
+            if (selectedCiv && selectedMarker) {
+                selectedMarker.position.set(selectedCiv.x, selectedCiv.y, 0);
+                selectedMarker.visible = true;
+            } else if (selectedMarker) {
+                selectedMarker.visible = false;
+            }
+        }
+
+        // ==================== INPUT HANDLING ====================
+        function handleKeyDown(e) {
+            keys[e.key] = true;
+
+            if (mode === 'galaxy') {
+                if (e.key === 'Enter' && selectedCiv) {
+                    descendToPlanet(selectedCiv);
+                }
+            } else if (mode === 'planet') {
+                switch(e.key) {
+                    case 'ArrowUp':
+                    case 'w':
+                        movePlayer(0, -1);
+                        break;
+                    case 'ArrowDown':
+                    case 's':
+                        movePlayer(0, 1);
+                        break;
+                    case 'ArrowLeft':
+                    case 'a':
+                        movePlayer(-1, 0);
+                        break;
+                    case 'ArrowRight':
+                    case 'd':
+                        movePlayer(1, 0);
+                        break;
+                    case 'Escape':
+                        ascendToGalaxy();
+                        break;
+                }
+            }
+        }
+
+        function handleKeyUp(e) {
+            keys[e.key] = false;
+        }
+
+        function handleMouseMove(e) {
+            if (mode !== 'galaxy') return;
+
+            mousePos.x = (e.clientX / window.innerWidth) * 2 - 1;
+            mousePos.y = -(e.clientY / window.innerHeight) * 2 + 1;
+
+            const nearest = findNearestCivilization(mousePos);
+
+            if (nearest !== hoveredCiv) {
+                hoveredCiv = nearest;
+                updateHoverMarker();
+
+                const tooltip = document.getElementById('hover-tooltip');
+                if (hoveredCiv) {
+                    tooltip.style.display = 'block';
+                    tooltip.style.left = e.clientX + 15 + 'px';
+                    tooltip.style.top = e.clientY + 15 + 'px';
+                    tooltip.innerHTML = `
+                        <div style="font-weight: bold; color: ${hoveredCiv.color.getStyle()};">${hoveredCiv.culture.name}</div>
+                        <div>Pop: ${(hoveredCiv.population / 1000000).toFixed(1)}M</div>
+                        <div>Tech: ${hoveredCiv.techLevel.toFixed(1)}/10</div>
+                        <div style="font-size: 10px; color: #888; margin-top: 3px;">Click to select</div>
+                    `;
+                } else {
+                    tooltip.style.display = 'none';
+                }
+            }
+        }
+
+        function handleClick(e) {
+            if (mode !== 'galaxy') return;
+
+            if (hoveredCiv) {
+                selectedCiv = hoveredCiv;
+                playCivilizationSelectSound(hoveredCiv);
+                updateSelectedMarker();
+                updateUI();
+            }
+        }
+
+        // ==================== INITIALIZATION ====================
+        function init() {
+            initAudio();
+            initAudioControls();
+
+            initializeGalaxy();
+            initThreeJS();
+            renderGalaxy();
+            animate();
+            updateUI();
+
+            // Start initial ambient generation
+            generateGalaxyAmbience();
+            generateAmbientNoise();
+            lastMusicUpdateTime = Date.now();
+            lastAmbientUpdateTime = Date.now();
+
+            window.addEventListener('keydown', handleKeyDown);
+            window.addEventListener('keyup', handleKeyUp);
+            window.addEventListener('mousemove', handleMouseMove);
+            window.addEventListener('click', handleClick);
+
+            document.querySelectorAll('.speed-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const newSpeed = parseInt(btn.dataset.speed);
+                    timeSpeed = newSpeed;
+                    playTimeSpeedSound(newSpeed);
+                    document.querySelectorAll('.speed-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    updateUI();
+                });
+            });
+
+            window.descendToPlanet = descendToPlanet;
+            window.ascendToGalaxy = ascendToGalaxy;
+        }
+
+        window.addEventListener('load', init);
+    </script>
+</body>
+</html>

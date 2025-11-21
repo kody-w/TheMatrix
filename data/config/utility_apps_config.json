@@ -1,6 +1,21 @@
 {
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "$comment": "Application manifest for The Matrix framework - defines all available HTML applications",
   "version": "2.0",
   "lastUpdated": "2025-07-25T15:36:02.515377",
+  "description": "Centralized registry of 100+ local-first HTML applications across 10 categories",
+  "categories": [
+    "ai-tools",
+    "business",
+    "development",
+    "education",
+    "games",
+    "health",
+    "media",
+    "productivity",
+    "utilities",
+    "index-variants"
+  ],
   "apps": [
     {
       "id": "mcp-registry",

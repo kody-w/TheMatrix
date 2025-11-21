@@ -391,6 +391,44 @@ Modify `.claude/CLAUDE.md` for domain-specific patterns:
 - Domain-specific validation
 - Integration patterns
 
+### Configure Code Stewardship (Optional)
+
+The Matrix includes a **Steward Agent** for autonomous code improvement and maintenance:
+
+**Configuration:** `.claude/steward-config.json`
+
+```json
+{
+  "safetyLevel": "conservative",     // conservative|moderate|aggressive
+  "maxChangesPerRun": 5,             // Improvements per execution
+  "improvementPriorities": [          // Ordered by importance
+    "security",
+    "error-handling",
+    "documentation"
+  ],
+  "validationRules": {
+    "requireBackup": true,            // Always backup before changes
+    "minConfidence": 0.85             // Minimum confidence threshold
+  }
+}
+```
+
+**Usage:**
+```bash
+# Activate steward mode for continuous code improvement
+claude
+> "Run steward in conservative mode on this project"
+```
+
+**Features:**
+- Automatic backup before every change
+- Validation after each improvement
+- Automatic rollback on failure
+- Comprehensive audit logging
+- Risk-aware prioritization
+
+See `.claude/agents/steward.md` for complete documentation.
+
 ## 📚 Project Structure
 
 ```

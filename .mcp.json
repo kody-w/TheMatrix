@@ -1,9 +1,22 @@
 {
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "$comment": "Model Context Protocol (MCP) server configuration for The Matrix AI orchestration framework",
   "mcpServers": {
     "playwright": {
       "command": "npx",
-      "args": ["@playwright/mcp@latest"],
-      "env": {}
+      "args": [
+        "@playwright/mcp@latest"
+      ],
+      "env": {},
+      "description": "Browser automation MCP server for testing generated outcomes. Enables end-to-end validation of web-based artifacts (HTML pages, web apps, interactive demos). See: https://github.com/microsoft/playwright",
+      "usage": "Automatically available to Claude Code agents for browser automation and testing",
+      "capabilities": [
+        "Page navigation and interaction",
+        "Screenshot capture",
+        "Element inspection",
+        "Form filling and submission",
+        "End-to-end testing"
+      ]
     }
   }
 }

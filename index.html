@@ -1,3 +1,54 @@
+<!--
+  ╔══════════════════════════════════════════════════════════════════════════╗
+  ║                            THE MATRIX GATEWAY                            ║
+  ╚══════════════════════════════════════════════════════════════════════════╝
+
+  Application: The Matrix - Main Gateway Interface
+  Purpose: Primary entry point for The Matrix AI orchestration framework
+
+  Description:
+    This is the main gateway interface providing access to 150+ applications
+    across 10 categories. Features include:
+    - Interactive app browser with search and filtering
+    - Multi-theme support (Matrix Green, Cyber Blue, Alert Red, etc.)
+    - Responsive design for all devices
+    - Local-first architecture (no external dependencies)
+    - Agent system integration dashboard
+    - Framework documentation access
+
+  Architecture:
+    - Single-page application (SPA) design
+    - Pure HTML/CSS/JavaScript (no build process)
+    - Category-based app organization
+    - Dynamic app loading and filtering
+    - Theme persistence via localStorage
+    - Accessibility-first design
+
+  Navigation Structure:
+    Root → Categories → Applications
+    - AI Tools (16 apps)
+    - Business (6 apps)
+    - Development (15 apps)
+    - Education (17 apps)
+    - Games (41 apps)
+    - Health (3 apps)
+    - Media (8 apps)
+    - Productivity (15 apps)
+    - Utilities (13 apps)
+    - Local Apps (Various)
+
+  Integration:
+    - Links to Claude Code agent system
+    - MCP server configuration access
+    - Framework documentation hub
+    - Steward autonomous improvement system
+
+  Framework: The Matrix v1.0
+  License: MIT (see LICENSE)
+  Last Updated: 2025-11-20
+  Maintained By: Steward Agent
+-->
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -2826,48 +2877,8 @@
             <p style="text-align: center; opacity: 0.8; margin-bottom: 3rem; font-size: 1.1rem;">
                 Experience The Matrix through interactive HTML demonstrations
             </p>
-            <div class="capabilities-grid">
-                <div class="capability-card" onclick="window.open('Pokemon Battle Assistant.html', '_blank')">
-                    <div class="capability-header">
-                        <div class="capability-title">Pokemon Battle Assistant</div>
-                        <div class="capability-status ready">LIVE</div>
-                    </div>
-                    <div class="capability-description">
-                        Interactive Pokemon battle assistant with real-time type effectiveness calculations, team building, and strategic recommendations.
-                    </div>
-                    <div class="capability-stats">
-                        <span>Interactive Demo</span>
-                        <span>Pure HTML/CSS/JS</span>
-                    </div>
-                </div>
-
-                <div class="capability-card" onclick="window.open('windows95-emulator.html', '_blank')">
-                    <div class="capability-header">
-                        <div class="capability-title">Windows 95 Emulator</div>
-                        <div class="capability-status ready">LIVE</div>
-                    </div>
-                    <div class="capability-description">
-                        Nostalgic Windows 95 experience built entirely in HTML/CSS/JS. Experience the classic UI with functional windows, start menu, and apps.
-                    </div>
-                    <div class="capability-stats">
-                        <span>Interactive Demo</span>
-                        <span>Retro Experience</span>
-                    </div>
-                </div>
-
-                <div class="capability-card" onclick="openModal('coming-soon-demo')">
-                    <div class="capability-header">
-                        <div class="capability-title">Cathedral Showcase</div>
-                        <div class="capability-status coming-soon">COMING SOON</div>
-                    </div>
-                    <div class="capability-description">
-                        Explore working demonstrations of The Matrix's orchestration capabilities through interactive visualizations.
-                    </div>
-                    <div class="capability-stats">
-                        <span>Future Release</span>
-                        <span>Orchestration Demos</span>
-                    </div>
-                </div>
+            <div class="capabilities-grid" id="demos-grid">
+                <!-- Demos will be dynamically loaded from data/config/demos_config.json -->
             </div>
         </section>
 
@@ -3647,6 +3658,27 @@
     </div>
 
     <script>
+        // Global error handler for The Matrix Gateway
+        window.onerror = function(msg, url, lineNo, columnNo, error) {
+            console.error('Matrix Error:', msg, '\nLine:', lineNo, '\nColumn:', columnNo);
+            // Graceful degradation - show error notification but keep app functional
+            try {
+                const notification = document.createElement('div');
+                notification.style.cssText = 'position:fixed;top:20px;right:20px;background:rgba(255,0,0,0.9);color:#fff;padding:15px 20px;border-radius:8px;z-index:10000;max-width:300px;font-family:monospace;font-size:0.9em;';
+                notification.innerHTML = '<strong>⚠️ Error Detected</strong><br/>' + msg.substring(0, 100);
+                document.body.appendChild(notification);
+                setTimeout(() => notification.remove(), 5000);
+            } catch (e) {
+                // Fail silently if notification creation fails
+            }
+            return false;
+        };
+
+        // Promise rejection handler
+        window.addEventListener('unhandledrejection', function(event) {
+            console.error('Unhandled promise rejection:', event.reason);
+        });
+
         // Matrix Rain Effect
         const canvas = document.getElementById('matrix-canvas');
         const ctx = canvas.getContext('2d');
@@ -5101,12 +5133,59 @@ Speedup vs sequential: ${speedupFactor}x faster`;
             });
         }
 
+        // Load and render interactive demos from config
+        async function loadDemos() {
+            try {
+                const response = await fetch('data/config/demos_config.json');
+                const config = await response.json();
+                renderDemos(config.demos);
+                console.log('✅ Demos loaded successfully');
+            } catch (error) {
+                console.error('❌ Error loading demos:', error);
+                // Show error message in demos grid
+                const demosGrid = document.getElementById('demos-grid');
+                if (demosGrid) {
+                    demosGrid.innerHTML = '<p style="text-align: center; opacity: 0.6;">Error loading demonstrations. Please refresh the page.</p>';
+                }
+            }
+        }
+
+        function renderDemos(demos) {
+            const demosGrid = document.getElementById('demos-grid');
+            if (!demosGrid) return;
+
+            demosGrid.innerHTML = demos.map(demo => {
+                const statusClass = demo.status === 'ready' ? 'ready' : 'coming-soon';
+                const onClick = demo.status === 'ready'
+                    ? `window.open('${demo.path}', '_blank')`
+                    : `openModal('coming-soon-demo')`;
+
+                return `
+                    <div class="capability-card" onclick="${onClick}">
+                        <div class="capability-header">
+                            <div class="capability-title">${demo.title}</div>
+                            <div class="capability-status ${statusClass}">${demo.statusLabel}</div>
+                        </div>
+                        <div class="capability-description">
+                            ${demo.description}
+                        </div>
+                        <div class="capability-stats">
+                            ${demo.tags.map(tag => `<span>${tag}</span>`).join('\n                            ')}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
         // Initialize: Load data from GitHub and build UI
         document.addEventListener('DOMContentLoaded', async () => {
             console.log('🎬 Matrix initializing...');
 
             // Show loading state
             showLoadingState();
+
+            // Load demos config
+            await loadDemos();
 
             // Load all prompt data from GitHub
             const success = await loadAllPromptData();

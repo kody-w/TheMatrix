@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "playwright": {
+      "command": "npx",
+      "args": ["@playwright/mcp@latest"],
+      "env": {},
+      "description": "Browser automation MCP server for testing generated outcomes. Enables end-to-end validation of web-based artifacts (HTML pages, web apps, interactive demos). See: https://github.com/microsoft/playwright"
+    }
+  }
+}

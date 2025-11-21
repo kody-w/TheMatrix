@@ -1,0 +1,2385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leviathan Galaxy - Ultimate Edition (Complete Integration)</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: #000;
+            color: #fff;
+            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
+            cursor: crosshair;
+            touch-action: none;
+        }
+
+        #container {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        /* ==================== CORE UI PANELS ==================== */
+        .ui-panel {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.95);
+            border-radius: 8px;
+            padding: 15px;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+        }
+
+        #header {
+            top: 0;
+            left: 0;
+            right: 0;
+            border-bottom: 2px solid #00ff00;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            border-radius: 0;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+        }
+
+        .header-left, .header-right {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .header-title {
+            font-size: 18px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .stat {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 14px;
+        }
+
+        #info-panel {
+            right: 20px;
+            top: 80px;
+            border: 2px solid #00ff00;
+            min-width: 300px;
+            max-width: 450px;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+
+        #controls-panel {
+            left: 20px;
+            bottom: 20px;
+            border: 2px solid #00ff00;
+            font-size: 12px;
+            max-height: 40vh;
+            overflow-y: auto;
+        }
+
+        #time-controls {
+            left: 20px;
+            top: 80px;
+            border: 2px solid #00ff00;
+            min-width: 200px;
+        }
+
+        #audio-controls {
+            left: 20px;
+            top: 300px;
+            border: 2px solid #00ffff;
+            min-width: 220px;
+            max-width: 250px;
+        }
+
+        #stats-panel {
+            right: 20px;
+            bottom: 20px;
+            border: 2px solid #00ff00;
+            width: 300px;
+            max-height: 350px;
+            z-index: 900;
+        }
+
+        #history-panel {
+            right: 20px;
+            bottom: 380px;
+            border: 2px solid #ffaa00;
+            min-width: 250px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        #graphics-settings {
+            right: 400px;
+            bottom: 20px;
+            border: 2px solid #ffaa00;
+            min-width: 250px;
+            display: none;
+        }
+
+        #save-load-panel {
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            border: 2px solid #00ff00;
+            min-width: 400px;
+            z-index: 2000;
+            display: none;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .panel-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .info-section {
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        .info-divider {
+            margin: 10px 0;
+            padding-top: 10px;
+            border-top: 1px solid #333;
+        }
+
+        .civ-info {
+            background: rgba(100, 100, 255, 0.1);
+            padding: 10px;
+            margin: 8px 0;
+            border-radius: 4px;
+            border-left: 3px solid;
+            font-size: 11px;
+        }
+
+        .civ-name {
+            font-weight: bold;
+            font-size: 13px;
+            margin-bottom: 5px;
+        }
+
+        .civ-expanding { border-left-color: #00ff00; }
+        .civ-stable { border-left-color: #ffaa00; }
+        .civ-declining { border-left-color: #ff4444; }
+
+        #loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 24px;
+            z-index: 2000;
+            text-align: center;
+            text-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+        }
+
+        .zoom-indicator {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 48px;
+            color: #00ff00;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s;
+            text-shadow: 0 0 20px #00ff00;
+            text-align: center;
+        }
+
+        .zoom-indicator.active {
+            opacity: 1;
+        }
+
+        .mode-btn, .action-btn, .icon-btn {
+            padding: 10px 20px;
+            background: #ff4400;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            font-size: 14px;
+            margin-top: 10px;
+            margin-right: 5px;
+            box-shadow: 0 0 15px rgba(255, 68, 0, 0.4);
+            transition: all 0.3s;
+        }
+
+        .icon-btn {
+            padding: 8px 12px;
+            font-size: 12px;
+            margin: 0 5px 0 0;
+            background: #1a3a2e;
+            border: 1px solid #00ff00;
+        }
+
+        .icon-btn:hover {
+            background: #2a5a4e;
+        }
+
+        .action-btn {
+            padding: 8px 12px;
+            margin: 5px 2px 5px 0;
+            background: #1a3a2e;
+            border: 1px solid #00ff00;
+            font-size: 12px;
+        }
+
+        .action-btn:disabled {
+            background: #666666;
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+
+        .mode-btn:hover, .action-btn:hover {
+            background: #ff6622;
+            box-shadow: 0 0 25px rgba(255, 68, 0, 0.6);
+        }
+
+        .speed-btn {
+            padding: 8px 15px;
+            margin: 5px;
+            background: #1a1a2e;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+        }
+
+        .speed-btn.active {
+            background: #00ff00;
+            color: #000;
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.5);
+        }
+
+        .speed-btn:hover {
+            background: #2a3a4e;
+        }
+
+        .speed-btn.active:hover {
+            background: #00dd00;
+        }
+
+        #hover-tooltip {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.95);
+            border: 2px solid #00ff00;
+            border-radius: 4px;
+            padding: 8px;
+            font-size: 11px;
+            pointer-events: none;
+            z-index: 999;
+            display: none;
+            max-width: 200px;
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.3);
+        }
+
+        .perf-indicator {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid #00ff00;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 11px;
+            z-index: 999;
+        }
+
+        /* ==================== AUDIO CONTROLS ==================== */
+        .audio-control {
+            margin: 8px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 11px;
+        }
+
+        .audio-label {
+            min-width: 60px;
+            font-weight: bold;
+            color: #00ffff;
+        }
+
+        .audio-slider {
+            flex: 1;
+            height: 4px;
+            border-radius: 2px;
+            background: #1a1a2e;
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        .audio-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #00ffff;
+            cursor: pointer;
+        }
+
+        .audio-toggle {
+            padding: 6px 12px;
+            background: #1a3a2e;
+            color: #00ffff;
+            border: 1px solid #00ffff;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            font-size: 11px;
+        }
+
+        .audio-toggle.active {
+            background: #00ffff;
+            color: #000;
+        }
+
+        #spectrumCanvas {
+            width: 100%;
+            height: 50px;
+            background: #0a0a1a;
+            border: 1px solid #00ffff;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+
+        /* ==================== STATS & HISTORY ==================== */
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 5px 0;
+            padding: 5px;
+            border-bottom: 1px solid #222;
+        }
+
+        .stat-label {
+            color: #888;
+        }
+
+        .stat-value {
+            color: #00ff00;
+            font-weight: bold;
+        }
+
+        .history-entry {
+            background: rgba(255, 170, 0, 0.1);
+            padding: 8px;
+            margin: 4px 0;
+            border-left: 3px solid #ffaa00;
+            border-radius: 2px;
+            font-size: 10px;
+        }
+
+        .leaderboard-item {
+            padding: 5px;
+            margin: 3px 0;
+            background: rgba(100, 100, 255, 0.1);
+            border-left: 3px solid #00ff00;
+            font-size: 10px;
+            border-radius: 2px;
+        }
+
+        /* ==================== TOUCH CONTROLS ==================== */
+        .touch-controls {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.9);
+            border: 2px solid #00ff00;
+            padding: 15px;
+            border-radius: 8px;
+            display: none;
+            z-index: 900;
+            text-align: center;
+        }
+
+        .touch-controls.active {
+            display: block;
+        }
+
+        .dpad {
+            width: 120px;
+            height: 120px;
+            position: relative;
+            margin: 0 auto 10px;
+        }
+
+        .dpad-btn {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background: #00ff00;
+            color: #000;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .dpad-btn:active {
+            background: #00dd00;
+        }
+
+        .dpad-btn.up { top: 0; left: 50%; transform: translateX(-50%); }
+        .dpad-btn.down { bottom: 0; left: 50%; transform: translateX(-50%); }
+        .dpad-btn.left { left: 0; top: 50%; transform: translateY(-50%); }
+        .dpad-btn.right { right: 0; top: 50%; transform: translateY(-50%); }
+
+        /* ==================== SAVE/LOAD ==================== */
+        .save-slot {
+            background: rgba(100, 100, 255, 0.1);
+            padding: 10px;
+            margin: 8px 0;
+            border: 1px solid #00ff00;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .save-slot:hover {
+            background: rgba(100, 100, 255, 0.2);
+        }
+
+        .save-slot.active {
+            border: 2px solid #ffaa00;
+            background: rgba(255, 170, 0, 0.1);
+        }
+
+        /* ==================== TABS ==================== */
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #333;
+            margin-bottom: 10px;
+            gap: 5px;
+        }
+
+        .tab-btn {
+            padding: 8px 12px;
+            background: rgba(100, 100, 100, 0.3);
+            color: #888;
+            border: none;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+            font-weight: bold;
+            border-radius: 4px 4px 0 0;
+            transition: all 0.2s;
+        }
+
+        .tab-btn:hover {
+            background: rgba(100, 100, 100, 0.5);
+            color: #aaa;
+        }
+
+        .tab-btn.active {
+            background: #00ff00;
+            color: #000;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            background: rgba(0, 100, 100, 0.2);
+            border: 1px solid #00ff00;
+            color: #fff;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+        }
+
+        .filter-btn {
+            padding: 4px 8px;
+            background: rgba(100, 100, 100, 0.3);
+            color: #888;
+            border: 1px solid #333;
+            cursor: pointer;
+            font-size: 10px;
+            border-radius: 3px;
+            margin: 2px;
+            transition: all 0.2s;
+        }
+
+        .filter-btn.active {
+            background: #00ff00;
+            color: #000;
+            border-color: #00ff00;
+        }
+
+        /* ==================== SCROLLBAR ==================== */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #00ff00;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #00dd00;
+        }
+
+        @media (max-width: 768px) {
+            #info-panel, #controls-panel {
+                font-size: 11px;
+                min-width: 200px;
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="loading">INITIALIZING LEVIATHAN GALAXY<br/>ULTIMATE INTEGRATED EDITION...</div>
+    <div id="container"></div>
+    <div id="hover-tooltip"></div>
+    <div class="perf-indicator" id="perfIndicator">FPS: -- | Audio: ON</div>
+    <div class="zoom-indicator" id="zoomIndicator">⬇ DESCENDING TO PLANETARY SURFACE ⬇</div>
+
+    <!-- HEADER -->
+    <div class="ui-panel" id="header">
+        <div class="header-left">
+            <div class="header-title">
+                <span id="modeIcon">🌌</span>
+                <span id="modeTitle">LEVIATHAN GALAXY - ULTIMATE</span>
+            </div>
+            <div style="font-size: 12px; color: #888;">
+                <span id="modeDisplay">Galaxy View</span>
+            </div>
+        </div>
+        <div class="header-right">
+            <div class="stat">
+                <span>⭐</span>
+                <span id="civCount">0</span>
+                <span>Civs</span>
+            </div>
+            <div class="stat">
+                <span>🌍</span>
+                <span id="planetCount">0</span>
+                <span>Planets</span>
+            </div>
+            <div class="stat">
+                <span>⏱️</span>
+                <span id="timeDisplay">Cycle 0</span>
+            </div>
+            <button class="icon-btn" onclick="toggleSaveLoadPanel()">💾 Save</button>
+            <button class="icon-btn" onclick="toggleGraphicsPanel()">⚙️ Graphics</button>
+            <button class="icon-btn" onclick="takeScreenshot()">📷 Screenshot</button>
+        </div>
+    </div>
+
+    <!-- TIME CONTROLS -->
+    <div class="ui-panel" id="time-controls">
+        <div class="panel-title">⏱️ Time Flow</div>
+        <div>
+            <button class="speed-btn" data-speed="0">⏸ Pause</button>
+            <button class="speed-btn active" data-speed="1">▶ 1x</button>
+            <button class="speed-btn" data-speed="2">▶▶ 2x</button>
+            <button class="speed-btn" data-speed="5">⏩ 5x</button>
+            <button class="speed-btn" data-speed="10">⏭️ 10x</button>
+        </div>
+    </div>
+
+    <!-- AUDIO CONTROLS -->
+    <div class="ui-panel" id="audio-controls">
+        <div class="panel-title">🎵 Audio</div>
+        <div class="info-section">
+            <div class="audio-control">
+                <button class="audio-toggle active" id="masterToggle">Master</button>
+                <span class="audio-label">Master</span>
+                <input type="range" class="audio-slider" id="masterVolume" min="0" max="100" value="70">
+                <span style="min-width: 30px; text-align: right; color: #00ff00;">70%</span>
+            </div>
+            <div class="audio-control">
+                <button class="audio-toggle active" id="musicToggle">Music</button>
+                <span class="audio-label">Music</span>
+                <input type="range" class="audio-slider" id="musicVolume" min="0" max="100" value="60">
+                <span style="min-width: 30px; text-align: right; color: #00ff00;">60%</span>
+            </div>
+            <div class="audio-control">
+                <button class="audio-toggle active" id="sfxToggle">SFX</button>
+                <span class="audio-label">SFX</span>
+                <input type="range" class="audio-slider" id="sfxVolume" min="0" max="100" value="80">
+                <span style="min-width: 30px; text-align: right; color: #00ff00;">80%</span>
+            </div>
+            <canvas id="spectrumCanvas"></canvas>
+        </div>
+    </div>
+
+    <!-- INFO PANEL WITH TABS -->
+    <div class="ui-panel" id="info-panel">
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="overview">📊 Overview</button>
+            <button class="tab-btn" data-tab="civilizations">⭐ Civs</button>
+            <button class="tab-btn" data-tab="relationships">🤝 Relations</button>
+        </div>
+
+        <div class="tab-content active" id="tab-overview">
+            <div class="info-section" id="overviewContent">Loading...</div>
+        </div>
+
+        <div class="tab-content" id="tab-civilizations">
+            <input type="text" class="search-box" id="civSearch" placeholder="Search civs...">
+            <div style="margin-bottom: 8px;">
+                <button class="filter-btn active" data-filter="all">All</button>
+                <button class="filter-btn" data-filter="expanding">Expanding</button>
+                <button class="filter-btn" data-filter="stable">Stable</button>
+                <button class="filter-btn" data-filter="declining">Declining</button>
+            </div>
+            <div class="info-section" id="civilizationsContent">Loading...</div>
+        </div>
+
+        <div class="tab-content" id="tab-relationships">
+            <div class="info-section" id="relationshipsContent">Loading...</div>
+        </div>
+    </div>
+
+    <!-- STATS PANEL -->
+    <div class="ui-panel" id="stats-panel">
+        <div class="panel-title">📈 Statistics <span style="margin-left: auto;">▼</span></div>
+        <div class="info-section" id="statsContent" style="font-size: 11px;">
+            <div class="stat-row">
+                <span class="stat-label">Total Civs</span>
+                <span class="stat-value" id="statTotalCivs">0</span>
+            </div>
+            <div class="stat-row">
+                <span class="stat-label">Alive Civs</span>
+                <span class="stat-value" id="statAliveCivs">0</span>
+            </div>
+            <div class="stat-row">
+                <span class="stat-label">Extinct Civs</span>
+                <span class="stat-value" id="statExtinctCivs">0</span>
+            </div>
+            <div class="stat-row">
+                <span class="stat-label">Avg Tech</span>
+                <span class="stat-value" id="statAvgTech">0.0</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- HISTORY PANEL -->
+    <div class="ui-panel" id="history-panel">
+        <div class="panel-title">📜 History</div>
+        <div class="info-section" id="historyContent">
+            <div style="color: #888;">No events yet...</div>
+        </div>
+    </div>
+
+    <!-- GRAPHICS SETTINGS -->
+    <div class="ui-panel" id="graphics-settings">
+        <div class="panel-title">⚙️ Graphics</div>
+        <div class="info-section">
+            <div style="margin: 8px 0;">
+                <strong>Quality:</strong><br/>
+                <button class="speed-btn" data-quality="low" style="padding: 6px 12px; margin: 4px;">Low</button>
+                <button class="speed-btn active" data-quality="medium" style="padding: 6px 12px; margin: 4px;">Medium</button>
+                <button class="speed-btn" data-quality="high" style="padding: 6px 12px; margin: 4px;">High</button>
+            </div>
+            <div style="margin: 8px 0; font-size: 10px;">
+                <label><input type="checkbox" id="lodCheckbox" checked> LOD</label><br/>
+                <label><input type="checkbox" id="particleCheckbox" checked> Particles</label><br/>
+                <label><input type="checkbox" id="glowCheckbox" checked> Glows</label>
+            </div>
+        </div>
+    </div>
+
+    <!-- SAVE/LOAD PANEL -->
+    <div class="ui-panel" id="save-load-panel">
+        <div class="panel-title" style="margin-bottom: 15px;">💾 Save / Load</div>
+        <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+            <input type="text" id="saveName" placeholder="Save name..." style="flex: 1; padding: 8px; background: #1a1a2e; border: 1px solid #00ff00; color: #fff; border-radius: 4px;">
+            <button class="mode-btn" onclick="saveGame()" style="margin-top: 0;">Save</button>
+        </div>
+        <div id="saveSlotsList" style="max-height: 400px; overflow-y: auto;">
+            <div style="color: #888;">No saves yet</div>
+        </div>
+        <div style="margin-top: 15px;">
+            <button class="mode-btn" onclick="toggleSaveLoadPanel()" style="width: 100%;">Close</button>
+        </div>
+    </div>
+
+    <!-- CONTROLS PANEL -->
+    <div class="ui-panel" id="controls-panel">
+        <div class="panel-title">🎮 Controls</div>
+        <div class="info-section">
+            <div><strong>Galaxy:</strong></div>
+            <div>WASD: Move | Q/E: Up/Down</div>
+            <div>Click: Select | Enter: Land</div>
+            <div style="margin-top: 8px;"><strong>Planet:</strong></div>
+            <div>WASD: Move | Esc: Return</div>
+        </div>
+    </div>
+
+    <!-- TOUCH CONTROLS -->
+    <div class="touch-controls" id="touchControls">
+        <div>Touch Controls</div>
+        <div class="dpad" id="dpad">
+            <button class="dpad-btn up" data-dir="up">▲</button>
+            <button class="dpad-btn down" data-dir="down">▼</button>
+            <button class="dpad-btn left" data-dir="left">◄</button>
+            <button class="dpad-btn right" data-dir="right">►</button>
+        </div>
+        <div style="font-size: 10px; color: #888;">Pinch to zoom</div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        // ==================== CONSTANTS ====================
+        const GALAXY_SIZE = 2000;
+        const GALAXY_SPACING = 5000;
+        const NUM_CIVILIZATIONS_PER_GALAXY = 50;
+        const NUM_STARS_PER_GALAXY = 2000;
+        const PLANET_SIZE = 200;
+        const CYCLE_DURATION = 2000;
+        const SYSTEM_REVEAL_DISTANCE = 500;
+
+        // ==================== GRAPHICS SETTINGS ====================
+        const GRAPHICS_SETTINGS = {
+            quality: 'medium',
+            lod: true,
+            particles: true,
+            glows: true
+        };
+
+        const LOD_CONFIG = {
+            low: { near: 300, far: 1000, starSize: 2 },
+            medium: { near: 500, far: 1500, starSize: 4 },
+            high: { near: 800, far: 2500, starSize: 6 }
+        };
+
+        // ==================== AUDIO SYSTEM ====================
+        let audioContext;
+        let masterGain, musicGain, sfxGain, ambientGain;
+        let analyser;
+        let audioEnabled = true;
+
+        const audioState = {
+            masterVolume: 0.7,
+            musicVolume: 0.6,
+            sfxVolume: 0.8,
+            ambientVolume: 0.5,
+            musicOscillators: [],
+            ambientOscillators: [],
+            spectrumData: new Uint8Array(256)
+        };
+
+        function initAudio() {
+            if (audioContext) return;
+            try {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                masterGain = audioContext.createGain();
+                masterGain.gain.value = audioState.masterVolume;
+                masterGain.connect(audioContext.destination);
+
+                musicGain = audioContext.createGain();
+                musicGain.gain.value = audioState.musicVolume;
+                musicGain.connect(masterGain);
+
+                sfxGain = audioContext.createGain();
+                sfxGain.gain.value = audioState.sfxVolume;
+                sfxGain.connect(masterGain);
+
+                ambientGain = audioContext.createGain();
+                ambientGain.gain.value = audioState.ambientVolume;
+                ambientGain.connect(masterGain);
+
+                analyser = audioContext.createAnalyser();
+                analyser.fftSize = 256;
+                masterGain.connect(analyser);
+            } catch (e) {
+                console.log('Audio context not available');
+            }
+        }
+
+        // ==================== SOUND EFFECTS ====================
+        function playLandingSound() {
+            if (!audioContext || !audioEnabled) return;
+            const now = audioContext.currentTime;
+            const osc = audioContext.createOscillator();
+            osc.type = 'square';
+            osc.frequency.setValueCurveAtTime([800, 400, 200, 100], now, 0.5);
+            const gain = audioContext.createGain();
+            gain.gain.setValueCurveAtTime([0.2, 0.15, 0.08, 0], now, 0.5);
+            osc.connect(gain);
+            gain.connect(sfxGain);
+            osc.start(now);
+            osc.stop(now + 0.5);
+        }
+
+        function playAscendingSound() {
+            if (!audioContext || !audioEnabled) return;
+            const now = audioContext.currentTime;
+            const osc = audioContext.createOscillator();
+            osc.type = 'triangle';
+            osc.frequency.setValueCurveAtTime([200, 400, 600, 800], now, 0.4);
+            const gain = audioContext.createGain();
+            gain.gain.setValueCurveAtTime([0, 0.15, 0.15, 0], now, 0.4);
+            osc.connect(gain);
+            gain.connect(sfxGain);
+            osc.start(now);
+            osc.stop(now + 0.4);
+        }
+
+        function playCivilizationSelectSound(color) {
+            if (!audioContext || !audioEnabled) return;
+            const now = audioContext.currentTime;
+            const hsl = color.getHSL();
+            const baseFreq = 200 + (hsl.h * 400);
+            const notes = [baseFreq, baseFreq * 1.25, baseFreq * 1.5];
+            notes.forEach((freq, index) => {
+                const osc = audioContext.createOscillator();
+                osc.type = 'sine';
+                osc.frequency.value = freq;
+                const gain = audioContext.createGain();
+                const noteStart = now + (index * 0.1);
+                gain.gain.setValueCurveAtTime([0, 0.15, 0], noteStart, 0.15);
+                osc.connect(gain);
+                gain.connect(sfxGain);
+                osc.start(noteStart);
+                osc.stop(noteStart + 0.15);
+            });
+        }
+
+        function generateGalaxyAmbience() {
+            if (!audioContext || !audioEnabled) return;
+            const now = audioContext.currentTime;
+            const droneFrequencies = [55, 82, 110];
+            droneFrequencies.forEach((freq) => {
+                const osc = audioContext.createOscillator();
+                osc.type = 'sine';
+                osc.frequency.value = freq;
+                const gain = audioContext.createGain();
+                gain.gain.setValueCurveAtTime([0.08, 0.12, 0.08], now, 8);
+                osc.connect(gain);
+                gain.connect(musicGain);
+                osc.start(now);
+                setTimeout(() => { try { osc.stop(); } catch(e) {} }, 8100);
+                audioState.musicOscillators.push(osc);
+            });
+        }
+
+        function updateSpectrumVisualization() {
+            const canvas = document.getElementById('spectrumCanvas');
+            if (!canvas || !analyser) return;
+            const ctx = canvas.getContext('2d');
+            analyser.getByteFrequencyData(audioState.spectrumData);
+            ctx.fillStyle = '#0a0a1a';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            const barWidth = canvas.width / audioState.spectrumData.length;
+            ctx.fillStyle = '#00ffff';
+            for (let i = 0; i < audioState.spectrumData.length; i++) {
+                const barHeight = (audioState.spectrumData[i] / 255) * canvas.height;
+                ctx.fillRect(i * barWidth, canvas.height - barHeight, barWidth - 1, barHeight);
+            }
+        }
+
+        // ==================== SAVE/LOAD SYSTEM ====================
+        class SaveSystem {
+            constructor() {
+                this.saves = new Map();
+                this.loadFromStorage();
+            }
+
+            loadFromStorage() {
+                try {
+                    const saved = localStorage.getItem('leviathan_saves');
+                    if (saved) this.saves = new Map(JSON.parse(saved));
+                } catch (e) {
+                    console.error('Failed to load saves:', e);
+                }
+            }
+
+            saveToStorage() {
+                try {
+                    localStorage.setItem('leviathan_saves', JSON.stringify([...this.saves]));
+                } catch (e) {
+                    console.error('Failed to save:', e);
+                }
+            }
+
+            createSave(name) {
+                const saveData = {
+                    name: name,
+                    timestamp: Date.now(),
+                    gameState: {
+                        viewPos: { ...viewPos },
+                        galacticCycle: galacticCycle,
+                        timeSpeed: timeSpeed,
+                        selectedCiv: selectedCiv ? selectedCiv.id : null,
+                        playerPos: { ...playerPos },
+                        mode: mode,
+                        graphicsSettings: { ...GRAPHICS_SETTINGS }
+                    }
+                };
+                this.saves.set(name, saveData);
+                this.saveToStorage();
+                return saveData;
+            }
+
+            deleteSave(name) {
+                this.saves.delete(name);
+                this.saveToStorage();
+            }
+
+            getAllSaves() {
+                return Array.from(this.saves.values());
+            }
+        }
+
+        const saveSystem = new SaveSystem();
+
+        // ==================== CIVILIZATION HISTORY ====================
+        class CivilizationHistory {
+            constructor() {
+                this.events = [];
+                this.maxEvents = 20;
+            }
+
+            recordEvent(civName, eventType, details) {
+                const event = {
+                    cycle: galacticCycle,
+                    civilization: civName,
+                    type: eventType,
+                    details: details,
+                    timestamp: Date.now()
+                };
+                this.events.unshift(event);
+                if (this.events.length > this.maxEvents) {
+                    this.events.pop();
+                }
+            }
+
+            getRecentEvents(count = 5) {
+                return this.events.slice(0, count);
+            }
+        }
+
+        const civHistory = new CivilizationHistory();
+
+        // ==================== PERFORMANCE MONITORING ====================
+        class PerformanceMonitor {
+            constructor() {
+                this.frameCount = 0;
+                this.fps = 0;
+                this.lastTime = Date.now();
+            }
+
+            update() {
+                this.frameCount++;
+                const now = Date.now();
+                if (now - this.lastTime >= 1000) {
+                    this.fps = this.frameCount;
+                    this.frameCount = 0;
+                    this.lastTime = now;
+                }
+            }
+
+            getReport() {
+                return { fps: this.fps, memory: navigator.deviceMemory || 'N/A' };
+            }
+        }
+
+        const perfMonitor = new PerformanceMonitor();
+
+        // ==================== CIVILIZATION CLASS ====================
+        class Civilization {
+            constructor(id, x, y, z, star) {
+                this.id = id;
+                this.x = x; this.y = y; this.z = z;
+                this.star = star;
+                this.age = 0;
+                this.population = Math.random() * 5000000 + 1000000;
+                this.techLevel = Math.random() * 3 + 1;
+                this.planets = 1;
+                this.alive = true;
+                this.neighbors = 0;
+                this.color = new THREE.Color().setHSL(Math.random(), 0.8, 0.6);
+
+                const philosophies = ['Collectivist', 'Individualist', 'Spiritual', 'Materialist', 'Militarist', 'Pacifist'];
+                const governments = ['Democracy', 'Oligarchy', 'Hive Mind', 'Corporate', 'Empire', 'Federation'];
+                const adjectives = ['Ancient', 'Zealous', 'Synthetic', 'Harmonious', 'Warlike', 'Mercantile', 'Scientific', 'Mystical'];
+                const nouns = ['Imperium', 'Collective', 'Commonwealth', 'Dominion', 'Republic', 'Consortium', 'Alliance', 'Covenant'];
+
+                this.culture = {
+                    name: `${adjectives[Math.floor(Math.random() * adjectives.length)]} ${nouns[Math.floor(Math.random() * nouns.length)]}`,
+                    philosophy: philosophies[Math.floor(Math.random() * philosophies.length)],
+                    governance: governments[Math.floor(Math.random() * governments.length)]
+                };
+
+                this.history = {
+                    founded: galacticCycle,
+                    peakPopulation: this.population,
+                    peakTechLevel: this.techLevel,
+                    events: []
+                };
+            }
+
+            update() {
+                if (!this.alive) return;
+                this.age++;
+
+                const growthRate = 1 + (this.techLevel / 100) - (this.neighbors * 0.01);
+                this.population *= growthRate;
+                this.techLevel += 0.05 * (1 + Math.random() * 0.5);
+                this.techLevel = Math.min(10, this.techLevel);
+
+                if (this.population > this.history.peakPopulation) {
+                    this.history.peakPopulation = this.population;
+                    civHistory.recordEvent(this.culture.name, 'GROWTH', `Pop: ${(this.population / 1e6).toFixed(1)}M`);
+                }
+
+                if (this.techLevel > this.history.peakTechLevel) {
+                    this.history.peakTechLevel = this.techLevel;
+                    civHistory.recordEvent(this.culture.name, 'TECH', `Tech: ${this.techLevel.toFixed(1)}/10`);
+                }
+
+                if (this.techLevel > 5 && Math.random() < 0.05) {
+                    this.planets++;
+                }
+
+                if (this.population < 100000 || this.age > 500 || Math.random() < 0.001) {
+                    this.alive = false;
+                    civHistory.recordEvent(this.culture.name, 'EXTINCT', 'Civilization fell');
+                }
+            }
+
+            updatePosition() {
+                if (this.star) {
+                    this.x = this.star.x;
+                    this.y = this.star.y;
+                    this.z = this.star.z;
+                }
+            }
+
+            getState() {
+                if (this.age < 50) return 'expanding';
+                if (this.age < 300) return 'stable';
+                return 'declining';
+            }
+        }
+
+        // ==================== PLANET CLASS ====================
+        class Planet {
+            constructor(civilization) {
+                this.civilization = civilization;
+                this.cities = [];
+                const numCities = Math.floor(Math.random() * 5) + 3;
+                for (let i = 0; i < numCities; i++) {
+                    this.cities.push({
+                        x: Math.random() * PLANET_SIZE,
+                        z: Math.random() * PLANET_SIZE,
+                        height: Math.random() * 3 + 1,
+                        size: Math.random() * 5 + 2,
+                        type: ['residential', 'industrial', 'administrative'][Math.floor(Math.random() * 3)]
+                    });
+                }
+            }
+        }
+
+        // ==================== GALAXY CLASS ====================
+        class Galaxy {
+            constructor(gridX, gridY, gridZ) {
+                this.gridX = gridX;
+                this.gridY = gridY;
+                this.gridZ = gridZ;
+                this.centerX = gridX * GALAXY_SPACING;
+                this.centerY = gridY * GALAXY_SPACING;
+                this.centerZ = gridZ * GALAXY_SPACING;
+                this.stars = [];
+                this.civilizations = [];
+                this.seed = this.hashCoords(gridX, gridY, gridZ);
+                this.loaded = false;
+
+                this.color = new THREE.Color().setHSL(this.random() * 0.2, 0.6, 0.6);
+                this.size = GALAXY_SIZE * (0.7 + this.random() * 0.6);
+                this.numStars = Math.floor(NUM_STARS_PER_GALAXY * (0.5 + this.random()));
+                this.numCivs = Math.floor(NUM_CIVILIZATIONS_PER_GALAXY * (0.3 + this.random() * 0.7));
+                this.rotationSpeed = 0.00005 + this.random() * 0.00005;
+            }
+
+            hashCoords(x, y, z) {
+                return ((x * 73856093) ^ (y * 19349663) ^ (z * 83492791)) >>> 0;
+            }
+
+            random() {
+                this.seed = (this.seed * 1664525 + 1013904223) >>> 0;
+                return (this.seed / 4294967296);
+            }
+
+            generate() {
+                if (this.loaded) return;
+                this.loaded = true;
+
+                for (let i = 0; i < this.numStars; i++) {
+                    const angle = this.random() * Math.PI * 2;
+                    const radius = this.random() * this.size;
+                    const x = this.centerX + Math.cos(angle) * radius;
+                    const y = this.centerY + Math.sin(angle) * radius;
+                    const z = this.centerZ + (this.random() - 0.5) * this.size * 0.3;
+
+                    const star = {
+                        x, y, z,
+                        radius: Math.sqrt((x - this.centerX)**2 + (y - this.centerY)**2),
+                        angle: Math.atan2(y - this.centerY, x - this.centerX),
+                        orbitalSpeed: this.rotationSpeed / Math.max(radius / this.size, 0.3),
+                        galaxy: this,
+                        hasCivilization: false,
+                        civilizationId: null
+                    };
+
+                    this.stars.push(star);
+                    backgroundStars.push(star);
+                }
+
+                const availableStars = [...this.stars];
+                for (let i = 0; i < this.numCivs; i++) {
+                    if (availableStars.length === 0) break;
+                    const starIndex = Math.floor(this.random() * availableStars.length);
+                    const star = availableStars[starIndex];
+                    availableStars.splice(starIndex, 1);
+
+                    const civId = `${this.gridX}_${this.gridY}_${this.gridZ}_${i}`;
+                    const civ = new Civilization(civId, star.x, star.y, star.z, star);
+                    civilizations.set(civId, civ);
+                    this.civilizations.push(civ);
+
+                    star.hasCivilization = true;
+                    star.civilizationId = civId;
+                }
+            }
+
+            unload() {
+                if (!this.loaded) return;
+                this.loaded = false;
+
+                this.stars.forEach(star => {
+                    const index = backgroundStars.indexOf(star);
+                    if (index > -1) backgroundStars.splice(index, 1);
+                });
+
+                this.civilizations.forEach(civ => {
+                    civilizations.delete(civ.id);
+                    orbitGroups.delete(civ.id);
+                    civilizationMeshes.delete(civ.id);
+                });
+
+                this.stars = [];
+                this.civilizations = [];
+            }
+        }
+
+        // ==================== STATE ====================
+        let mode = 'galaxy';
+        let galaxies = new Map();
+        let civilizations = new Map();
+        let backgroundStars = [];
+        let selectedCiv = null;
+        let hoveredCiv = null;
+        let galacticCycle = 0;
+        let timeSpeed = 1;
+        let lastUpdateTime = Date.now();
+        let lastMusicUpdateTime = 0;
+
+        let viewPos = { x: 0, y: 0, z: 300 };
+        let viewVelocity = { x: 0, y: 0, z: 0 };
+        let mousePos = { x: 0, y: 0 };
+        let keys = {};
+        let touchActive = false;
+        let pinchDistance = 0;
+
+        let landedPlanet = null;
+        let playerPos = { x: 0, y: 0, z: 10 };
+        let cameraAngle = { theta: 0, phi: Math.PI / 4 };
+
+        let scene, camera, renderer, animationId;
+        let civilizationMeshes = new Map();
+        let starField;
+        let hoverMarker, selectedMarker;
+        let orbitGroups = new Map();
+        let visibleSystems = new Set();
+        let blackHoles = new Map();
+
+        // ==================== THREE.JS SETUP ====================
+        function initThreeJS() {
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 10000);
+            renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setClearColor(0x000000);
+            document.getElementById('container').appendChild(renderer.domElement);
+
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+
+            setupTouchControls();
+        }
+
+        // ==================== GALAXY INITIALIZATION ====================
+        function initializeGalaxy() {
+            updateLoadedGalaxies();
+            setTimeout(() => {
+                document.getElementById('loading').style.display = 'none';
+            }, 1000);
+        }
+
+        function getGalaxyCoords(x, y, z) {
+            return {
+                gridX: Math.floor(x / GALAXY_SPACING),
+                gridY: Math.floor(y / GALAXY_SPACING),
+                gridZ: Math.floor(z / GALAXY_SPACING)
+            };
+        }
+
+        function getGalaxyKey(gridX, gridY, gridZ) {
+            return `${gridX},${gridY},${gridZ}`;
+        }
+
+        function updateLoadedGalaxies() {
+            const playerCoords = getGalaxyCoords(viewPos.x, viewPos.y, viewPos.z);
+            const loadRadius = 1;
+            const shouldBeLoaded = new Set();
+
+            for (let dx = -loadRadius; dx <= loadRadius; dx++) {
+                for (let dy = -loadRadius; dy <= loadRadius; dy++) {
+                    for (let dz = -loadRadius; dz <= loadRadius; dz++) {
+                        const gridX = playerCoords.gridX + dx;
+                        const gridY = playerCoords.gridY + dy;
+                        const gridZ = playerCoords.gridZ + dz;
+                        const key = getGalaxyKey(gridX, gridY, gridZ);
+                        shouldBeLoaded.add(key);
+
+                        if (!galaxies.has(key)) {
+                            galaxies.set(key, new Galaxy(gridX, gridY, gridZ));
+                        }
+
+                        const galaxy = galaxies.get(key);
+                        if (!galaxy.loaded) {
+                            galaxy.generate();
+                        }
+                    }
+                }
+            }
+
+            galaxies.forEach((galaxy, key) => {
+                if (!shouldBeLoaded.has(key) && galaxy.loaded) {
+                    galaxy.unload();
+                }
+            });
+        }
+
+        // ==================== GALAXY RENDERING ====================
+        function renderGalaxy() {
+            scene.clear();
+            civilizationMeshes.clear();
+            blackHoles.clear();
+
+            galaxies.forEach(galaxy => {
+                if (!galaxy.loaded) return;
+
+                const blackHoleGeometry = new THREE.SphereGeometry(20, 32, 32);
+                const blackHoleMaterial = new THREE.MeshPhongMaterial({ color: 0x000000, emissive: 0x330033, emissiveIntensity: 0.5 });
+                const blackHole = new THREE.Mesh(blackHoleGeometry, blackHoleMaterial);
+                blackHole.position.set(galaxy.centerX, galaxy.centerY, galaxy.centerZ);
+                scene.add(blackHole);
+
+                const horizonGeometry = new THREE.SphereGeometry(25, 32, 32);
+                const horizonMaterial = new THREE.MeshPhongMaterial({
+                    color: galaxy.color,
+                    transparent: true,
+                    opacity: 0.3,
+                    emissive: galaxy.color,
+                    emissiveIntensity: 0.3
+                });
+                const horizon = new THREE.Mesh(horizonGeometry, horizonMaterial);
+                horizon.position.set(galaxy.centerX, galaxy.centerY, galaxy.centerZ);
+                scene.add(horizon);
+
+                const diskGeometry = new THREE.RingGeometry(25, 50, 64);
+                const diskMaterial = new THREE.MeshPhongMaterial({
+                    color: galaxy.color,
+                    transparent: true,
+                    opacity: 0.4,
+                    side: THREE.DoubleSide,
+                    emissive: galaxy.color,
+                    emissiveIntensity: 0.2
+                });
+                const disk = new THREE.Mesh(diskGeometry, diskMaterial);
+                disk.position.set(galaxy.centerX, galaxy.centerY, galaxy.centerZ);
+                disk.rotation.x = Math.PI / 2;
+                scene.add(disk);
+
+                blackHoles.set(getGalaxyKey(galaxy.gridX, galaxy.gridY, galaxy.gridZ), {
+                    blackHole, horizon, disk
+                });
+            });
+
+            // Star rendering with LOD
+            const starGeometry = new THREE.BufferGeometry();
+            const starVertices = [];
+            const starColors = [];
+
+            backgroundStars.forEach(star => {
+                if (GRAPHICS_SETTINGS.lod && backgroundStars.length > 5000) {
+                    const distToCamera = Math.sqrt(
+                        (star.x - viewPos.x)**2 +
+                        (star.y - viewPos.y)**2 +
+                        (star.z - viewPos.z)**2
+                    );
+                    if (distToCamera > LOD_CONFIG[GRAPHICS_SETTINGS.quality].far) {
+                        return;
+                    }
+                }
+
+                starVertices.push(star.x, star.y, star.z);
+
+                if (star.hasCivilization) {
+                    const warmColor = new THREE.Color(0xffffdd);
+                    starColors.push(warmColor.r, warmColor.g, warmColor.b);
+                } else {
+                    const coolColor = new THREE.Color(0xaaaaaa);
+                    starColors.push(coolColor.r, coolColor.g, coolColor.b);
+                }
+            });
+
+            starGeometry.setAttribute('position', new THREE.Float32BufferAttribute(starVertices, 3));
+            starGeometry.setAttribute('color', new THREE.Float32BufferAttribute(starColors, 3));
+
+            const starSize = LOD_CONFIG[GRAPHICS_SETTINGS.quality].starSize;
+            const starMaterial = new THREE.PointsMaterial({
+                size: starSize,
+                vertexColors: true,
+                sizeAttenuation: true
+            });
+            starField = new THREE.Points(starGeometry, starMaterial);
+            scene.add(starField);
+
+            // Markers
+            const hoverGeometry = new THREE.RingGeometry(8, 10, 32);
+            const hoverMaterial = new THREE.MeshPhongMaterial({ color: 0xffffff, side: THREE.DoubleSide, emissive: 0xffffff, emissiveIntensity: 0.3 });
+            hoverMarker = new THREE.Mesh(hoverGeometry, hoverMaterial);
+            hoverMarker.visible = false;
+            scene.add(hoverMarker);
+
+            const selectedGeometry = new THREE.RingGeometry(10, 13, 32);
+            const selectedMaterial = new THREE.MeshPhongMaterial({ color: 0x00ff00, side: THREE.DoubleSide, emissive: 0x00ff00, emissiveIntensity: 0.5 });
+            selectedMarker = new THREE.Mesh(selectedGeometry, selectedMaterial);
+            selectedMarker.visible = false;
+            scene.add(selectedMarker);
+
+            updateCamera();
+            updateVisibleSystems();
+        }
+
+        function updateVisibleSystems() {
+            const newVisibleSystems = new Set();
+
+            civilizations.forEach(civ => {
+                if (!civ.alive) return;
+
+                const dist = Math.sqrt(
+                    (civ.x - viewPos.x)**2 +
+                    (civ.y - viewPos.y)**2 +
+                    (civ.z - viewPos.z)**2
+                );
+
+                if (dist < SYSTEM_REVEAL_DISTANCE) {
+                    newVisibleSystems.add(civ.id);
+
+                    if (!orbitGroups.has(civ.id)) {
+                        createOrbitSystem(civ);
+                    }
+                }
+            });
+
+            orbitGroups.forEach((orbitGroup, civId) => {
+                if (!newVisibleSystems.has(civId)) {
+                    scene.remove(orbitGroup);
+                    orbitGroups.delete(civId);
+                    civilizationMeshes.delete(civId);
+                }
+            });
+
+            visibleSystems = newVisibleSystems;
+        }
+
+        function createOrbitSystem(civ) {
+            const orbitGroup = new THREE.Group();
+            orbitGroup.position.set(civ.x, civ.y, civ.z);
+            scene.add(orbitGroup);
+            orbitGroups.set(civ.id, orbitGroup);
+
+            const numPlanets = Math.min(civ.planets, 3);
+            for (let p = 0; p < numPlanets; p++) {
+                const orbitRadius = 15 + (p * 10);
+                const size = Math.log(civ.population / 100000) * 3 - (p * 0.5);
+
+                const geometry = new THREE.IcosahedronGeometry(Math.max(size, 3), 4);
+                const material = new THREE.MeshPhongMaterial({
+                    color: civ.color,
+                    emissive: civ.color,
+                    emissiveIntensity: 0.4,
+                    shininess: 100
+                });
+                const planet = new THREE.Mesh(geometry, material);
+
+                const startAngle = (p * Math.PI * 2 / numPlanets) + (civ.id * 0.5);
+                planet.position.set(
+                    Math.cos(startAngle) * orbitRadius,
+                    Math.sin(startAngle) * orbitRadius,
+                    0
+                );
+
+                planet.userData.civilization = civ;
+                planet.userData.orbitRadius = orbitRadius;
+                planet.userData.orbitSpeed = 0.001 / (1 + p * 0.5);
+                planet.userData.currentAngle = startAngle;
+                planet.userData.isPrimary = (p === 0);
+
+                orbitGroup.add(planet);
+
+                if (p === 0) {
+                    civilizationMeshes.set(civ.id, planet);
+                }
+
+                // Glow
+                if (GRAPHICS_SETTINGS.glows) {
+                    const glowGeometry = new THREE.SphereGeometry(Math.max(size, 3) * 1.5, 16, 16);
+                    const glowMaterial = new THREE.MeshBasicMaterial({
+                        color: civ.color,
+                        transparent: true,
+                        opacity: 0.3
+                    });
+                    const glowMesh = new THREE.Mesh(glowGeometry, glowMaterial);
+                    glowMesh.position.copy(planet.position);
+                    planet.userData.glow = glowMesh;
+                    orbitGroup.add(glowMesh);
+
+                    // Atmosphere
+                    const atmosphereGeometry = new THREE.SphereGeometry(Math.max(size, 3) * 2, 16, 16);
+                    const atmosphereMaterial = new THREE.MeshBasicMaterial({
+                        color: civ.color,
+                        transparent: true,
+                        opacity: 0.15,
+                        side: THREE.BackSide
+                    });
+                    const atmosphereMesh = new THREE.Mesh(atmosphereGeometry, atmosphereMaterial);
+                    atmosphereMesh.position.copy(planet.position);
+                    planet.userData.atmosphere = atmosphereMesh;
+                    orbitGroup.add(atmosphereMesh);
+                }
+
+                // Orbit line
+                const orbitCurve = new THREE.EllipseCurve(0, 0, orbitRadius, orbitRadius, 0, 2 * Math.PI, false, 0);
+                const orbitPoints = orbitCurve.getPoints(50);
+                const orbitGeometry = new THREE.BufferGeometry().setFromPoints(orbitPoints);
+                const orbitMaterial = new THREE.LineBasicMaterial({
+                    color: 0x444444,
+                    transparent: true,
+                    opacity: 0.5
+                });
+                const orbitLine = new THREE.Line(orbitGeometry, orbitMaterial);
+                orbitLine.rotation.x = Math.PI / 2;
+                orbitGroup.add(orbitLine);
+            }
+        }
+
+        function updateCamera() {
+            camera.position.set(viewPos.x, viewPos.y, viewPos.z);
+            camera.lookAt(viewPos.x, viewPos.y, viewPos.z - 100);
+        }
+
+        // ==================== PLANET RENDERING ====================
+        function renderPlanet() {
+            scene.clear();
+
+            const sunLight = new THREE.DirectionalLight(0xffffff, 1);
+            sunLight.position.set(100, 100, 100);
+            scene.add(sunLight);
+
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+            scene.add(ambientLight);
+
+            // Enhanced ground
+            const groundGeometry = new THREE.PlaneGeometry(PLANET_SIZE, PLANET_SIZE, 100, 100);
+            const vertices = groundGeometry.attributes.position.array;
+            for (let i = 0; i < vertices.length; i += 3) {
+                const x = vertices[i];
+                const y = vertices[i + 1];
+                vertices[i + 2] = Math.sin(x * 0.1) * 2 + Math.cos(y * 0.1) * 2 + Math.random() * 1;
+            }
+            groundGeometry.attributes.position.needsUpdate = true;
+            groundGeometry.computeVertexNormals();
+
+            const groundMaterial = new THREE.MeshPhongMaterial({
+                color: 0x1a4a1a,
+                wireframe: false,
+                shininess: 30,
+                emissive: 0x0a2a0a
+            });
+            const ground = new THREE.Mesh(groundGeometry, groundMaterial);
+            ground.rotation.x = -Math.PI / 2;
+            scene.add(ground);
+
+            // Ocean
+            const oceanGeometry = new THREE.PlaneGeometry(PLANET_SIZE, PLANET_SIZE);
+            const oceanMaterial = new THREE.MeshStandardMaterial({
+                color: 0x004488,
+                metalness: 0.4,
+                roughness: 0.3,
+                transparent: true,
+                opacity: 0.3
+            });
+            const ocean = new THREE.Mesh(oceanGeometry, oceanMaterial);
+            ocean.rotation.x = -Math.PI / 2;
+            ocean.position.z = 0.1;
+            scene.add(ocean);
+
+            // Cities
+            landedPlanet.cities.forEach(city => {
+                const buildingColors = {
+                    'residential': 0x00aaff,
+                    'industrial': 0xff6600,
+                    'administrative': 0xffdd00
+                };
+                const color = buildingColors[city.type] || 0x00aaff;
+
+                const geometry = new THREE.BoxGeometry(city.size, city.height, city.size);
+                const material = new THREE.MeshPhongMaterial({
+                    color: color,
+                    emissive: color,
+                    emissiveIntensity: 0.3
+                });
+                const building = new THREE.Mesh(geometry, material);
+                building.position.set(city.x - PLANET_SIZE/2, city.height/2, city.z - PLANET_SIZE/2);
+                scene.add(building);
+
+                // City lights
+                const cityLight = new THREE.PointLight(color, city.size * 0.5, 100);
+                cityLight.position.set(city.x - PLANET_SIZE/2, city.height + 5, city.z - PLANET_SIZE/2);
+                scene.add(cityLight);
+            });
+
+            // Grid
+            const gridHelper = new THREE.GridHelper(PLANET_SIZE, 20, 0x444444, 0x222222);
+            scene.add(gridHelper);
+        }
+
+        // ==================== ANIMATION LOOP ====================
+        let lastGalaxyUpdatePos = { x: 0, y: 0, z: 0 };
+
+        function animate() {
+            animationId = requestAnimationFrame(animate);
+
+            const now = Date.now();
+            if (now - lastUpdateTime > CYCLE_DURATION / timeSpeed && timeSpeed > 0) {
+                galacticCycle++;
+                civilizations.forEach(civ => civ.update());
+                lastUpdateTime = now;
+                updateUI();
+            }
+
+            // Generate music periodically
+            if (now - lastMusicUpdateTime > 8000 && audioEnabled) {
+                if (mode === 'galaxy') generateGalaxyAmbience();
+                lastMusicUpdateTime = now;
+            }
+
+            updateSpectrumVisualization();
+            perfMonitor.update();
+
+            if (mode === 'galaxy') {
+                // Movement
+                viewPos.x += viewVelocity.x;
+                viewPos.y += viewVelocity.y;
+                viewPos.z += viewVelocity.z;
+
+                viewVelocity.x *= 0.95;
+                viewVelocity.y *= 0.95;
+                viewVelocity.z *= 0.95;
+
+                const moveSpeed = 2;
+                if (keys['w'] || keys['ArrowUp']) viewVelocity.z -= moveSpeed;
+                if (keys['s'] || keys['ArrowDown']) viewVelocity.z += moveSpeed;
+                if (keys['a'] || keys['ArrowLeft']) viewVelocity.x -= moveSpeed;
+                if (keys['d'] || keys['ArrowRight']) viewVelocity.x += moveSpeed;
+                if (keys['q']) viewVelocity.y += moveSpeed;
+                if (keys['e']) viewVelocity.y -= moveSpeed;
+
+                const distMoved = Math.sqrt(
+                    (viewPos.x - lastGalaxyUpdatePos.x)**2 +
+                    (viewPos.y - lastGalaxyUpdatePos.y)**2 +
+                    (viewPos.z - lastGalaxyUpdatePos.z)**2
+                );
+                if (distMoved > GALAXY_SPACING / 2) {
+                    updateLoadedGalaxies();
+                    lastGalaxyUpdatePos = { ...viewPos };
+                    renderGalaxy();
+                }
+
+                // Update stars
+                backgroundStars.forEach(star => {
+                    if (!star.galaxy) return;
+                    star.angle += star.orbitalSpeed * timeSpeed;
+                    star.x = star.galaxy.centerX + Math.cos(star.angle) * star.radius;
+                    star.y = star.galaxy.centerY + Math.sin(star.angle) * star.radius;
+                });
+
+                if (starField && starField.geometry.attributes.position) {
+                    const positions = starField.geometry.attributes.position.array;
+                    backgroundStars.forEach((star, i) => {
+                        if (i * 3 + 2 < positions.length) {
+                            positions[i * 3] = star.x;
+                            positions[i * 3 + 1] = star.y;
+                            positions[i * 3 + 2] = star.z;
+                        }
+                    });
+                    starField.geometry.attributes.position.needsUpdate = true;
+                }
+
+                civilizations.forEach(civ => civ.updatePosition());
+
+                updateCamera();
+                updateVisibleSystems();
+
+                // Update orbits
+                orbitGroups.forEach((orbitGroup, civId) => {
+                    const civ = civilizations.get(civId);
+                    if (civ) {
+                        orbitGroup.position.set(civ.x, civ.y, civ.z);
+                    }
+
+                    orbitGroup.children.forEach(child => {
+                        if (child.userData.orbitRadius) {
+                            child.userData.currentAngle += child.userData.orbitSpeed * timeSpeed;
+                            const radius = child.userData.orbitRadius;
+                            child.position.x = Math.cos(child.userData.currentAngle) * radius;
+                            child.position.y = Math.sin(child.userData.currentAngle) * radius;
+
+                            if (child.userData.glow) {
+                                child.userData.glow.position.copy(child.position);
+                            }
+                            if (child.userData.atmosphere) {
+                                child.userData.atmosphere.position.copy(child.position);
+                            }
+                        }
+                    });
+                });
+            } else if (mode === 'planet') {
+                const distance = 30;
+                camera.position.set(
+                    playerPos.x - PLANET_SIZE/2 + Math.cos(cameraAngle.theta) * distance,
+                    playerPos.z + 15,
+                    playerPos.y - PLANET_SIZE/2 + Math.sin(cameraAngle.theta) * distance
+                );
+                camera.lookAt(playerPos.x - PLANET_SIZE/2, playerPos.z, playerPos.y - PLANET_SIZE/2);
+            }
+
+            renderer.render(scene, camera);
+        }
+
+        // ==================== TOUCH CONTROLS ====================
+        let touch1 = null, touch2 = null;
+
+        function setupTouchControls() {
+            document.addEventListener('touchstart', handleTouchStart, false);
+            document.addEventListener('touchmove', handleTouchMove, false);
+            document.addEventListener('touchend', handleTouchEnd, false);
+            document.addEventListener('wheel', handleMouseWheel, { passive: false });
+
+            document.querySelectorAll('.dpad-btn').forEach(btn => {
+                btn.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    const dir = btn.dataset.dir;
+                    const speed = 3;
+                    switch(dir) {
+                        case 'up': viewVelocity.z -= speed; break;
+                        case 'down': viewVelocity.z += speed; break;
+                        case 'left': viewVelocity.x -= speed; break;
+                        case 'right': viewVelocity.x += speed; break;
+                    }
+                });
+            });
+        }
+
+        function handleTouchStart(e) {
+            if (e.touches.length === 1) {
+                touch1 = e.touches[0];
+                touchActive = true;
+            } else if (e.touches.length === 2) {
+                touch1 = e.touches[0];
+                touch2 = e.touches[1];
+                pinchDistance = getDistance(touch1, touch2);
+            }
+        }
+
+        function handleTouchMove(e) {
+            e.preventDefault();
+            if (mode !== 'galaxy' || !touch1) return;
+
+            if (e.touches.length === 1) {
+                const touch = e.touches[0];
+                const deltaX = touch.clientX - touch1.clientX;
+                const deltaY = touch.clientY - touch1.clientY;
+                viewVelocity.x -= deltaX * 0.1;
+                viewVelocity.y += deltaY * 0.1;
+                touch1 = touch;
+            } else if (e.touches.length === 2) {
+                const newDistance = getDistance(e.touches[0], e.touches[1]);
+                const zoomFactor = pinchDistance / newDistance;
+                viewPos.z *= zoomFactor;
+                viewPos.z = Math.max(100, Math.min(3000, viewPos.z));
+                pinchDistance = newDistance;
+            }
+        }
+
+        function handleTouchEnd(e) {
+            if (e.touches.length === 0) {
+                touch1 = null;
+                touch2 = null;
+                touchActive = false;
+            }
+        }
+
+        function handleMouseWheel(e) {
+            e.preventDefault();
+            const delta = e.deltaY > 0 ? 1 : -1;
+            viewPos.z += delta * 5;
+            viewPos.z = Math.max(100, Math.min(3000, viewPos.z));
+        }
+
+        function getDistance(touch1, touch2) {
+            const dx = touch1.clientX - touch2.clientX;
+            const dy = touch1.clientY - touch2.clientY;
+            return Math.sqrt(dx * dx + dy * dy);
+        }
+
+        // ==================== PLAYER MOVEMENT ====================
+        function movePlayer(dx, dy) {
+            const speed = 2;
+            playerPos.x += dx * speed;
+            playerPos.y += dy * speed;
+            playerPos.x = Math.max(0, Math.min(PLANET_SIZE, playerPos.x));
+            playerPos.y = Math.max(0, Math.min(PLANET_SIZE, playerPos.y));
+            updateUI();
+        }
+
+        // ==================== MODE SWITCHING ====================
+        function descendToPlanet(civ) {
+            const zoomIndicator = document.getElementById('zoomIndicator');
+            zoomIndicator.classList.add('active');
+            playLandingSound();
+
+            setTimeout(() => {
+                mode = 'planet';
+                landedPlanet = new Planet(civ);
+
+                const city = landedPlanet.cities[0];
+                if (city) {
+                    playerPos = { x: city.x, y: city.z, z: city.height + 2 };
+                } else {
+                    playerPos = { x: PLANET_SIZE / 2, y: PLANET_SIZE / 2, z: 15 };
+                }
+
+                if (animationId) cancelAnimationFrame(animationId);
+                const container = document.getElementById('container');
+                container.innerHTML = '';
+                initThreeJS();
+                renderPlanet();
+                animate();
+                updateUI();
+
+                zoomIndicator.classList.remove('active');
+            }, 500);
+        }
+
+        function ascendToGalaxy() {
+            const zoomIndicator = document.getElementById('zoomIndicator');
+            zoomIndicator.textContent = '⬆ ASCENDING TO GALAXY VIEW ⬆';
+            zoomIndicator.classList.add('active');
+            playAscendingSound();
+
+            setTimeout(() => {
+                mode = 'galaxy';
+                landedPlanet = null;
+
+                if (animationId) cancelAnimationFrame(animationId);
+                const container = document.getElementById('container');
+                container.innerHTML = '';
+                initThreeJS();
+                renderGalaxy();
+                animate();
+                updateUI();
+
+                zoomIndicator.classList.remove('active');
+                zoomIndicator.textContent = '⬇ DESCENDING TO PLANETARY SURFACE ⬇';
+            }, 500);
+        }
+
+        // ==================== SAVE/LOAD FUNCTIONS ====================
+        function toggleSaveLoadPanel() {
+            const panel = document.getElementById('save-load-panel');
+            panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+            if (panel.style.display === 'block') {
+                updateSaveSlotsList();
+            }
+        }
+
+        function saveGame() {
+            const name = document.getElementById('saveName').value || `Save_${Date.now()}`;
+            saveSystem.createSave(name);
+            document.getElementById('saveName').value = '';
+            updateSaveSlotsList();
+            alert(`Game saved as "${name}"`);
+        }
+
+        function updateSaveSlotsList() {
+            const saves = saveSystem.getAllSaves();
+            const listDiv = document.getElementById('saveSlotsList');
+
+            if (saves.length === 0) {
+                listDiv.innerHTML = '<div style="color: #888;">No saves yet</div>';
+                return;
+            }
+
+            let html = '';
+            saves.forEach(save => {
+                const date = new Date(save.timestamp).toLocaleString();
+                html += `
+                    <div class="save-slot" onclick="loadGameSave('${save.name}')">
+                        <div style="font-weight: bold; color: #00ff00;">${save.name}</div>
+                        <div style="font-size: 10px; color: #888;">Cycle: ${save.gameState.galacticCycle} | ${date}</div>
+                    </div>
+                `;
+            });
+            listDiv.innerHTML = html;
+        }
+
+        function loadGameSave(name) {
+            const save = saveSystem.loadSave(name);
+            if (!save) return;
+
+            const gameState = save.gameState;
+            viewPos = { ...gameState.viewPos };
+            galacticCycle = gameState.galacticCycle;
+            timeSpeed = gameState.timeSpeed;
+            mode = gameState.mode;
+
+            Object.assign(GRAPHICS_SETTINGS, gameState.graphicsSettings);
+
+            alert(`Game loaded: "${name}" at Cycle ${galacticCycle}`);
+            toggleSaveLoadPanel();
+            updateUI();
+        }
+
+        // ==================== GRAPHICS FUNCTIONS ====================
+        function toggleGraphicsPanel() {
+            const panel = document.getElementById('graphics-settings');
+            panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function setGraphicsQuality(quality) {
+            GRAPHICS_SETTINGS.quality = quality;
+            document.querySelectorAll('[data-quality]').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.quality === quality);
+            });
+            renderGalaxy();
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('lodCheckbox').addEventListener('change', (e) => {
+                GRAPHICS_SETTINGS.lod = e.target.checked;
+                renderGalaxy();
+            });
+            document.getElementById('particleCheckbox').addEventListener('change', (e) => {
+                GRAPHICS_SETTINGS.particles = e.target.checked;
+            });
+            document.getElementById('glowCheckbox').addEventListener('change', (e) => {
+                GRAPHICS_SETTINGS.glows = e.target.checked;
+                renderGalaxy();
+            });
+            document.querySelectorAll('[data-quality]').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    setGraphicsQuality(btn.dataset.quality);
+                });
+            });
+        });
+
+        // ==================== SCREENSHOT FUNCTION ====================
+        function takeScreenshot() {
+            const canvas = renderer.domElement;
+            const image = canvas.toDataURL('image/png');
+            const link = document.createElement('a');
+            link.href = image;
+            link.download = `leviathan-screenshot-${Date.now()}.png`;
+            link.click();
+        }
+
+        // ==================== AUDIO CONTROLS ====================
+        function initAudioControls() {
+            const masterToggle = document.getElementById('masterToggle');
+            const musicToggle = document.getElementById('musicToggle');
+            const sfxToggle = document.getElementById('sfxToggle');
+            const masterVolume = document.getElementById('masterVolume');
+            const musicVolume = document.getElementById('musicVolume');
+            const sfxVolume = document.getElementById('sfxVolume');
+
+            masterToggle.addEventListener('click', () => {
+                audioEnabled = !audioEnabled;
+                masterToggle.classList.toggle('active');
+                if (!audioEnabled) {
+                    audioState.musicOscillators.forEach(osc => {
+                        try { osc.stop(); } catch(e) {}
+                    });
+                    audioState.musicOscillators = [];
+                }
+            });
+
+            musicToggle.addEventListener('click', () => {
+                musicToggle.classList.toggle('active');
+                if (musicGain) musicGain.gain.value = musicToggle.classList.contains('active') ? audioState.musicVolume : 0;
+            });
+
+            sfxToggle.addEventListener('click', () => {
+                sfxToggle.classList.toggle('active');
+                if (sfxGain) sfxGain.gain.value = sfxToggle.classList.contains('active') ? audioState.sfxVolume : 0;
+            });
+
+            masterVolume.addEventListener('input', (e) => {
+                audioState.masterVolume = e.target.value / 100;
+                if (masterGain) masterGain.gain.value = audioState.masterVolume;
+            });
+
+            musicVolume.addEventListener('input', (e) => {
+                audioState.musicVolume = e.target.value / 100;
+                if (musicGain && musicToggle.classList.contains('active')) {
+                    musicGain.gain.value = audioState.musicVolume;
+                }
+            });
+
+            sfxVolume.addEventListener('input', (e) => {
+                audioState.sfxVolume = e.target.value / 100;
+                if (sfxGain && sfxToggle.classList.contains('active')) {
+                    sfxGain.gain.value = audioState.sfxVolume;
+                }
+            });
+        }
+
+        // ==================== UI UPDATE ====================
+        function updateUI() {
+            const aliveCivs = Array.from(civilizations.values()).filter(c => c.alive).length;
+            const totalCivs = civilizations.size;
+            const extinctCivs = totalCivs - aliveCivs;
+
+            document.getElementById('civCount').textContent = aliveCivs;
+            document.getElementById('planetCount').textContent = Array.from(civilizations.values()).reduce((sum, c) => sum + (c.alive ? c.planets : 0), 0);
+            document.getElementById('timeDisplay').textContent = `Cycle ${galacticCycle}`;
+
+            document.getElementById('modeIcon').textContent = mode === 'galaxy' ? '🌌' : '🌍';
+            document.getElementById('modeDisplay').textContent = mode === 'galaxy' ? 'Galaxy View' : 'Planet Surface';
+
+            // Stats
+            document.getElementById('statTotalCivs').textContent = totalCivs;
+            document.getElementById('statAliveCivs').textContent = aliveCivs;
+            document.getElementById('statExtinctCivs').textContent = extinctCivs;
+
+            const avgTech = aliveCivs > 0
+                ? (Array.from(civilizations.values()).filter(c => c.alive).reduce((sum, c) => sum + c.techLevel, 0) / aliveCivs).toFixed(1)
+                : '0.0';
+            document.getElementById('statAvgTech').textContent = avgTech;
+
+            // History
+            const recentEvents = civHistory.getRecentEvents(5);
+            let historyHTML = '';
+            if (recentEvents.length === 0) {
+                historyHTML = '<div style="color: #888;">No events recorded</div>';
+            } else {
+                recentEvents.forEach(event => {
+                    historyHTML += `
+                        <div class="history-entry">
+                            <div style="font-weight: bold; color: #ffaa00;">Cycle ${event.cycle}</div>
+                            <div>${event.civilization}</div>
+                            <div style="font-size: 9px; color: #aaa;">${event.details}</div>
+                        </div>
+                    `;
+                });
+            }
+            document.getElementById('historyContent').innerHTML = historyHTML;
+
+            // Overview tab
+            let overviewHTML = '';
+            if (mode === 'galaxy') {
+                const coords = getGalaxyCoords(viewPos.x, viewPos.y, viewPos.z);
+                const loadedGalaxies = Array.from(galaxies.values()).filter(g => g.loaded).length;
+
+                overviewHTML += `<div>Position: (${Math.floor(viewPos.x)}, ${Math.floor(viewPos.y)}, ${Math.floor(viewPos.z)})</div>`;
+                overviewHTML += `<div>Galaxy: (${coords.gridX}, ${coords.gridY}, ${coords.gridZ})</div>`;
+                overviewHTML += `<div>Loaded Galaxies: ${loadedGalaxies}</div>`;
+                overviewHTML += `<div>Visible Systems: ${visibleSystems.size}</div>`;
+                overviewHTML += `<div>Time Speed: ${timeSpeed === 0 ? 'PAUSED' : timeSpeed + 'x'}</div>`;
+
+                if (selectedCiv) {
+                    const state = selectedCiv.getState();
+                    overviewHTML += `
+                        <div class="info-divider">
+                            <div class="civ-info civ-${state}">
+                                <div class="civ-name">${selectedCiv.culture.name}</div>
+                                <div>Age: ${selectedCiv.age} cycles</div>
+                                <div>Population: ${(selectedCiv.population / 1000000).toFixed(1)}M</div>
+                                <div>Tech Level: ${selectedCiv.techLevel.toFixed(1)}/10</div>
+                                <div>Planets: ${selectedCiv.planets}</div>
+                                <div>State: ${state.toUpperCase()}</div>
+                                <div style="margin-top: 5px; font-size: 10px; color: #888;">
+                                    ${selectedCiv.culture.philosophy} • ${selectedCiv.culture.governance}
+                                </div>
+                                <button class="mode-btn" onclick="descendToPlanet(selectedCiv)" style="width: 100%; margin-top: 5px;">
+                                    🌍 LAND ON HOMEWORLD
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                const nearby = Array.from(civilizations.values())
+                    .filter(c => c.alive)
+                    .sort((a, b) => {
+                        const distA = Math.sqrt((a.x - viewPos.x)**2 + (a.y - viewPos.y)**2 + (a.z - viewPos.z)**2);
+                        const distB = Math.sqrt((b.x - viewPos.x)**2 + (b.y - viewPos.y)**2 + (b.z - viewPos.z)**2);
+                        return distA - distB;
+                    })
+                    .slice(0, 5);
+
+                if (nearby.length > 0) {
+                    overviewHTML += `<div class="info-divider"><div style="font-weight: bold;">Nearby Civilizations:</div>`;
+                    nearby.forEach(civ => {
+                        const dist = Math.sqrt((civ.x - viewPos.x)**2 + (civ.y - viewPos.y)**2 + (civ.z - viewPos.z)**2);
+                        overviewHTML += `<div style="font-size: 11px; margin: 3px 0;">
+                            ${civ.culture.name} - ${Math.floor(dist)} units
+                        </div>`;
+                    });
+                    overviewHTML += '</div>';
+                }
+            } else {
+                overviewHTML += `<div>Planet: ${landedPlanet.civilization.culture.name} Homeworld</div>`;
+                overviewHTML += `<div>Position: (${Math.floor(playerPos.x)}, ${Math.floor(playerPos.y)}, ${Math.floor(playerPos.z)})</div>`;
+                overviewHTML += `<div>Cities: ${landedPlanet.cities.length}</div>`;
+                overviewHTML += `<div>Planet Size: ${PLANET_SIZE}×${PLANET_SIZE}</div>`;
+
+                overviewHTML += `
+                    <div class="info-divider">
+                        <button class="mode-btn" onclick="ascendToGalaxy()" style="width: 100%; margin-top: 5px;">
+                            🚀 RETURN TO GALAXY
+                        </button>
+                    </div>
+                `;
+            }
+
+            document.getElementById('overviewContent').innerHTML = overviewHTML;
+
+            // Civilizations tab
+            const searchTerm = document.getElementById('civSearch').value.toLowerCase();
+            let civList = Array.from(civilizations.values()).filter(c => c.alive);
+            const currentFilter = document.querySelector('[data-filter].active');
+            const filterValue = currentFilter ? currentFilter.dataset.filter : 'all';
+
+            if (filterValue !== 'all') {
+                civList = civList.filter(c => c.getState() === filterValue);
+            }
+
+            if (searchTerm) {
+                civList = civList.filter(c => c.culture.name.toLowerCase().includes(searchTerm));
+            }
+
+            civList.sort((a, b) => b.techLevel - a.techLevel);
+            civList = civList.slice(0, 15);
+
+            let civHTML = '';
+            civList.forEach(civ => {
+                const state = civ.getState();
+                civHTML += `
+                    <div class="civ-info civ-${state}" onclick="selectCiv('${civ.id}')" style="cursor: pointer;">
+                        <div class="civ-name">${civ.culture.name}</div>
+                        <div>Tech: ${civ.techLevel.toFixed(1)}/10 | Pop: ${(civ.population / 1000000).toFixed(1)}M</div>
+                        <div style="font-size: 10px; color: #888;">${civ.culture.governance} • ${civ.culture.philosophy}</div>
+                    </div>
+                `;
+            });
+
+            document.getElementById('civilizationsContent').innerHTML = civHTML || '<div style="color: #666;">No civilizations found.</div>';
+
+            // Update performance indicator
+            const report = perfMonitor.getReport();
+            document.getElementById('perfIndicator').textContent = `FPS: ${report.fps} | Audio: ${audioEnabled ? 'ON' : 'OFF'} | LOD: ${GRAPHICS_SETTINGS.lod ? 'ON' : 'OFF'}`;
+        }
+
+        function selectCiv(civId) {
+            selectedCiv = civilizations.get(civId);
+            if (selectedCiv) {
+                playCivilizationSelectSound(selectedCiv.color);
+                updateUI();
+                document.querySelector('[data-tab="overview"]').click();
+            }
+        }
+
+        // ==================== HOVER & SELECTION ====================
+        function findNearestCivilization(mousePos) {
+            if (!camera) return null;
+
+            const raycaster = new THREE.Raycaster();
+            raycaster.setFromCamera(mousePos, camera);
+
+            const allPlanets = [];
+            orbitGroups.forEach((orbitGroup) => {
+                orbitGroup.updateMatrixWorld(true);
+                orbitGroup.children.forEach(child => {
+                    if (child.userData.civilization && child.userData.isPrimary) {
+                        allPlanets.push(child);
+                    }
+                });
+            });
+
+            const intersects = raycaster.intersectObjects(allPlanets, false);
+
+            if (intersects.length > 0 && intersects[0].object.userData.civilization) {
+                return intersects[0].object.userData.civilization;
+            }
+            return null;
+        }
+
+        function updateHoverMarker() {
+            if (hoveredCiv && hoverMarker) {
+                hoverMarker.position.set(hoveredCiv.x, hoveredCiv.y, 0);
+                hoverMarker.visible = true;
+            } else if (hoverMarker) {
+                hoverMarker.visible = false;
+            }
+        }
+
+        function updateSelectedMarker() {
+            if (selectedCiv && selectedMarker) {
+                selectedMarker.position.set(selectedCiv.x, selectedCiv.y, 0);
+                selectedMarker.visible = true;
+            } else if (selectedMarker) {
+                selectedMarker.visible = false;
+            }
+        }
+
+        // ==================== INPUT HANDLING ====================
+        function handleKeyDown(e) {
+            keys[e.key] = true;
+
+            if (mode === 'galaxy') {
+                if (e.key === 'Enter' && selectedCiv) {
+                    descendToPlanet(selectedCiv);
+                }
+            } else if (mode === 'planet') {
+                switch(e.key) {
+                    case 'ArrowUp':
+                    case 'w':
+                        movePlayer(0, -1);
+                        break;
+                    case 'ArrowDown':
+                    case 's':
+                        movePlayer(0, 1);
+                        break;
+                    case 'ArrowLeft':
+                    case 'a':
+                        movePlayer(-1, 0);
+                        break;
+                    case 'ArrowRight':
+                    case 'd':
+                        movePlayer(1, 0);
+                        break;
+                    case 'Escape':
+                        ascendToGalaxy();
+                        break;
+                }
+            }
+        }
+
+        function handleKeyUp(e) {
+            keys[e.key] = false;
+        }
+
+        function handleMouseMove(e) {
+            if (mode !== 'galaxy') return;
+
+            mousePos.x = (e.clientX / window.innerWidth) * 2 - 1;
+            mousePos.y = -(e.clientY / window.innerHeight) * 2 + 1;
+
+            const nearest = findNearestCivilization(mousePos);
+
+            if (nearest !== hoveredCiv) {
+                hoveredCiv = nearest;
+                updateHoverMarker();
+
+                const tooltip = document.getElementById('hover-tooltip');
+                if (hoveredCiv) {
+                    tooltip.style.display = 'block';
+                    tooltip.style.left = e.clientX + 15 + 'px';
+                    tooltip.style.top = e.clientY + 15 + 'px';
+                    tooltip.innerHTML = `
+                        <div style="font-weight: bold; color: ${hoveredCiv.color.getStyle()};">${hoveredCiv.culture.name}</div>
+                        <div>Pop: ${(hoveredCiv.population / 1000000).toFixed(1)}M</div>
+                        <div>Tech: ${hoveredCiv.techLevel.toFixed(1)}/10</div>
+                        <div style="font-size: 10px; color: #888; margin-top: 3px;">Click to select</div>
+                    `;
+                } else {
+                    tooltip.style.display = 'none';
+                }
+            }
+        }
+
+        function handleClick(e) {
+            if (mode !== 'galaxy') return;
+
+            if (hoveredCiv) {
+                selectedCiv = hoveredCiv;
+                playCivilizationSelectSound(hoveredCiv.color);
+                updateSelectedMarker();
+                updateUI();
+            }
+        }
+
+        // ==================== INITIALIZATION ====================
+        function init() {
+            // Initialize audio on first user gesture (required by browsers)
+            const audioInitHandler = () => {
+                if (!audioContext) {
+                    initAudio();
+                    console.log('AudioContext initialized');
+                }
+                document.removeEventListener('click', audioInitHandler);
+                document.removeEventListener('keypress', audioInitHandler);
+                document.removeEventListener('touchstart', audioInitHandler);
+            };
+            document.addEventListener('click', audioInitHandler);
+            document.addEventListener('keypress', audioInitHandler);
+            document.addEventListener('touchstart', audioInitHandler);
+
+            initAudioControls();
+
+            initializeGalaxy();
+            initThreeJS();
+            renderGalaxy();
+            animate();
+            updateUI();
+
+            // Start music after audio initialization
+            const startMusicHandler = () => {
+                if (audioContext && audioContext.state === 'running') {
+                    generateGalaxyAmbience();
+                    lastMusicUpdateTime = Date.now();
+                    document.removeEventListener('click', startMusicHandler);
+                    document.removeEventListener('keypress', startMusicHandler);
+                }
+            };
+            document.addEventListener('click', startMusicHandler);
+            document.addEventListener('keypress', startMusicHandler);
+
+            window.addEventListener('keydown', handleKeyDown);
+            window.addEventListener('keyup', handleKeyUp);
+            window.addEventListener('mousemove', handleMouseMove);
+            window.addEventListener('click', handleClick);
+
+            // Tab switching
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+                    btn.classList.add('active');
+                    document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+                });
+            });
+
+            // Civilization filter buttons
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    updateUI();
+                });
+            });
+
+            // Search box
+            document.getElementById('civSearch').addEventListener('input', () => {
+                updateUI();
+            });
+
+            // Speed buttons
+            document.querySelectorAll('.speed-btn').forEach(btn => {
+                if (btn.dataset.speed !== undefined) {
+                    btn.addEventListener('click', () => {
+                        timeSpeed = parseInt(btn.dataset.speed);
+                        document.querySelectorAll('[data-speed]').forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                        updateUI();
+                    });
+                }
+            });
+
+            // Global functions
+            window.descendToPlanet = descendToPlanet;
+            window.ascendToGalaxy = ascendToGalaxy;
+            window.toggleSaveLoadPanel = toggleSaveLoadPanel;
+            window.toggleGraphicsPanel = toggleGraphicsPanel;
+            window.saveGame = saveGame;
+            window.loadGameSave = loadGameSave;
+            window.takeScreenshot = takeScreenshot;
+            window.selectCiv = selectCiv;
+        }
+
+        window.addEventListener('load', init);
+    </script>
+</body>
+</html>

@@ -1,3 +1,14 @@
+<!--
+  ╔══════════════════════════════════════════════════════════════════════════╗
+  ║                        THE MATRIX APPS GALLERY                           ║
+  ╚══════════════════════════════════════════════════════════════════════════╝
+
+  Application: Apps Gallery Browser
+  Purpose: Interactive application discovery and browsing interface
+  Framework: The Matrix v1.0
+  Last Updated: 2025-11-20
+-->
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -308,6 +319,16 @@
     </div>
 
     <script>
+        // Global error handler
+        window.onerror = function(msg, url, lineNo, columnNo, error) {
+            console.error('Error: ' + msg + '\nURL: ' + url + '\nLine: ' + lineNo);
+            const statsEl = document.getElementById('stats');
+            if (statsEl) {
+                statsEl.innerHTML = '<span style="color: #ff4444;">⚠️ An error occurred. Check console for details.</span>';
+            }
+            return false;
+        };
+
         // Apps data - will be loaded from manifest or embedded
         let allApps = [];
         let currentCategory = 'all';
@@ -327,42 +348,77 @@
             'index-variants': '📄'
         };
 
-        // Load apps data
+        /**
+         * Load apps data from configuration file
+         * @async
+         * @returns {Promise<void>} Resolves when apps are loaded and rendered
+         * @throws {Error} Logs error but continues with empty app list
+         * @example
+         * await loadApps()
+         */
         async function loadApps() {
             try {
                 // Try to load from manifest file
                 const response = await fetch('./data/config/utility_apps_config.json');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
                 const data = await response.json();
+                if (!data || !Array.isArray(data.apps)) {
+                    throw new Error('Invalid manifest format');
+                }
                 allApps = data.apps;
             } catch (error) {
                 console.error('Error loading apps manifest:', error);
-                // Fallback to local list if manifest fails
+                // Fallback to empty list with user notification
                 allApps = [];
+                const statsEl = document.getElementById('stats');
+                if (statsEl) {
+                    statsEl.innerHTML = '<span style="color: #ff8844;">⚠️ Could not load apps manifest. Please check configuration.</span>';
+                }
             }
 
             renderApps();
             updateStats();
         }
 
-        // Filter apps by category
+        /**
+         * Filter apps by category
+         * @param {string} category - Category to filter by (e.g., 'all', 'games', 'ai-tools')
+         * @example
+         * filterByCategory('games')
+         */
         function filterByCategory(category) {
-            currentCategory = category;
+            try {
+                currentCategory = category;
 
-            // Update active button
-            document.querySelectorAll('.filter-btn').forEach(btn => {
-                btn.classList.remove('active');
-                if (btn.dataset.category === category) {
-                    btn.classList.add('active');
-                }
-            });
+                // Update active button
+                document.querySelectorAll('.filter-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                    if (btn.dataset.category === category) {
+                        btn.classList.add('active');
+                    }
+                });
 
-            renderApps();
+                renderApps();
+            } catch (error) {
+                console.error('Error filtering by category:', error);
+            }
         }
 
-        // Search apps
+        /**
+         * Search apps by term
+         * @param {string} term - Search term to match against app titles, descriptions, and tags
+         * @example
+         * searchApps('pokemon')
+         */
         function searchApps(term) {
-            searchTerm = term.toLowerCase();
-            renderApps();
+            try {
+                searchTerm = term.toLowerCase();
+                renderApps();
+            } catch (error) {
+                console.error('Error searching apps:', error);
+            }
         }
 
         // Render apps grid
@@ -460,9 +516,22 @@
             return match ? match[1] : 'other';
         }
 
-        // Open app
+        /**
+         * Open app by navigating to its path
+         * @param {string} path - Relative or absolute path to the app HTML file
+         * @example
+         * openApp('./apps/games/pokemon.html')
+         */
         function openApp(path) {
-            window.location.href = path;
+            try {
+                if (!path) {
+                    throw new Error('Invalid app path');
+                }
+                window.location.href = path;
+            } catch (error) {
+                console.error('Error opening app:', error);
+                alert('Could not open app: ' + path);
+            }
         }
 
         // Update stats

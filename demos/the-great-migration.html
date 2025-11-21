@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Great Migration - The Matrix Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .tagline {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .orchestrator {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .orchestrator h2 {
+            font-size: 1.5em;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #4ade80;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .agents-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .agent-card {
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(10px);
+            padding: 15px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .agent-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .agent-card.active {
+            border-color: #4ade80;
+            box-shadow: 0 0 20px rgba(74, 222, 128, 0.4);
+        }
+
+        .agent-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .agent-name {
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+
+        .agent-status {
+            font-size: 0.85em;
+            padding: 4px 8px;
+            border-radius: 12px;
+            background: rgba(74, 222, 128, 0.3);
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4ade80, #22c55e);
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        .agent-stats {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .metrics-dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .metric-card {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            text-align: center;
+        }
+
+        .metric-value {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin: 10px 0;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .metric-label {
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            margin-bottom: 20px;
+        }
+
+        button {
+            padding: 12px 30px;
+            font-size: 1em;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: rgba(255, 255, 255, 0.9);
+            color: #667eea;
+        }
+
+        button:hover {
+            background: #fff;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .speed-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .speed-button {
+            padding: 8px 16px;
+            font-size: 0.9em;
+        }
+
+        .speed-button.active {
+            background: #4ade80;
+            color: white;
+        }
+
+        .output-panel {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .output-item {
+            padding: 10px;
+            margin: 5px 0;
+            background: rgba(74, 222, 128, 0.2);
+            border-radius: 8px;
+            border-left: 3px solid #4ade80;
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .highlight {
+            color: #fbbf24;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🚀 The Great Migration</h1>
+            <p class="tagline">2,500 Legacy PHP Files → Modern React Stack in Minutes</p>
+        </header>
+
+        <div class="orchestrator">
+            <h2>
+                <span class="status-indicator"></span>
+                Orchestrator: Analyzing & Coordinating
+            </h2>
+            <p>Discovery complete: 2,500 PHP files analyzed. Spawning 10 parallel migration agents...</p>
+        </div>
+
+        <div class="agents-grid" id="agentsGrid"></div>
+
+        <div class="metrics-dashboard">
+            <div class="metric-card">
+                <div class="metric-label">Files Migrated</div>
+                <div class="metric-value" id="filesMigrated">0</div>
+                <div class="metric-label">/ 2,500</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">Active Agents</div>
+                <div class="metric-value" id="activeAgents">10</div>
+                <div class="metric-label">Parallel Workers</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">Time Saved</div>
+                <div class="metric-value" id="timeSaved">0</div>
+                <div class="metric-label">Hours</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">Cost Saved</div>
+                <div class="metric-value" id="costSaved">$0</div>
+                <div class="metric-label">USD</div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button id="startBtn" onclick="startMigration()">Start Migration</button>
+            <button id="pauseBtn" onclick="pauseMigration()" style="display: none;">Pause</button>
+            <button id="resetBtn" onclick="resetMigration()">Reset</button>
+            <div class="speed-control">
+                <span>Speed:</span>
+                <button class="speed-button active" onclick="setSpeed(1)">1x</button>
+                <button class="speed-button" onclick="setSpeed(2)">2x</button>
+                <button class="speed-button" onclick="setSpeed(5)">5x</button>
+                <button class="speed-button" onclick="setSpeed(10)">10x</button>
+            </div>
+        </div>
+
+        <div class="output-panel" id="outputPanel">
+            <h3>Generated React Components</h3>
+            <div id="outputList"></div>
+        </div>
+    </div>
+
+    <script>
+        const agents = [
+            { name: 'Agent 1: Auth', package: 'Authentication', files: 250 },
+            { name: 'Agent 2: Users', package: 'User Management', files: 250 },
+            { name: 'Agent 3: Products', package: 'Product Catalog', files: 250 },
+            { name: 'Agent 4: Orders', package: 'Order Processing', files: 250 },
+            { name: 'Agent 5: Payments', package: 'Payment Gateway', files: 250 },
+            { name: 'Agent 6: Cart', package: 'Shopping Cart', files: 250 },
+            { name: 'Agent 7: Search', package: 'Search & Filters', files: 250 },
+            { name: 'Agent 8: Admin', package: 'Admin Panel', files: 250 },
+            { name: 'Agent 9: Reports', package: 'Analytics', files: 250 },
+            { name: 'Agent 10: API', package: 'API Layer', files: 250 }
+        ];
+
+        let isRunning = false;
+        let speed = 1;
+        let totalFiles = 0;
+        let intervals = [];
+
+        function initAgents() {
+            const grid = document.getElementById('agentsGrid');
+            agents.forEach((agent, index) => {
+                const card = document.createElement('div');
+                card.className = 'agent-card';
+                card.id = `agent-${index}`;
+                card.innerHTML = `
+                    <div class="agent-header">
+                        <span class="agent-name">${agent.name}</span>
+                        <span class="agent-status">Ready</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progress-${index}" style="width: 0%"></div>
+                    </div>
+                    <div class="agent-stats">
+                        <div>Package: ${agent.package}</div>
+                        <div>Files: <span id="files-${index}">0</span> / ${agent.files}</div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function startMigration() {
+            if (isRunning) return;
+            isRunning = true;
+            document.getElementById('startBtn').style.display = 'none';
+            document.getElementById('pauseBtn').style.display = 'inline-block';
+
+            agents.forEach((agent, index) => {
+                const card = document.getElementById(`agent-${index}`);
+                card.classList.add('active');
+
+                let processed = 0;
+                const interval = setInterval(() => {
+                    if (!isRunning) return;
+
+                    processed += Math.ceil(Math.random() * 5 * speed);
+                    if (processed > agent.files) processed = agent.files;
+
+                    const progress = (processed / agent.files) * 100;
+                    document.getElementById(`progress-${index}`).style.width = `${progress}%`;
+                    document.getElementById(`files-${index}`).textContent = processed;
+
+                    totalFiles = agents.reduce((sum, _, i) =>
+                        sum + parseInt(document.getElementById(`files-${i}`).textContent), 0
+                    );
+
+                    updateMetrics();
+
+                    if (Math.random() < 0.3 * speed) {
+                        addOutput(agent.package, processed);
+                    }
+
+                    if (processed >= agent.files) {
+                        clearInterval(interval);
+                        card.classList.remove('active');
+                        card.querySelector('.agent-status').textContent = 'Complete';
+                        card.querySelector('.agent-status').style.background = 'rgba(34, 197, 94, 0.5)';
+                    }
+                }, 200 / speed);
+
+                intervals.push(interval);
+            });
+        }
+
+        function pauseMigration() {
+            isRunning = false;
+            document.getElementById('startBtn').style.display = 'inline-block';
+            document.getElementById('pauseBtn').style.display = 'none';
+            intervals.forEach(clearInterval);
+            intervals = [];
+        }
+
+        function resetMigration() {
+            pauseMigration();
+            totalFiles = 0;
+            agents.forEach((agent, index) => {
+                const card = document.getElementById(`agent-${index}`);
+                card.classList.remove('active');
+                document.getElementById(`progress-${index}`).style.width = '0%';
+                document.getElementById(`files-${index}`).textContent = '0';
+                card.querySelector('.agent-status').textContent = 'Ready';
+                card.querySelector('.agent-status').style.background = 'rgba(74, 222, 128, 0.3)';
+            });
+            document.getElementById('outputList').innerHTML = '';
+            updateMetrics();
+        }
+
+        function setSpeed(newSpeed) {
+            speed = newSpeed;
+            document.querySelectorAll('.speed-button').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+
+        function updateMetrics() {
+            document.getElementById('filesMigrated').textContent = totalFiles.toLocaleString();
+            const hours = Math.floor(totalFiles * 2); // 2 hours per file manual
+            document.getElementById('timeSaved').textContent = hours.toLocaleString();
+            const cost = hours * 150; // $150/hour developer rate
+            document.getElementById('costSaved').textContent = `$${cost.toLocaleString()}`;
+
+            const activeCount = agents.filter((_, i) =>
+                document.getElementById(`agent-${i}`).classList.contains('active')
+            ).length;
+            document.getElementById('activeAgents').textContent = activeCount;
+        }
+
+        function addOutput(packageName, fileCount) {
+            const outputList = document.getElementById('outputList');
+            const components = [
+                'LoginForm.jsx', 'UserProfile.jsx', 'ProductCard.jsx', 'CheckoutFlow.jsx',
+                'PaymentProcessor.jsx', 'CartWidget.jsx', 'SearchBar.jsx', 'AdminDashboard.jsx',
+                'ReportChart.jsx', 'ApiClient.js'
+            ];
+            const component = components[Math.floor(Math.random() * components.length)];
+
+            const item = document.createElement('div');
+            item.className = 'output-item';
+            item.innerHTML = `<strong>${packageName}</strong>: Generated <span class="highlight">${component}</span> with tests and docs`;
+            outputList.insertBefore(item, outputList.firstChild);
+
+            if (outputList.children.length > 10) {
+                outputList.removeChild(outputList.lastChild);
+            }
+        }
+
+        initAgents();
+    </script>
+</body>
+</html>

@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LEVIATHAN::KERNEL // OMEGA</title>
+    <style>
+        :root {
+            --primary: #00ffcc;
+            --secondary: #ff00ff;
+            --alert: #ff3333;
+            --bg: #020408;
+            --panel: rgba(2, 6, 12, 0.85);
+            --border: 1px solid rgba(0, 255, 204, 0.2);
+            --font-main: 'Courier New', Courier, monospace;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; }
+
+        body {
+            font-family: var(--font-main);
+            background: var(--bg);
+            color: #fff;
+            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        #canvas-container {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 1;
+            background: radial-gradient(circle at center, #050a10 0%, #000000 100%);
+        }
+
+        /* --- UI OVERLAY --- */
+        .hud-layer {
+            position: absolute; z-index: 10; pointer-events: none;
+            width: 100%; height: 100%;
+            padding: 20px;
+            display: grid;
+            grid-template-rows: auto 1fr auto;
+        }
+
+        .panel {
+            pointer-events: auto;
+            background: var(--panel);
+            border: var(--border);
+            backdrop-filter: blur(4px);
+            padding: 12px;
+            box-shadow: 0 0 20px rgba(0, 255, 204, 0.02);
+            position: relative;
+        }
+
+        .panel::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%;
+            background: var(--primary); opacity: 0.5;
+        }
+
+        /* HEADER */
+        #header {
+            display: flex; justify-content: space-between; align-items: flex-end;
+            margin-bottom: 20px;
+        }
+        h1 { font-size: 24px; letter-spacing: 4px; color: var(--primary); text-shadow: 0 0 10px rgba(0,255,204,0.4); }
+        .meta { font-size: 10px; color: #888; text-align: right; }
+        .blink { animation: blink 2s infinite; }
+
+        /* SIDEBAR */
+        #controls {
+            position: absolute; top: 100px; left: 20px; width: 200px;
+            display: flex; flex-direction: column; gap: 8px;
+        }
+
+        .mode-btn {
+            background: transparent; border: 1px solid #333; color: #666;
+            padding: 10px; cursor: pointer; text-align: left;
+            font-family: inherit; transition: 0.2s; text-transform: uppercase;
+            font-size: 11px; position: relative; overflow: hidden;
+        }
+        .mode-btn:hover { border-color: var(--primary); color: #fff; }
+        .mode-btn.active { 
+            background: rgba(0, 255, 204, 0.1); 
+            border-color: var(--primary); 
+            color: var(--primary); 
+            padding-left: 15px;
+        }
+        .mode-btn.active::after { content: ' [RUNNING]'; font-size: 8px; opacity: 0.6; float: right; margin-top: 2px;}
+
+        /* LOGS */
+        #terminal {
+            position: absolute; bottom: 20px; right: 20px; width: 350px; height: 200px;
+            overflow: hidden; display: flex; flex-direction: column-reverse;
+            font-size: 10px; color: #aaa;
+        }
+        .log-entry { margin-top: 4px; padding-left: 8px; border-left: 1px solid #333; }
+        .log-hash { color: var(--secondary); margin-right: 5px; }
+        .log-cmd { color: #fff; }
+
+        /* CENTER HINT */
+        #center-reticle {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            text-align: center; opacity: 0; transition: opacity 0.3s;
+            pointer-events: none;
+        }
+        .scan-line {
+            width: 200px; height: 2px; background: var(--primary);
+            box-shadow: 0 0 15px var(--primary);
+            margin: 10px auto;
+        }
+
+        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+        
+        /* LOADING SCREEN */
+        #loader {
+            position: absolute; top:0; left:0; width:100%; height:100%;
+            background: #000; z-index: 100; display: flex; 
+            align-items: center; justify-content: center;
+            color: var(--primary); font-size: 12px; letter-spacing: 2px;
+            transition: opacity 1s; pointer-events: none;
+        }
+    </style>
+    
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+            }
+        }
+    </script>
+</head>
+<body>
+
+    <div id="loader">INITIALIZING KERNEL...</div>
+    <div id="canvas-container"></div>
+
+    <div class="hud-layer">
+        <div id="header" class="panel" style="width: 100%; max-width: 600px;">
+            <div>
+                <h1>LEVIATHAN::GALAXY</h1>
+                <div style="font-size: 11px; margin-top: 5px;">
+                    <span class="blink">●</span> STATUS: ONLINE // REPO: MAIN
+                </div>
+            </div>
+            <div class="meta">
+                COORD: <span id="coord-display">0, 0, 0</span><br>
+                ENTITIES: <span id="entity-count">0</span><br>
+                SEED: <span id="seed-id">OCEANCO</span>
+            </div>
+        </div>
+
+        <div id="controls">
+            <button class="mode-btn active" onclick="App.setMode('GALAXY')">
+                DIM-2 // NAVIGATOR
+            </button>
+            <button class="mode-btn" onclick="App.setMode('VOXEL')">
+                DIM-3 // SURFACE VOXEL
+            </button>
+            <button class="mode-btn" onclick="App.setMode('FLUX')">
+                DIM-5 // NEURAL FLUX
+            </button>
+            <div class="panel" style="margin-top: 20px; font-size: 10px; color: #888;">
+                WASD - Translate<br>
+                SHIFT - Boost<br>
+                SCROLL - Zoom<br>
+                ENTER - Land/Scan
+            </div>
+        </div>
+
+        <div id="terminal" class="panel">
+            </div>
+
+        <div id="center-reticle">
+            <div style="font-size: 20px; color: var(--primary); text-shadow: 0 0 10px var(--primary);">TARGET ACQUIRED</div>
+            <div class="scan-line"></div>
+            <div id="target-name" style="font-size: 12px; color: #fff;">SYSTEM-XK9</div>
+            <div style="font-size: 10px; color: #888;">[PRESS ENTER TO LAND]</div>
+        </div>
+    </div>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+        import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+        import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+        import { SimplexNoise } from 'three/addons/math/SimplexNoise.js';
+
+        // ================= SYSTEM CORE =================
+        
+        const CONFIG = {
+            CHUNK_SIZE: 2000,
+            STAR_COUNT: 2000,
+            VOXEL_RES: 60, // Grid size for planet
+            COLORS: [0x00ffcc, 0x0088ff, 0xff00ff, 0xffaa00, 0xffffff],
+            SEED: 'Gabe Newell Superyacht 500m'
+        };
+
+        const STATE = {
+            mode: 'GALAXY', // GALAXY, VOXEL, FLUX
+            cameraPos: new THREE.Vector3(0, 0, 1000),
+            velocity: new THREE.Vector2(0, 0),
+            hoveredStar: null,
+            ticks: 0,
+            gitHistory: [],
+            simplex: new SimplexNoise()
+        };
+
+        // ================= GRAPHICS ENGINE =================
+
+        const scene = new THREE.Scene();
+        scene.fog = new THREE.FogExp2(0x020408, 0.0008);
+
+        const camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 1, 10000);
+        const renderer = new THREE.WebGLRenderer({ antialias: false, powerPreference: "high-performance" });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // Optimize
+        document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+        // Post-Processing (Bloom)
+        const renderScene = new RenderPass(scene, camera);
+        const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.5, 0.4, 0.85);
+        bloomPass.threshold = 0;
+        bloomPass.strength = 1.2; // Intensity of glow
+        bloomPass.radius = 0.5;
+        
+        const composer = new EffectComposer(renderer);
+        composer.addPass(renderScene);
+        composer.addPass(bloomPass);
+
+        // Texture Generator (Procedural Glow)
+        function createStarTexture() {
+            const cvs = document.createElement('canvas');
+            cvs.width = 32; cvs.height = 32;
+            const ctx = cvs.getContext('2d');
+            const grad = ctx.createRadialGradient(16, 16, 0, 16, 16, 16);
+            grad.addColorStop(0, 'rgba(255,255,255,1)');
+            grad.addColorStop(0.2, 'rgba(255,255,255,0.8)');
+            grad.addColorStop(0.5, 'rgba(255,255,255,0.2)');
+            grad.addColorStop(1, 'rgba(0,0,0,0)');
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, 32, 32);
+            const tex = new THREE.CanvasTexture(cvs);
+            tex.magFilter = THREE.NearestFilter;
+            return tex;
+        }
+
+        // ================= SCENE MANAGERS =================
+
+        const GalaxyLayer = {
+            group: new THREE.Group(),
+            stars: null,
+            lines: null, // For Flux mode
+            init() {
+                const geo = new THREE.BufferGeometry();
+                const pos = [];
+                const cols = [];
+                const sizes = [];
+                const colorObj = new THREE.Color();
+
+                for(let i=0; i<CONFIG.STAR_COUNT; i++) {
+                    // Spiral Galaxy distribution
+                    const angle = Math.random() * Math.PI * 2;
+                    const radius = THREE.MathUtils.randFloatSpread(CONFIG.CHUNK_SIZE);
+                    const spiralOffset = angle * 0.5;
+                    
+                    const x = Math.cos(angle + radius * 0.001) * radius;
+                    const y = Math.sin(angle + radius * 0.001) * radius;
+                    const z = THREE.MathUtils.randFloatSpread(400); // Thin disk
+
+                    pos.push(x, y, z);
+                    
+                    // Color logic
+                    colorObj.setHex(CONFIG.COLORS[Math.floor(Math.random() * CONFIG.COLORS.length)]);
+                    cols.push(colorObj.r, colorObj.g, colorObj.b);
+                    
+                    sizes.push(Math.random() * 10 + 5);
+                }
+
+                geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+                geo.setAttribute('color', new THREE.Float32BufferAttribute(cols, 3));
+                geo.setAttribute('size', new THREE.Float32BufferAttribute(sizes, 1));
+
+                const mat = new THREE.PointsMaterial({
+                    size: 4,
+                    vertexColors: true,
+                    map: createStarTexture(),
+                    blending: THREE.AdditiveBlending,
+                    depthWrite: false,
+                    transparent: true,
+                    sizeAttenuation: true
+                });
+
+                this.stars = new THREE.Points(geo, mat);
+                this.group.add(this.stars);
+                scene.add(this.group);
+
+                // Flux Lines (Hidden by default)
+                const lineMat = new THREE.LineBasicMaterial({ color: 0x0044aa, transparent: true, opacity: 0.2, blending: THREE.AdditiveBlending });
+                const lineGeo = new THREE.BufferGeometry();
+                // Pre-allocate max lines buffer
+                const linePos = new Float32Array(CONFIG.STAR_COUNT * 6); // 3 connections per star approx
+                lineGeo.setAttribute('position', new THREE.BufferAttribute(linePos, 3));
+                this.lines = new THREE.LineSegments(lineGeo, lineMat);
+                this.lines.visible = false;
+                scene.add(this.lines);
+            },
+            updateFlux() {
+                if (!this.lines.visible) return;
+                // Only calculate connections for stars near camera
+                const positions = this.stars.geometry.attributes.position.array;
+                const linePos = this.lines.geometry.attributes.position.array;
+                let lineIdx = 0;
+                
+                // Simple brute force for demo (in prod use Octree)
+                // We optimize by only checking a subset based on time
+                const offset = STATE.ticks % 10; 
+                
+                for(let i=offset; i<CONFIG.STAR_COUNT; i+=10) {
+                    const x1 = positions[i*3];
+                    const y1 = positions[i*3+1];
+                    const z1 = positions[i*3+2];
+
+                    // Distance check to camera
+                    const distCam = Math.sqrt((x1-camera.position.x)**2 + (y1-camera.position.y)**2);
+                    if (distCam > 500) continue;
+
+                    for(let j=i+1; j<CONFIG.STAR_COUNT; j+=20) {
+                        const x2 = positions[j*3];
+                        const y2 = positions[j*3+1];
+                        const z2 = positions[j*3+2];
+
+                        const dist = Math.sqrt((x1-x2)**2 + (y1-y2)**2 + (z1-z2)**2);
+                        
+                        if (dist < 150) {
+                            linePos[lineIdx++] = x1; linePos[lineIdx++] = y1; linePos[lineIdx++] = z1;
+                            linePos[lineIdx++] = x2; linePos[lineIdx++] = y2; linePos[lineIdx++] = z2;
+                            if (lineIdx >= linePos.length) break;
+                        }
+                    }
+                }
+                this.lines.geometry.setDrawRange(0, lineIdx / 3);
+                this.lines.geometry.attributes.position.needsUpdate = true;
+            }
+        };
+
+        const VoxelPlanet = {
+            mesh: null,
+            visible: false,
+            generate(seedX, seedY) {
+                if(this.mesh) {
+                    scene.remove(this.mesh);
+                    this.mesh.dispose();
+                }
+
+                const geometry = new THREE.BoxGeometry(1, 1, 1);
+                // Neon grid texture for voxels
+                const material = new THREE.MeshBasicMaterial({ 
+                    color: 0x00ffcc, 
+                    wireframe: true,
+                    transparent: true, 
+                    opacity: 0.3
+                });
+
+                const count = CONFIG.VOXEL_RES * CONFIG.VOXEL_RES;
+                this.mesh = new THREE.InstancedMesh(geometry, material, count);
+                
+                const dummy = new THREE.Object3D();
+                let idx = 0;
+                const scale = 40; // Noise scale
+                
+                // Center the planet at camera
+                const cx = camera.position.x;
+                const cy = camera.position.y;
+
+                for(let x=0; x<CONFIG.VOXEL_RES; x++) {
+                    for(let z=0; z<CONFIG.VOXEL_RES; z++) {
+                        const noise = STATE.simplex.noise2D((x + seedX)/scale, (z + seedY)/scale);
+                        const height = Math.floor((noise * 0.5 + 0.5) * 20); // Height 0 to 20
+                        
+                        // Stack columns? No, just surface for performance
+                        dummy.position.set(
+                            cx + (x - CONFIG.VOXEL_RES/2) * 5,
+                            cy - 100 + (height * 5), // Y is up
+                            (z - CONFIG.VOXEL_RES/2) * 5
+                        );
+                        
+                        dummy.scale.set(4.5, 4.5, 4.5);
+                        dummy.updateMatrix();
+                        
+                        // Color variation based on height
+                        const c = new THREE.Color().setHSL(0.5 + (height/40), 1, 0.5);
+                        this.mesh.setColorAt(idx, c);
+                        this.mesh.setMatrixAt(idx, dummy.matrix);
+                        idx++;
+                    }
+                }
+                
+                this.mesh.instanceMatrix.needsUpdate = true;
+                this.mesh.instanceColor.needsUpdate = true;
+                scene.add(this.mesh);
+                this.visible = true;
+            }
+        };
+
+        // ================= UTILS =================
+
+        function logGit(msg) {
+            const term = document.getElementById('terminal');
+            const div = document.createElement('div');
+            div.className = 'log-entry';
+            const hash = Math.random().toString(16).substr(2, 7);
+            div.innerHTML = `<span class="log-hash">${hash}</span> <span class="log-cmd">${msg}</span>`;
+            term.prepend(div);
+            if(term.children.length > 15) term.lastChild.remove();
+        }
+
+        // ================= INTERACTION =================
+
+        const keys = { w: false, a: false, s: false, d: false, Shift: false, Enter: false };
+        window.addEventListener('keydown', e => keys[e.key] = true);
+        window.addEventListener('keyup', e => {
+            keys[e.key] = false;
+            if (e.key === 'Enter') handleEnter();
+        });
+
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2(1000, 1000); // Start off screen
+
+        window.addEventListener('mousemove', e => {
+            mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+        });
+
+        // APP LOGIC
+        const App = {
+            init() {
+                GalaxyLayer.init();
+                document.getElementById('loader').style.opacity = 0;
+                setTimeout(() => document.getElementById('loader').remove(), 1000);
+                logGit('HEAD detached at origin/master');
+                this.animate();
+            },
+
+            setMode(mode) {
+                if(STATE.mode === mode) return;
+                STATE.mode = mode;
+                
+                // UI Updates
+                document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+                if(mode === 'GALAXY') document.querySelectorAll('.mode-btn')[0].classList.add('active');
+                if(mode === 'VOXEL') document.querySelectorAll('.mode-btn')[1].classList.add('active');
+                if(mode === 'FLUX') document.querySelectorAll('.mode-btn')[2].classList.add('active');
+
+                logGit(`git checkout feature/${mode.toLowerCase()}`);
+
+                // Scene Logic
+                if (mode === 'VOXEL') {
+                    // Just trigger generation at current location
+                    VoxelPlanet.generate(STATE.cameraPos.x, STATE.cameraPos.y);
+                    GalaxyLayer.group.visible = false;
+                    GalaxyLayer.lines.visible = false;
+                    scene.fog.density = 0.002; // Thicker fog on planet
+                } else {
+                    if (VoxelPlanet.mesh) scene.remove(VoxelPlanet.mesh);
+                    GalaxyLayer.group.visible = true;
+                    GalaxyLayer.lines.visible = (mode === 'FLUX');
+                    scene.fog.density = 0.0008;
+                }
+            },
+
+            animate() {
+                requestAnimationFrame(App.animate);
+                STATE.ticks++;
+
+                // 1. Physics
+                const speed = keys.Shift ? 8.0 : 2.0;
+                if (keys.w) STATE.velocity.y += speed * 0.05;
+                if (keys.s) STATE.velocity.y -= speed * 0.05;
+                if (keys.a) STATE.velocity.x -= speed * 0.05;
+                if (keys.d) STATE.velocity.x += speed * 0.05;
+
+                STATE.velocity.x *= 0.92; // Friction
+                STATE.velocity.y *= 0.92;
+
+                STATE.cameraPos.x += STATE.velocity.x;
+                STATE.cameraPos.y += STATE.velocity.y;
+
+                // Camera Rigging
+                if (STATE.mode === 'VOXEL') {
+                    // Isometric-ish angle for surface
+                    camera.position.x = STATE.cameraPos.x;
+                    camera.position.y = STATE.cameraPos.y + 100;
+                    camera.position.z = 150;
+                    camera.lookAt(STATE.cameraPos.x, STATE.cameraPos.y, 0);
+                } else {
+                    // Top down for galaxy
+                    camera.position.x = STATE.cameraPos.x;
+                    camera.position.y = STATE.cameraPos.y;
+                    camera.position.z += (keys.Shift ? -2 : 2); // Subtle breathe
+                    camera.position.z = THREE.MathUtils.clamp(camera.position.z, 300, 1000); // Constrain Z
+                    camera.lookAt(STATE.cameraPos.x, STATE.cameraPos.y, 0);
+                }
+
+                // 2. Raycasting (Only in Galaxy Mode)
+                if (STATE.mode !== 'VOXEL') {
+                    raycaster.setFromCamera(mouse, camera);
+                    const intersects = raycaster.intersectObject(GalaxyLayer.stars);
+                    
+                    const reticle = document.getElementById('center-reticle');
+                    
+                    if (intersects.length > 0) {
+                        const index = intersects[0].index;
+                        // We don't have obj reference in Points, just index. 
+                        // Simulate "Hover" state
+                        document.body.style.cursor = 'pointer';
+                        reticle.style.opacity = 1;
+                        STATE.hoveredStar = index;
+                        
+                        // Snapping text
+                        document.getElementById('target-name').innerText = `SEC:${Math.floor(STATE.cameraPos.x/100)}-${index}`;
+                    } else {
+                        document.body.style.cursor = 'default';
+                        reticle.style.opacity = 0;
+                        STATE.hoveredStar = null;
+                    }
+                }
+
+                // 3. 5D Logic
+                if (STATE.mode === 'FLUX') {
+                    GalaxyLayer.updateFlux();
+                }
+
+                // 4. HUD Update
+                if (STATE.ticks % 10 === 0) {
+                    document.getElementById('coord-display').innerText = 
+                        `${Math.floor(STATE.cameraPos.x)}, ${Math.floor(STATE.cameraPos.y)}`;
+                    document.getElementById('entity-count').innerText = renderer.info.render.triangles;
+                }
+
+                composer.render();
+            }
+        };
+
+        function handleEnter() {
+            if (STATE.mode === 'VOXEL') {
+                App.setMode('GALAXY'); // Leave planet
+            } else if (STATE.hoveredStar !== null || STATE.mode === 'GALAXY') {
+                // Land on hovered star or just land in empty space
+                logGit('System landing sequence initiated...');
+                App.setMode('VOXEL');
+            }
+        }
+
+        window.App = App; // Expose
+        App.init();
+
+        // Resize Handler
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            bloomPass.resolution.set(window.innerWidth, window.innerHeight);
+        });
+    </script>
+</body>
+</html>

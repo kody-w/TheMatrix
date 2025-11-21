@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leviathan Galaxy: Dimensional Expansion</title>
+    <style>
+        :root {
+            --primary: #00ffcc;
+            --secondary: #ff00ff;
+            --bg: #050a10;
+            --panel: rgba(5, 15, 25, 0.9);
+            --border: 1px solid rgba(0, 255, 204, 0.3);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; }
+
+        body {
+            font-family: 'Consolas', 'Monaco', monospace;
+            background: var(--bg);
+            color: #fff;
+            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        #canvas-container {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 1;
+        }
+
+        /* HUD System */
+        .hud-layer {
+            position: absolute; z-index: 10; pointer-events: none;
+            width: 100%; height: 100%;
+            display: flex; flex-direction: column; justify-content: space-between;
+        }
+
+        .panel {
+            pointer-events: auto;
+            background: var(--panel);
+            border: var(--border);
+            backdrop-filter: blur(5px);
+            padding: 10px;
+            margin: 10px;
+            box-shadow: 0 0 15px rgba(0, 255, 204, 0.05);
+        }
+
+        /* Top Bar: Global Repo Status */
+        #top-bar {
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 2px solid var(--primary);
+        }
+
+        .repo-status {
+            display: flex; gap: 15px; font-size: 12px; color: #aaa;
+        }
+        .repo-dot { width: 8px; height: 8px; background: #0f0; border-radius: 50%; display: inline-block; box-shadow: 0 0 5px #0f0; }
+        .blink { animation: blink 2s infinite; }
+
+        /* Dimension Selector */
+        #dim-selector {
+            position: absolute; top: 60px; left: 10px;
+            display: flex; flex-direction: column; gap: 5px;
+        }
+        .dim-btn {
+            background: transparent; border: 1px solid #444; color: #666;
+            padding: 8px 12px; cursor: pointer; font-family: inherit;
+            transition: all 0.2s; text-align: left;
+        }
+        .dim-btn:hover { border-color: var(--primary); color: #fff; }
+        .dim-btn.active { 
+            background: rgba(0, 255, 204, 0.1); 
+            border-color: var(--primary); 
+            color: var(--primary);
+            box-shadow: 0 0 10px rgba(0, 255, 204, 0.2);
+        }
+        .dim-desc { font-size: 9px; opacity: 0.7; display: block; margin-top: 2px; }
+
+        /* 1D Timeline (Bottom) */
+        #timeline-1d {
+            height: 60px; width: 100%;
+            border-top: 1px solid #333;
+            background: rgba(0,0,0,0.8);
+            display: flex; align-items: center;
+            overflow: hidden; position: relative;
+        }
+        .timeline-track {
+            position: absolute; height: 2px; background: #333; width: 100%; top: 50%;
+        }
+        .timeline-event {
+            width: 6px; height: 12px; background: var(--primary);
+            position: absolute; top: 40%;
+            cursor: pointer; transition: height 0.2s;
+        }
+        .timeline-event:hover { height: 20px; top: 35%; background: #fff; }
+
+        /* Commit Log */
+        #commit-log {
+            position: absolute; bottom: 80px; right: 10px;
+            width: 300px; max-height: 200px;
+            font-size: 10px; overflow-y: auto;
+        }
+        .commit-item {
+            margin-bottom: 4px; padding-bottom: 4px; border-bottom: 1px solid #222;
+            color: #888;
+        }
+        .hash { color: var(--secondary); font-weight: bold; }
+
+        /* Interaction Hints */
+        #interaction-hint {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            color: var(--primary); text-shadow: 0 0 10px var(--primary);
+            font-size: 24px; opacity: 0; transition: opacity 0.3s;
+            pointer-events: none;
+        }
+
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+    </style>
+</head>
+<body>
+
+    <div id="canvas-container"></div>
+
+    <div class="hud-layer">
+        <div id="top-bar" class="panel">
+            <div>
+                <span style="font-weight:bold; font-size:16px; letter-spacing:2px;">LEVIATHAN::GALAXY</span>
+                <span style="font-size:10px; color:#666;"> // SEED: OCEANCO-VALVE-WHEELS</span>
+            </div>
+            <div class="repo-status">
+                <span><span class="repo-dot blink"></span> SYNCED (GitHub: Main)</span>
+                <span id="sector-display">SECTOR: 0,0</span>
+                <span id="obj-count">ENTITIES: 0</span>
+            </div>
+        </div>
+
+        <div id="dim-selector">
+            <button class="dim-btn active" onclick="setDimension(2)">
+                2D // GALAXY MAP
+                <span class="dim-desc">Cartesian Navigation</span>
+            </button>
+            <button class="dim-btn" onclick="setDimension(3)">
+                3D // SURFACE VIEW
+                <span class="dim-desc">Voxelized Matter</span>
+            </button>
+            <button class="dim-btn" onclick="setDimension(4)">
+                4D // TIME GHOST
+                <span class="dim-desc">Temporal Trajectories</span>
+            </button>
+            <button class="dim-btn" onclick="setDimension(5)">
+                5D // NEURO-FLUX
+                <span class="dim-desc">Probability/Data Layer</span>
+            </button>
+        </div>
+
+        <div id="commit-log" class="panel">
+            <div style="color: #fff; border-bottom: 1px solid #444; margin-bottom: 5px;">>> GIT LOG --ONELINE</div>
+            <div id="log-content"></div>
+        </div>
+
+        <div id="timeline-1d">
+            <div class="timeline-track"></div>
+            </div>
+    </div>
+
+    <div id="interaction-hint">PRESS [ENTER] TO LAND</div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    
+    <script>
+        // ================= CONFIGURATION & SEED =================
+        // The Seed is derived from the prompt's news snippet
+        const SEED_STRING = "Gabe Newell caps off Steam Machine week by taking delivery of a new $500 million superyacht";
+        
+        // The "80/20" Rule Constants
+        const CONSTANTS = {
+            SECTOR_SIZE: 1000,
+            STARS_PER_SECTOR: 100, // 20% of 500 (Density factor)
+            PLANET_CHANCE: 0.2,    // 20% of stars have planets
+            LIFE_CHANCE: 0.2,      // 20% of planets have life
+            MANDALA_COMPLEXITY: 6, // Number of petals in generation
+            CHUNK_LOAD_DIST: 2     // Load 2 chunks in every direction
+        };
+
+        // ================= STATE MANAGEMENT =================
+        const GameState = {
+            dimension: 2, // 1, 2, 3, 4, 5
+            camera: { x: 0, y: 0, z: 500 },
+            velocity: { x: 0, y: 0 },
+            sectors: new Map(), // "x,y" -> SectorData
+            commits: [],
+            timeTick: 0,
+            selectedStar: null,
+            landedPlanet: null,
+            historyTrail: [] // For 4D
+        };
+
+        // Simulated Git Hash Generator
+        const gitHash = () => Math.random().toString(16).substr(2, 7);
+
+        // ================= PROCEDURAL GENERATION ENGINE =================
+        class ProceduralGen {
+            constructor(seed) {
+                this.seedVal = this.hashString(seed);
+            }
+
+            hashString(str) {
+                let hash = 0;
+                for (let i = 0; i < str.length; i++) {
+                    hash = ((hash << 5) - hash) + str.charCodeAt(i);
+                    hash |= 0;
+                }
+                return hash;
+            }
+
+            // Deterministic Random based on coordinate
+            random(x, y) {
+                const n = x * 374761393 + y * 668265263 + this.seedVal;
+                const t = Math.sin(n) * 43758.5453123;
+                return t - Math.floor(t);
+            }
+
+            // The Mandala Pattern Generator
+            // Uses Polar Coordinates to create symmetrical "Designed" sectors
+            generateSector(sx, sy) {
+                const stars = [];
+                const sectorSeed = this.random(sx, sy);
+                const sectorType = sectorSeed > 0.8 ? 'NEBULA' : (sectorSeed > 0.5 ? 'CLUSTER' : 'VOID');
+
+                // Center of this sector in world space
+                const centerX = sx * CONSTANTS.SECTOR_SIZE;
+                const centerY = sy * CONSTANTS.SECTOR_SIZE;
+
+                // 80/20 Rule: Only 20% of sectors are "Dense", others are sparse
+                const density = sectorType === 'VOID' ? 0.2 : 1.0;
+
+                for (let i = 0; i < CONSTANTS.STARS_PER_SECTOR * density; i++) {
+                    // Mandala Math: r = cos(k * theta)
+                    const angle = this.random(sx + i, sy + i) * Math.PI * 2;
+                    
+                    // Varying petal count based on coordinate hash
+                    const petals = Math.floor(Math.abs(sectorSeed * 10)) + 2; 
+                    
+                    // Calculate radius based on flower pattern + noise
+                    let radius = Math.abs(Math.cos(petals * angle)) * (CONSTANTS.SECTOR_SIZE * 0.4);
+                    
+                    // Add some randomness so it's not a perfect line
+                    radius += (this.random(sx * i, sy) - 0.5) * 100;
+
+                    const x = centerX + Math.cos(angle) * radius;
+                    const y = centerY + Math.sin(angle) * radius;
+                    const z = (this.random(sy, sx + i) - 0.5) * 200; // Slight 3D depth even in 2D mode
+
+                    // Determine if star has planet (80/20)
+                    const hasPlanet = this.random(x, y) < CONSTANTS.PLANET_CHANCE;
+                    
+                    stars.push({
+                        x, y, z,
+                        size: this.random(y, x) * 3 + 1,
+                        color: new THREE.Color().setHSL(this.random(x, y), 0.8, 0.6),
+                        hasPlanet: hasPlanet,
+                        id: `star_${Math.floor(x)}_${Math.floor(y)}`
+                    });
+                }
+                return { type: sectorType, stars: stars, id: `${sx},${sy}` };
+            }
+        }
+
+        const generator = new ProceduralGen(SEED_STRING);
+
+        // ================= THREE.JS SETUP =================
+        const scene = new THREE.Scene();
+        scene.fog = new THREE.FogExp2(0x050a10, 0.0005);
+
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 10000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+        // Object Pools
+        const starGeometry = new THREE.SphereGeometry(1, 8, 8);
+        const glowMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
+        const sectorMeshes = new Map(); // "x,y" -> THREE.Group
+        
+        // 4D/5D Visuals
+        const ghostMaterial = new THREE.LineBasicMaterial({ color: 0x00ffcc, transparent: true, opacity: 0.3 });
+        const fluxMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00, wireframe: true });
+
+        // ================= CORE LOGIC =================
+
+        function updateChunks() {
+            // Calculate current sector based on camera
+            const currentSX = Math.floor(GameState.camera.x / CONSTANTS.SECTOR_SIZE);
+            const currentSY = Math.floor(GameState.camera.y / CONSTANTS.SECTOR_SIZE);
+            document.getElementById('sector-display').innerText = `SECTOR: ${currentSX}, ${currentSY}`;
+
+            // Load surrounding chunks
+            const dist = CONSTANTS.CHUNK_LOAD_DIST;
+            for (let x = -dist; x <= dist; x++) {
+                for (let y = -dist; y <= dist; y++) {
+                    const targetX = currentSX + x;
+                    const targetY = currentSY + y;
+                    const key = `${targetX},${targetY}`;
+
+                    if (!GameState.sectors.has(key)) {
+                        // Generate Data
+                        const sectorData = generator.generateSector(targetX, targetY);
+                        GameState.sectors.set(key, sectorData);
+                        
+                        // Create Visuals
+                        createSectorVisuals(sectorData);
+                        
+                        // Simulate Git Commit
+                        commitToRepo(`Feat: Discovered Sector [${key}] type ${sectorData.type}`);
+                    }
+                }
+            }
+        }
+
+        function createSectorVisuals(sectorData) {
+            const group = new THREE.Group();
+            
+            sectorData.stars.forEach(star => {
+                const mesh = new THREE.Mesh(starGeometry, glowMaterial.clone());
+                mesh.material.color = star.color;
+                mesh.position.set(star.x, star.y, star.z);
+                mesh.scale.setScalar(star.size);
+                
+                // Metadata for raycasting
+                mesh.userData = { isStar: true, data: star };
+                
+                group.add(mesh);
+
+                // If 5D mode is active, add data lines
+                if(GameState.dimension === 5) {
+                    const lineGeo = new THREE.BufferGeometry().setFromPoints([
+                        new THREE.Vector3(star.x, star.y, star.z),
+                        new THREE.Vector3(star.x, star.y, star.z - 500)
+                    ]);
+                    const line = new THREE.Line(lineGeo, ghostMaterial);
+                    group.add(line);
+                }
+            });
+
+            scene.add(group);
+            sectorMeshes.set(sectorData.id, group);
+            
+            // Update Timeline (1D)
+            addTimelineEvent(sectorData);
+        }
+
+        function commitToRepo(msg) {
+            const hash = gitHash();
+            const log = document.getElementById('log-content');
+            const entry = document.createElement('div');
+            entry.className = 'commit-item';
+            entry.innerHTML = `<span class="hash">${hash}</span> ${msg}`;
+            log.prepend(entry);
+            
+            // Keep log short
+            if (log.children.length > 10) log.lastChild.remove();
+        }
+
+        function addTimelineEvent(sector) {
+            const tl = document.getElementById('timeline-1d');
+            const ev = document.createElement('div');
+            ev.className = 'timeline-event';
+            // Random position on timeline to represent "Linear History" abstraction
+            ev.style.left = (Math.random() * 90 + 5) + '%';
+            ev.title = `Sector ${sector.id} (${sector.type})`;
+            tl.appendChild(ev);
+        }
+
+        // ================= DIMENSIONAL HANDLING =================
+
+        window.setDimension = function(d) {
+            GameState.dimension = d;
+            document.querySelectorAll('.dim-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.dim-btn')[d-2].classList.add('active'); // Offset for array index
+
+            // Physics/Visual Transformations
+            if (d === 2) {
+                // Reset to standard view
+                camera.rotation.set(0, 0, 0);
+                camera.position.z = 500;
+                scene.overrideMaterial = null;
+            }
+            else if (d === 3) {
+                // Tilt for "Surface" feel
+                camera.rotation.x = Math.PI / 4;
+                camera.position.z = 200;
+                scene.overrideMaterial = null;
+            }
+            else if (d === 4) {
+                // Time Ghost Mode (motion blur effect logic handled in animate)
+                scene.overrideMaterial = null;
+                commitToRepo("Chkout: Dimensional Branch 4D (Temporal)");
+            }
+            else if (d === 5) {
+                // Neuro-Flux (Wireframe)
+                scene.overrideMaterial = fluxMaterial;
+                commitToRepo("Merge: Neural Layer -> Main");
+            }
+        };
+
+        // ================= INPUT & INTERACTION =================
+        const keys = {};
+        window.addEventListener('keydown', (e) => {
+            keys[e.key] = true;
+            if (e.key === 'Enter' && GameState.selectedStar) {
+                alert("Landing on " + GameState.selectedStar.id + "\nGenerating Voxel Surface...");
+                setDimension(3);
+            }
+        });
+        window.addEventListener('keyup', (e) => keys[e.key] = false);
+
+        // Raycaster
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+
+        window.addEventListener('mousemove', (e) => {
+            mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+        });
+
+        // ================= GAME LOOP =================
+        function animate() {
+            requestAnimationFrame(animate);
+            GameState.timeTick++;
+
+            // 1. Movement Physics
+            const speed = (keys['Shift'] ? 10 : 2);
+            if (keys['w']) GameState.velocity.y += speed * 0.1;
+            if (keys['s']) GameState.velocity.y -= speed * 0.1;
+            if (keys['a']) GameState.velocity.x -= speed * 0.1;
+            if (keys['d']) GameState.velocity.x += speed * 0.1;
+
+            // Drag/Friction
+            GameState.velocity.x *= 0.95;
+            GameState.velocity.y *= 0.95;
+
+            GameState.camera.x += GameState.velocity.x;
+            GameState.camera.y += GameState.velocity.y;
+
+            // Update Camera Object
+            camera.position.x = GameState.camera.x;
+            camera.position.y = GameState.camera.y;
+
+            // 2. Infinite Expansion Logic
+            updateChunks();
+
+            // 3. Dimensional Effects
+            if (GameState.dimension === 4) {
+                // Create "Time Ghosts" (trails)
+                if (GameState.timeTick % 10 === 0) {
+                    // In a real app, we'd clone geometry. Here we simulate visual lag.
+                    scene.rotation.z = Math.sin(GameState.timeTick * 0.01) * 0.05;
+                }
+            } else {
+                scene.rotation.z = 0;
+            }
+
+            // 4. Raycasting (Star Selection)
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObjects(scene.children, true);
+            
+            const hint = document.getElementById('interaction-hint');
+            
+            if (intersects.length > 0 && intersects[0].object.userData.isStar) {
+                document.body.style.cursor = 'pointer';
+                GameState.selectedStar = intersects[0].object.userData.data;
+                
+                // Scale up hovered star
+                intersects[0].object.scale.setScalar(intersects[0].object.userData.data.size * 1.5);
+                
+                if (GameState.selectedStar.hasPlanet) {
+                    hint.style.opacity = 1;
+                    hint.innerHTML = `SYSTEM: ${GameState.selectedStar.id}<br><span style="font-size:12px">PLANET DETECTED - PRESS ENTER</span>`;
+                } else {
+                    hint.style.opacity = 1;
+                    hint.innerHTML = `SYSTEM: ${GameState.selectedStar.id}<br><span style="font-size:12px">BARREN SYSTEM</span>`;
+                }
+            } else {
+                document.body.style.cursor = 'default';
+                hint.style.opacity = 0;
+                GameState.selectedStar = null;
+            }
+
+            // 5. Visual Updates
+            document.getElementById('obj-count').innerText = `ENTITIES: ${renderer.info.render.triangles}`;
+
+            renderer.render(scene, camera);
+        }
+
+        // Window Resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // Start
+        animate();
+
+    </script>
+</body>
+</html>

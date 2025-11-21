@@ -1,0 +1,62 @@
+[
+  {
+    "title": "High-Velocity E-Commerce API Platform",
+    "prompt": "Generate 100 production-ready REST API endpoints for our e-commerce platform: 20 service domains × 5 endpoints each. Include authentication, validation, error handling, rate limiting, caching strategies, comprehensive test coverage, API documentation, and monitoring integration. Follow Express.js patterns and PostgreSQL conventions. Ensure all endpoints have request/response validation schemas.",
+    "business_impact": "ROI: $2.8M in developer productivity over 12 months. Reduces API development time from 3 months (team of 8) to 2 weeks (orchestrator) = 600+ engineering hours saved × $150/hr = $90k direct savings. Faster time-to-market launches products 45 days earlier = $2.7M additional Q4 revenue from early market penetration. Standardized patterns reduce bugs by 40% = less post-launch remediation.",
+    "wow_factor": "From 3 months of developer time to 2 weeks of AI orchestration. 100 production-ready endpoints with full test coverage, all patterns-consistent and deployment-ready. That's not faster development, that's a complete paradigm shift in API delivery velocity."
+  },
+  {
+    "title": "Complete SaaS Documentation Transformation",
+    "prompt": "Generate 250 professional documentation pages for our SaaS platform: 50 documentation sections × 5 pages each. Cover features, API, integration guides, troubleshooting, best practices, and use cases. Include MDX formatting, interactive code examples, SEO optimization, cross-linking, table of contents, search optimization, and responsive design. Follow our Next.js + Tailwind CSS standards. All pages need frontmatter with metadata.",
+    "business_impact": "ROI: $1.2M annual reduction in support costs. Comprehensive documentation reduces support tickets by 35% = 5,250 fewer tickets/year × $85 support cost = $446k annual savings. Improved onboarding reduces churn by 8% = $620k retained ARR. Better documentation increases product adoption by 22% = $140k additional expansion revenue. Total first-year impact: $1.2M.",
+    "wow_factor": "250 fully-formatted, SEO-optimized documentation pages generated in parallel. Not just content—integrated navigation, search, cross-links, and responsive design. Your competitors are still hiring content teams; you're shipping a complete knowledge base in days."
+  },
+  {
+    "title": "Financial Services Risk Compliance Framework",
+    "prompt": "Generate 75 compliance validation modules for our fintech platform: 15 risk domains × 5 validators each. Build transaction screening, KYC verification, AML detection, sanctions list matching, anomaly detection, fraud scoring, regulatory reporting, audit trails, and data retention policies. Include unit tests, integration tests, logging, alerting, and compliance documentation. Follow Python patterns for financial systems.",
+    "business_impact": "ROI: $4.1M in regulatory compliance and risk mitigation. Prevents average regulatory fine ($500k+) and brand damage ($3M+) = $3.5M risk avoidance. Reduces compliance team workload by 60% = $180k annual FTE savings. Speeds regulatory onboarding for new geographic markets from 8 weeks to 3 weeks = $910k revenue from faster market entry. Total impact: $4.1M.",
+    "wow_factor": "A complete compliance framework that would normally take a specialized team 6 months to build, generated in days. 75 validators covering every regulatory requirement. Your compliance dashboard is no longer a liability—it's your competitive advantage."
+  },
+  {
+    "title": "Data Warehouse ETL Pipeline Suite at Scale",
+    "prompt": "Generate 80 production-grade ETL pipelines for our analytics warehouse: 16 data sources × 5 transformations each. Build Airflow DAGs, dbt models, data quality checks, incremental load strategies, error handling, data lineage tracking, SLA monitoring, and alerting. Include schema validation, reconciliation logic, audit trails, and recovery procedures. Integrate with Snowflake, establish dependencies, and document data catalog.",
+    "business_impact": "ROI: $2.3M in analytics velocity and data quality. Reduces time-to-insight from 5 days to 6 hours = 80% faster decision-making = $1.4M from faster market response to customer trends. Improves data quality from 78% to 97% = fewer bad decisions based on incorrect data = $680k in avoided optimization mistakes. Cuts data engineering backlog processing time by 65% = frees up 3 engineers for 6 months = $450k productivity gain.",
+    "wow_factor": "80 battle-tested ETL pipelines with built-in data quality, lineage, and monitoring—all patterns-consistent and production-ready. What takes a data engineering team 4 months gets delivered in 2 weeks. Your analytics infrastructure transforms from bottleneck to competitive advantage."
+  },
+  {
+    "title": "Enterprise React Component Library Generation",
+    "prompt": "Generate 120 enterprise-grade React components: 24 component categories × 5 components each. Build UI components (buttons, forms, tables, modals), layout components (grids, navigation, sidebars), data visualization (charts, dashboards), and specialized enterprise components. Include TypeScript types, Tailwind CSS styling, Storybook stories, unit tests, accessibility compliance, and comprehensive documentation. Follow Figma design system.",
+    "business_impact": "ROI: $1.8M in product development acceleration. Eliminates component development bottleneck = frontend teams 3× more productive = $1.1M annual productivity gain. Reduces design-to-implementation cycle from 3 weeks to 2 days = ships features 4× faster = $520k revenue from competitive speed advantage. Improves consistency across products = fewer bug fixes needed = $180k engineering cost savings.",
+    "wow_factor": "120 production-ready, accessible, beautifully-designed components with full test coverage and Storybook documentation. Your design system just became executable code. Every product team ships features at exactly the same quality standard, simultaneously."
+  },
+  {
+    "title": "Microservices Rapid Deployment at Enterprise Scale",
+    "prompt": "Generate 60 complete microservices: 12 business domains × 5 services each. Build Node.js/Express services with PostgreSQL, implement inter-service communication, API contracts, circuit breakers, logging, metrics, health checks, and graceful degradation. Include Docker configurations, Kubernetes manifests, service discovery, load balancing, and deployment pipelines. Add comprehensive API documentation and integration tests.",
+    "business_impact": "ROI: $3.4M in infrastructure elasticity and deployment velocity. Enables 70% faster feature deployment = 15 additional product releases per year = $2.1M revenue from faster feature ship cadence. Reduces infrastructure provisioning time from 6 weeks to 2 days = teams launch services 15× faster = $840k engineering time savings. Improves system resilience = fewer outages = $560k from retained revenue and brand protection.",
+    "wow_factor": "60 fully-integrated, production-ready microservices in days. Not just code—each includes Docker, Kubernetes, service discovery, observability, and deployment automation. Your architecture just became deployment-ready infrastructure that scales from day one."
+  },
+  {
+    "title": "Content Marketing Machine at Scale",
+    "prompt": "Generate 200 SEO-optimized blog articles and landing pages: 40 topic clusters × 5 pieces each. Create beginner guides, technical deep-dives, case studies, comparison articles, and thought leadership pieces. Include keyword research integration, meta tags, internal linking strategy, schema markup, calls-to-action, and image optimization. Format in Markdown with frontmatter. Target 50+ high-value keywords across B2B SaaS verticals.",
+    "business_impact": "ROI: $5.6M in organic traffic and brand authority. Generates 180k monthly organic visits (6 months to indexing) = 2.16M annually = 150 qualified leads/month × $8k ACV = $14.4M annual pipeline impact. Improves domain authority from DA 25 to DA 55 (12+ months) = permanent competitive SEO advantage = $2.1M lifetime value of organic traffic advantage. Establishes thought leadership = enables 30% premium pricing = $3.4M additional revenue across customer base.",
+    "wow_factor": "200 SEO-optimized, keyword-targeted, beautifully-written content pieces ready to publish. Not just articles—each one is strategically positioned in a topic cluster with internal linking, schema markup, and conversion optimization. Your marketing team is competing on 50+ high-value keywords simultaneously."
+  },
+  {
+    "title": "Artificial Intelligence Model Training Pipeline",
+    "prompt": "Generate 50 ML model training pipelines: 10 data domains × 5 models each. Build data preprocessing scripts, feature engineering pipelines, model training workflows, hyperparameter optimization, cross-validation, model evaluation, performance monitoring, and model serving infrastructure. Include experiment tracking with MLflow, model registry, A/B testing framework, and automated retraining triggers. Use Python, PyTorch, and scikit-learn.",
+    "business_impact": "ROI: $4.2M in AI/ML product capabilities and velocity. Delivers 50 trained models in parallel vs. sequential = ships AI features 8× faster = $2.4M competitive advantage from being 6 months ahead on ML roadmap. Improves model quality through systematic hyperparameter optimization = 18% better accuracy = $1.2M from improved product quality and customer retention. Enables continuous model improvement = ongoing performance gains = $600k from compounding ML advantage.",
+    "wow_factor": "50 production-grade ML pipelines with built-in experimentation, monitoring, and automated retraining. Your entire ML infrastructure becomes self-improving and scalable. Competitors training models in weeks; you're orchestrating model portfolios in days."
+  },
+  {
+    "title": "Mobile App Multi-Platform Feature Generation",
+    "prompt": "Generate 80 mobile app features across iOS and Android: 16 feature categories × 5 features each. Build authentication flows, user profiles, in-app payments, push notifications, offline functionality, analytics tracking, and UI screens. Generate React Native code with TypeScript, platform-specific optimizations, and testing frameworks. Include UI mockups, navigation architecture, state management, and platform deployment configurations.",
+    "business_impact": "ROI: $2.9M in mobile adoption and user engagement. Reduces iOS+Android feature parity gap from 12 weeks to 1 week = identical feature velocity = $1.1M annual savings from single dev team managing both platforms. Launches features 10× faster = gains 45 days of competitive advantage per quarter = $1.2M revenue from market-first launches. Improves user engagement from faster feature delivery = 15% increase in DAU = $600k from improved retention and monetization.",
+    "wow_factor": "80 features implemented in parallel across iOS and Android, completely synchronized. Your mobile team just became 10x more efficient. Instead of Android lagging iOS by 3 months, both platforms ship features on the same day with identical UX."
+  },
+  {
+    "title": "Global Compliance & Localization Framework",
+    "prompt": "Generate 100 localized compliance and feature configurations: 20 geographic markets × 5 configurations each. Build market-specific tax calculations, payment methods, regulatory compliance rules, currency handling, language support, cultural customizations, feature flags, and permissions matrices. Include audit trails, compliance documentation, testing matrices, and deployment safety. Support GDPR, CCPA, SOX, and regional requirements.",
+    "business_impact": "ROI: $6.8M in global market expansion enablement. Reduces time-to-market for new geographic regions from 16 weeks to 3 weeks = enables entry into 4-5 new markets annually = $3.2M revenue from accelerated expansion. Ensures compliance across all regions = avoids regulatory fines ($1M+ per violation) and brand damage = $2.1M risk mitigation. Eliminates manual compliance work = 40% reduction in legal/compliance operational costs = $1.5M annual savings.",
+    "wow_factor": "100 market-specific configurations covering 20 countries, each with complete localization, compliance, and customization built in. Your company just became a truly global platform, simultaneously launching in multiple markets instead of one at a time. Regulatory compliance becomes a scalable system, not a legal burden."
+  }
+]
