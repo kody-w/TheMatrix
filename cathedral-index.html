@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="description" content="Immersive 3D cathedral showcasing The Matrix orchestration framework demonstrations">
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
     <title>🏛️ The Matrix Cathedral - 3D Experience</title>
 
     <style>
@@ -396,7 +399,9 @@
 
     <div class="loading" id="loading">Constructing Cathedral...</div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- Three.js with CDN fallback -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"
+            onerror="this.onerror=null; this.src='https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js'"></script>
     <script>
         const demos = [
             {
@@ -595,12 +600,14 @@
                 this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
                 this.camera.position.set(0, 5, 30);
 
-                // Optimize renderer for mobile
+                // Optimize renderer for mobile with progressive enhancement
                 this.renderer = new THREE.WebGLRenderer({
                     antialias: !this.isLowPerformance,
                     powerPreference: 'high-performance',
                     stencil: false,
-                    depth: true
+                    depth: true,
+                    alpha: false, // Opaque background for better performance
+                    preserveDrawingBuffer: false // Don't preserve for screenshots (better perf)
                 });
                 this.renderer.setSize(window.innerWidth, window.innerHeight);
                 this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, this.isLowPerformance ? 1 : 2));
