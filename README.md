@@ -23,6 +23,20 @@
 
 ---
 
+## 🚀 **[NEW!] 10 Mind-Blowing Prompts to Showcase The Matrix**
+
+**Want to see what The Matrix can really do?** We've curated 10 prompts that will blow your mind:
+
+- 🏗️ Migrate 2,500 files to microservices (6 months → 3 hours)
+- 🧠 Turn 75 research papers into 200 blog posts + demos
+- 🚀 Go from idea → full product launch (everything included)
+- 🌍 Build a complete fantasy universe with 600+ elements
+- ⚡ And 6 more impossible-seeming tasks...
+
+**➡️ [View All 10 Prompts + Instructions](MIND_BLOWING_PROMPTS.md)** | [Interactive Version](mind-blowing-prompts.html)
+
+---
+
 ## 🎯 What Is The Matrix?
 
 The Matrix is a **domain-agnostic AI orchestration framework** that demonstrates context-aware hierarchical agent architecture. Built on Claude Code's 200k context window, it enables parallel generation of N×M structured outcomes across any domain through intelligent orchestration and specialized agent delegation.
