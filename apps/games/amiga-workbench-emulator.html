@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Amiga Workbench 1.3 - Interactive Emulator</title>
+    <meta name="description" content="Interactive Amiga Workbench 1.3 emulator with authentic blue/orange aesthetics and iconic boing ball">
+    <meta name="keywords" content="Amiga, Commodore, Workbench, retro computing, operating system emulator">
+    <meta name="demo-category" content="games">
+    <meta name="demo-subcategory" content="emulators">
+    <meta name="demo-tags" content="retro,os,simulation,interactive,amiga,commodore">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --amiga-blue: #0055aa;
+            --amiga-orange: #ff8800;
+            --amiga-white: #ffffff;
+            --amiga-black: #000000;
+            --amiga-gray: #aaaaaa;
+            --amiga-dark-blue: #003366;
+            --amiga-light-blue: #5588cc;
+        }
+
+        body {
+            font-family: 'Topaz', 'Courier New', monospace;
+            overflow: hidden;
+            background: var(--amiga-blue);
+            user-select: none;
+        }
+
+        #kickstart-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #222;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            color: var(--amiga-white);
+        }
+
+        #kickstart-hand {
+            width: 150px;
+            height: 150px;
+            background: var(--amiga-gray);
+            border-radius: 50%;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 80px;
+            position: relative;
+            animation: insertDisk 2s ease-in-out;
+        }
+
+        @keyframes insertDisk {
+            0%, 50% { transform: translateY(100px); opacity: 0; }
+            100% { transform: translateY(0); opacity: 1; }
+        }
+
+        #kickstart-text {
+            font-size: 18px;
+            margin-bottom: 20px;
+            color: var(--amiga-orange);
+        }
+
+        #kickstart-version {
+            font-size: 14px;
+            color: var(--amiga-gray);
+        }
+
+        #workbench {
+            width: 100%;
+            height: 100vh;
+            position: relative;
+            display: none;
+            background: var(--amiga-blue);
+        }
+
+        #titlebar {
+            height: 12px;
+            background: var(--amiga-orange);
+            width: 100%;
+            display: flex;
+            align-items: center;
+            padding: 0 4px;
+            font-size: 9px;
+            color: var(--amiga-white);
+            font-weight: bold;
+        }
+
+        #menubar {
+            background: var(--amiga-white);
+            height: 12px;
+            display: flex;
+            font-size: 9px;
+            color: var(--amiga-black);
+            padding: 0 4px;
+            align-items: center;
+        }
+
+        .menu-item {
+            margin-right: 12px;
+            cursor: pointer;
+            padding: 1px 4px;
+        }
+
+        .menu-item:hover {
+            background: var(--amiga-orange);
+            color: var(--amiga-white);
+        }
+
+        #desktop {
+            width: 100%;
+            height: calc(100vh - 24px);
+            position: relative;
+            padding: 16px;
+        }
+
+        .disk-icon {
+            position: absolute;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            padding: 8px;
+        }
+
+        .disk-icon:hover .icon-box {
+            background: var(--amiga-orange);
+        }
+
+        .icon-box {
+            width: 64px;
+            height: 48px;
+            background: var(--amiga-gray);
+            border: 2px solid var(--amiga-white);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            margin-bottom: 4px;
+        }
+
+        .icon-label {
+            font-size: 10px;
+            color: var(--amiga-white);
+            text-align: center;
+            text-shadow: 1px 1px 0 var(--amiga-black);
+        }
+
+        .window {
+            position: absolute;
+            background: var(--amiga-blue);
+            border: 2px solid var(--amiga-white);
+            display: none;
+            min-width: 320px;
+            min-height: 200px;
+        }
+
+        .window.active {
+            display: block;
+        }
+
+        .window-titlebar {
+            height: 14px;
+            background: var(--amiga-orange);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 4px;
+            cursor: move;
+        }
+
+        .window-title {
+            font-size: 10px;
+            color: var(--amiga-white);
+            font-weight: bold;
+        }
+
+        .window-controls {
+            display: flex;
+            gap: 2px;
+        }
+
+        .window-button {
+            width: 12px;
+            height: 12px;
+            background: var(--amiga-white);
+            border: 1px solid var(--amiga-black);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 8px;
+        }
+
+        .window-button:hover {
+            background: var(--amiga-light-blue);
+        }
+
+        .window-content {
+            padding: 8px;
+            background: var(--amiga-blue);
+            height: calc(100% - 14px);
+            overflow: auto;
+            color: var(--amiga-white);
+            font-size: 10px;
+        }
+
+        .drawer-list {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .drawer-item {
+            display: flex;
+            align-items: center;
+            padding: 4px;
+            cursor: pointer;
+            border: 1px solid transparent;
+        }
+
+        .drawer-item:hover {
+            border: 1px solid var(--amiga-orange);
+            background: var(--amiga-dark-blue);
+        }
+
+        .drawer-icon {
+            width: 24px;
+            height: 24px;
+            margin-right: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--amiga-gray);
+            border: 1px solid var(--amiga-white);
+        }
+
+        .cli-output {
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+            white-space: pre-wrap;
+            margin-bottom: 4px;
+        }
+
+        .cli-input-line {
+            display: flex;
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+        }
+
+        .cli-prompt {
+            color: var(--amiga-orange);
+            margin-right: 4px;
+        }
+
+        .cli-input {
+            flex: 1;
+            border: none;
+            outline: none;
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+            background: transparent;
+            color: var(--amiga-white);
+        }
+
+        .prefs-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            padding: 8px;
+        }
+
+        .pref-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 8px;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+
+        .pref-item:hover {
+            border: 2px solid var(--amiga-orange);
+        }
+
+        .pref-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--amiga-gray);
+            border: 2px solid var(--amiga-white);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-bottom: 4px;
+        }
+
+        .about-panel {
+            text-align: center;
+            padding: 16px;
+        }
+
+        #boing-ball {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 16px;
+            position: relative;
+        }
+
+        .ball-stripe {
+            position: absolute;
+            width: 100%;
+            height: 20%;
+            background: var(--amiga-white);
+        }
+
+        .ball-base {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg,
+                #ff0000 0%, #ff0000 25%,
+                var(--amiga-white) 25%, var(--amiga-white) 50%,
+                #ff0000 50%, #ff0000 75%,
+                var(--amiga-white) 75%, var(--amiga-white) 100%);
+            box-shadow: 4px 4px 8px rgba(0,0,0,0.5);
+            animation: boingRotate 3s linear infinite;
+        }
+
+        @keyframes boingRotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .info-text {
+            margin: 8px 0;
+            line-height: 1.4;
+        }
+
+        .system-info {
+            background: var(--amiga-dark-blue);
+            padding: 8px;
+            margin-top: 12px;
+            border: 1px solid var(--amiga-orange);
+            text-align: left;
+        }
+
+        @media (max-width: 768px) {
+            .window {
+                min-width: 280px;
+            }
+
+            .prefs-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="kickstart-screen">
+        <div id="kickstart-hand">💾</div>
+        <div id="kickstart-text">Kickstart 1.3</div>
+        <div id="kickstart-version">Copyright © 1985-1988 Commodore-Amiga, Inc.</div>
+    </div>
+
+    <div id="workbench">
+        <div id="titlebar">Workbench Screen</div>
+        <div id="menubar">
+            <span class="menu-item" onclick="showInfo()">Workbench</span>
+            <span class="menu-item">Window</span>
+            <span class="menu-item">Icons</span>
+            <span class="menu-item">Tools</span>
+        </div>
+
+        <div id="desktop">
+            <!-- Disk Icons -->
+            <div class="disk-icon" style="left: 16px; top: 16px;" ondblclick="openWindow('workbench-disk')">
+                <div class="icon-box">💾</div>
+                <div class="icon-label">Workbench1.3</div>
+            </div>
+
+            <div class="disk-icon" style="left: 16px; top: 120px;" ondblclick="openWindow('ram')">
+                <div class="icon-box">💿</div>
+                <div class="icon-label">RAM Disk</div>
+            </div>
+
+            <div class="disk-icon" style="left: 16px; top: 224px;" ondblclick="openWindow('empty')">
+                <div class="icon-box" style="opacity: 0.5;">💾</div>
+                <div class="icon-label">Empty</div>
+            </div>
+
+            <!-- Workbench Disk Window -->
+            <div id="workbench-disk-window" class="window" style="left: 120px; top: 40px; width: 500px; height: 350px;">
+                <div class="window-titlebar" onmousedown="startDrag(event, 'workbench-disk-window')">
+                    <span class="window-title">Workbench1.3</span>
+                    <div class="window-controls">
+                        <div class="window-button" onclick="closeWindow('workbench-disk-window')">×</div>
+                    </div>
+                </div>
+                <div class="window-content">
+                    <div class="drawer-list">
+                        <div class="drawer-item" ondblclick="openWindow('system')">
+                            <div class="drawer-icon">📁</div>
+                            <span>System</span>
+                        </div>
+                        <div class="drawer-item" ondblclick="openWindow('utilities')">
+                            <div class="drawer-icon">📁</div>
+                            <span>Utilities</span>
+                        </div>
+                        <div class="drawer-item" ondblclick="openWindow('tools')">
+                            <div class="drawer-icon">📁</div>
+                            <span>Tools</span>
+                        </div>
+                        <div class="drawer-item" ondblclick="openWindow('devs')">
+                            <div class="drawer-icon">📁</div>
+                            <span>Devs</span>
+                        </div>
+                        <div class="drawer-item" ondblclick="openWindow('prefs')">
+                            <div class="drawer-icon">⚙️</div>
+                            <span>Prefs</span>
+                        </div>
+                        <div class="drawer-item">
+                            <div class="drawer-icon">📄</div>
+                            <span>Startup-Sequence</span>
+                        </div>
+                        <div class="drawer-item">
+                            <div class="drawer-icon">📄</div>
+                            <span>Shell-Startup</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- System Drawer Window -->
+            <div id="system-window" class="window" style="left: 150px; top: 70px; width: 450px; height: 320px;">
+                <div class="window-titlebar" onmousedown="startDrag(event, 'system-window')">
+                    <span class="window-title">Workbench1.3:System</span>
+                    <div class="window-controls">
+                        <div class="window-button" onclick="closeWindow('system-window')">×</div>
+                    </div>
+                </div>
+                <div class="window-content">
+                    <div class="drawer-list">
+                        <div class="drawer-item" ondblclick="openWindow('cli')">
+                            <div class="drawer-icon">⌨️</div>
+                            <span>CLI</span>
+                        </div>
+                        <div class="drawer-item">
+                            <div class="drawer-icon">🖥️</div>
+                            <span>Format</span>
+                        </div>
+                        <div class="drawer-item">
+                            <div class="drawer-icon">📋</div>
+                            <span>DiskCopy</span>
+                        </div>
+                        <div class="drawer-item">
+                            <div class="drawer-icon">🔍</div>
+                            <span>Info</span>
+                        </div>
+                        <div class="drawer-item">
+                            <div class="drawer-icon">🗑️</div>
+                            <span>Trashcan</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CLI Window -->
+            <div id="cli-window" class="window" style="left: 180px; top: 100px; width: 560px; height: 300px;">
+                <div class="window-titlebar" onmousedown="startDrag(event, 'cli-window')">
+                    <span class="window-title">AmigaShell</span>
+                    <div class="window-controls">
+                        <div class="window-button" onclick="closeWindow('cli-window')">×</div>
+                    </div>
+                </div>
+                <div class="window-content">
+                    <div class="cli-output">AmigaDOS version 1.3
+Copyright © 1985-1988 Commodore-Amiga, Inc.
+All Rights Reserved.
+
+Type HELP for assistance.
+
+</div>
+                    <div class="cli-input-line">
+                        <span class="cli-prompt">1.Workbench1.3:&gt;</span>
+                        <input type="text" class="cli-input" id="cli-input" autofocus onkeypress="handleCLIInput(event)">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Utilities Window -->
+            <div id="utilities-window" class="window" style="left: 200px; top: 120px; width: 420px; height: 280px;">
+                <div class="window-titlebar" onmousedown="startDrag(event, 'utilities-window')">
+                    <span class="window-title">Workbench1.3:Utilities</span>
+                    <div class="window-controls">
+                        <div class="window-button" onclick="closeWindow('utilities-window')">×</div>
+                    </div>
+                </div>
+                <div class="window-content">
+                    <div class="drawer-list">
+                        <div class="drawer-item">
+                            <div class="drawer-icon">✏️</div>
+                            <span>Ed</span>
+                        </div>
+                        <div class="drawer-item">
+                            <div class="drawer-icon">🔍</div>
+                            <span>More</span>
+                        </div>
+                        <div class="drawer-item">
+                            <div class="drawer-icon">🖨️</div>
+                            <span>PrintFiles</span>
+                        </div>
+                        <div class="drawer-item">
+                            <div class="drawer-icon">📊</div>
+                            <span>GraphicDump</span>
+                        </div>
+                        <div class="drawer-item">
+                            <div class="drawer-icon">🖥️</div>
+                            <span>IconEd</span>
+                        </div>
+                        <div class="drawer-item">
+                            <div class="drawer-icon">⏰</div>
+                            <span>Clock</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tools Window -->
+            <div id="tools-window" class="window" style="left: 220px; top: 140px; width: 400px; height: 260px;">
+                <div class="window-titlebar" onmousedown="startDrag(event, 'tools-window')">
+                    <span class="window-title">Workbench1.3:Tools</span>
+                    <div class="window-controls">
+                        <div class="window-button" onclick="closeWindow('tools-window')">×</div>
+                    </div>
+                </div>
+                <div class="window-content">
+                    <div class="drawer-list">
+                        <div class="drawer-item">
+                            <div class="drawer-icon">🎨</div>
+                            <span>GraphicEditor</span>
+                        </div>
+                        <div class="drawer-item">
+                            <div class="drawer-icon">🔧</div>
+                            <span>Calculator</span>
+                        </div>
+                        <div class="drawer-item">
+                            <div class="drawer-icon">📝</div>
+                            <span>NotePad</span>
+                        </div>
+                        <div class="drawer-item">
+                            <div class="drawer-icon">🎵</div>
+                            <span>SoundEditor</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Devs Window -->
+            <div id="devs-window" class="window" style="left: 170px; top: 90px; width: 400px; height: 280px;">
+                <div class="window-titlebar" onmousedown="startDrag(event, 'devs-window')">
+                    <span class="window-title">Workbench1.3:Devs</span>
+                    <div class="window-controls">
+                        <div class="window-button" onclick="closeWindow('devs-window')">×</div>
+                    </div>
+                </div>
+                <div class="window-content">
+                    <div class="drawer-list">
+                        <div class="drawer-item">
+                            <div class="drawer-icon">🖨️</div>
+                            <span>Printers</span>
+                        </div>
+                        <div class="drawer-item">
+                            <div class="drawer-icon">🎨</div>
+                            <span>Monitors</span>
+                        </div>
+                        <div class="drawer-item">
+                            <div class="drawer-icon">⌨️</div>
+                            <span>Keymaps</span>
+                        </div>
+                        <div class="drawer-item">
+                            <div class="drawer-icon">📁</div>
+                            <span>DataTypes</span>
+                        </div>
+                        <div class="drawer-item">
+                            <div class="drawer-icon">💾</div>
+                            <span>DOSDrivers</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Prefs Window -->
+            <div id="prefs-window" class="window" style="left: 240px; top: 160px; width: 480px; height: 340px;">
+                <div class="window-titlebar" onmousedown="startDrag(event, 'prefs-window')">
+                    <span class="window-title">Workbench1.3:Prefs</span>
+                    <div class="window-controls">
+                        <div class="window-button" onclick="closeWindow('prefs-window')">×</div>
+                    </div>
+                </div>
+                <div class="window-content">
+                    <div class="prefs-grid">
+                        <div class="pref-item">
+                            <div class="pref-icon">🖱️</div>
+                            <span>Pointer</span>
+                        </div>
+                        <div class="pref-item">
+                            <div class="pref-icon">🎨</div>
+                            <span>Palette</span>
+                        </div>
+                        <div class="pref-item">
+                            <div class="pref-icon">🖥️</div>
+                            <span>ScreenMode</span>
+                        </div>
+                        <div class="pref-item">
+                            <div class="pref-icon">🔊</div>
+                            <span>Sound</span>
+                        </div>
+                        <div class="pref-item">
+                            <div class="pref-icon">⌨️</div>
+                            <span>Input</span>
+                        </div>
+                        <div class="pref-item">
+                            <div class="pref-icon">🖨️</div>
+                            <span>Printer</span>
+                        </div>
+                        <div class="pref-item">
+                            <div class="pref-icon">📡</div>
+                            <span>Serial</span>
+                        </div>
+                        <div class="pref-item">
+                            <div class="pref-icon">⏰</div>
+                            <span>Time</span>
+                        </div>
+                        <div class="pref-item">
+                            <div class="pref-icon">💾</div>
+                            <span>WBPattern</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RAM Disk Window -->
+            <div id="ram-window" class="window" style="left: 140px; top: 60px; width: 400px; height: 250px;">
+                <div class="window-titlebar" onmousedown="startDrag(event, 'ram-window')">
+                    <span class="window-title">RAM Disk</span>
+                    <div class="window-controls">
+                        <div class="window-button" onclick="closeWindow('ram-window')">×</div>
+                    </div>
+                </div>
+                <div class="window-content">
+                    <div style="text-align: center; padding: 40px;">
+                        <div style="font-size: 48px; margin-bottom: 16px;">💿</div>
+                        <div>RAM Disk is empty</div>
+                        <div style="margin-top: 12px; font-size: 9px; color: var(--amiga-gray);">
+                            512 KB available
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Empty Disk Window -->
+            <div id="empty-window" class="window" style="left: 160px; top: 80px; width: 350px; height: 200px;">
+                <div class="window-titlebar" onmousedown="startDrag(event, 'empty-window')">
+                    <span class="window-title">DF1:</span>
+                    <div class="window-controls">
+                        <div class="window-button" onclick="closeWindow('empty-window')">×</div>
+                    </div>
+                </div>
+                <div class="window-content">
+                    <div style="text-align: center; padding: 40px;">
+                        <div style="font-size: 48px; margin-bottom: 16px; opacity: 0.3;">💾</div>
+                        <div style="color: var(--amiga-orange);">No disk in drive</div>
+                        <div style="margin-top: 12px; font-size: 9px;">
+                            Please insert a disk
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- About Window -->
+            <div id="about-window" class="window" style="left: 250px; top: 150px; width: 450px; height: 400px;">
+                <div class="window-titlebar" onmousedown="startDrag(event, 'about-window')">
+                    <span class="window-title">About Workbench</span>
+                    <div class="window-controls">
+                        <div class="window-button" onclick="closeWindow('about-window')">×</div>
+                    </div>
+                </div>
+                <div class="window-content">
+                    <div class="about-panel">
+                        <div id="boing-ball">
+                            <div class="ball-base"></div>
+                        </div>
+                        <h3 style="color: var(--amiga-orange); margin-bottom: 8px;">Amiga Workbench 1.3</h3>
+                        <div class="info-text">
+                            Kickstart version 34.5
+                        </div>
+                        <div class="info-text">
+                            The Amiga computer revolutionized personal computing with its advanced multitasking operating system,
+                            custom graphics chips (Denise, Agnus, Paula), and unprecedented multimedia capabilities.
+                        </div>
+                        <div class="info-text">
+                            Commodore-Amiga, Inc. (1985-1994)
+                        </div>
+                        <div class="system-info">
+                            <div style="font-weight: bold; margin-bottom: 4px; color: var(--amiga-orange);">System Information</div>
+                            <div>Processor: Motorola 68000 @ 7.16 MHz</div>
+                            <div>Chip RAM: 512 KB</div>
+                            <div>Fast RAM: 512 KB</div>
+                            <div>Graphics: OCS (Original Chip Set)</div>
+                            <div>Display: 320x256 (PAL) / 320x200 (NTSC)</div>
+                            <div>Colors: 4096 palette, 32 on screen</div>
+                            <div>Sound: 4-channel 8-bit PCM</div>
+                        </div>
+                        <div style="margin-top: 12px; font-size: 9px; color: var(--amiga-gray);">
+                            © 1985-1988 Commodore-Amiga, Inc.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Kickstart boot sequence
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.getElementById('kickstart-screen').style.display = 'none';
+                document.getElementById('workbench').style.display = 'block';
+            }, 3000);
+        });
+
+        // Window management
+        let currentZ = 100;
+        let draggedWindow = null;
+        let dragOffset = { x: 0, y: 0 };
+
+        function openWindow(windowType) {
+            const windowId = windowType + '-window';
+            const window = document.getElementById(windowId);
+            if (window) {
+                window.classList.add('active');
+                window.style.zIndex = ++currentZ;
+
+                if (windowType === 'cli') {
+                    document.getElementById('cli-input').focus();
+                }
+            }
+        }
+
+        function closeWindow(windowId) {
+            document.getElementById(windowId).classList.remove('active');
+        }
+
+        function startDrag(e, windowId) {
+            draggedWindow = document.getElementById(windowId);
+            draggedWindow.style.zIndex = ++currentZ;
+
+            const rect = draggedWindow.getBoundingClientRect();
+            dragOffset.x = e.clientX - rect.left;
+            dragOffset.y = e.clientY - rect.top;
+
+            document.addEventListener('mousemove', drag);
+            document.addEventListener('mouseup', stopDrag);
+        }
+
+        function drag(e) {
+            if (!draggedWindow) return;
+
+            let newX = e.clientX - dragOffset.x;
+            let newY = e.clientY - dragOffset.y;
+
+            const maxX = window.innerWidth - draggedWindow.offsetWidth;
+            const maxY = window.innerHeight - draggedWindow.offsetHeight;
+
+            newX = Math.max(0, Math.min(newX, maxX));
+            newY = Math.max(24, Math.min(newY, maxY));
+
+            draggedWindow.style.left = newX + 'px';
+            draggedWindow.style.top = newY + 'px';
+        }
+
+        function stopDrag() {
+            document.removeEventListener('mousemove', drag);
+            document.removeEventListener('mouseup', stopDrag);
+            draggedWindow = null;
+        }
+
+        function showInfo() {
+            openWindow('about');
+        }
+
+        // CLI/AmigaDOS
+        const cliHistory = [];
+        let historyIndex = -1;
+
+        function handleCLIInput(e) {
+            if (e.key === 'Enter') {
+                const input = document.getElementById('cli-input');
+                const command = input.value.trim();
+                const output = document.querySelector('.cli-output');
+
+                output.textContent += `1.Workbench1.3:> ${command}\n`;
+
+                if (command) {
+                    cliHistory.unshift(command);
+                    historyIndex = -1;
+                    processCLICommand(command, output);
+                }
+
+                input.value = '';
+                output.scrollTop = output.scrollHeight;
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                if (historyIndex < cliHistory.length - 1) {
+                    historyIndex++;
+                    document.getElementById('cli-input').value = cliHistory[historyIndex];
+                }
+            } else if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                if (historyIndex > 0) {
+                    historyIndex--;
+                    document.getElementById('cli-input').value = cliHistory[historyIndex];
+                } else {
+                    historyIndex = -1;
+                    document.getElementById('cli-input').value = '';
+                }
+            }
+        }
+
+        function processCLICommand(cmd, output) {
+            const parts = cmd.split(' ');
+            const command = parts[0].toUpperCase();
+
+            switch(command) {
+                case 'HELP':
+                    output.textContent += `AmigaDOS Commands:
+DIR        - List directory contents
+CD         - Change directory
+COPY       - Copy files
+DELETE     - Delete files
+RENAME     - Rename files
+MAKEDIR    - Create directory
+INFO       - Show disk information
+LIST       - List files with details
+TYPE       - Display file contents
+VERSION    - Show system version
+AVAIL      - Show available memory
+ASSIGN     - Assign logical names
+MOUNT      - Mount a volume
+SETDATE    - Set file date
+PROTECT    - Set file protection
+
+`;
+                    break;
+                case 'DIR':
+                case 'LIST':
+                    output.textContent += `Directory of Workbench1.3:
+System              (dir)
+Utilities           (dir)
+Tools               (dir)
+Devs                (dir)
+Prefs               (dir)
+Startup-Sequence    1024 bytes
+Shell-Startup       512 bytes
+
+7 files - 3 directories
+
+`;
+                    break;
+                case 'INFO':
+                    output.textContent += `Unit       Size   Used   Free   Full  Errs  Status   Name
+Workbench1.3:
+  880K   234K   646K   27%    0   Read/Write  Workbench1.3
+RAM:
+  512K    48K   464K    9%    0   Read/Write  RAM Disk
+
+`;
+                    break;
+                case 'VERSION':
+                    output.textContent += `Kickstart 34.5
+Workbench 34.20
+AmigaDOS 34.20
+
+`;
+                    break;
+                case 'AVAIL':
+                    output.textContent += `         Type     Available      Largest
+         chip:       458,752       458,752
+         fast:       524,288       524,288
+        total:       983,040       524,288
+
+`;
+                    break;
+                case 'TYPE':
+                    if (parts[1]) {
+                        output.textContent += `; Startup-Sequence for Workbench 1.3
+SetPatch >NIL:
+Addbuffers >NIL: DF0: 15
+Mount DEVS:DOSDrivers/~(#?.info)
+LoadWB delay
+EndCLI
+
+`;
+                    } else {
+                        output.textContent += `TYPE: Missing file name\n\n`;
+                    }
+                    break;
+                case 'MAKEDIR':
+                case 'MD':
+                    if (parts[1]) {
+                        output.textContent += `Directory "${parts[1]}" created\n\n`;
+                    } else {
+                        output.textContent += `MAKEDIR: Missing directory name\n\n`;
+                    }
+                    break;
+                case 'CD':
+                    if (parts[1]) {
+                        output.textContent += `\n`;
+                    } else {
+                        output.textContent += `Workbench1.3:\n\n`;
+                    }
+                    break;
+                case 'ASSIGN':
+                    output.textContent += `C:         Workbench1.3:C
+DEVS:      Workbench1.3:Devs
+FONTS:     Workbench1.3:Fonts
+L:         Workbench1.3:L
+LIBS:      Workbench1.3:Libs
+S:         Workbench1.3:S
+SYS:       Workbench1.3:
+
+`;
+                    break;
+                case 'CLS':
+                case 'CLEAR':
+                    output.textContent = '';
+                    break;
+                default:
+                    output.textContent += `${command}: Command not found\nTry HELP for a list of commands\n\n`;
+            }
+        }
+
+        // PWA Support
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('data:text/javascript;base64,')
+                    .catch(() => {});
+            });
+        }
+    </script>
+</body>
+</html>
