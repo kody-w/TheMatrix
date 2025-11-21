@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quantum Worlds - Experimental Universe Store</title>
+
+    <!-- Demo Metadata -->
+    <meta name="demo:id" content="quantum-worlds-store">
+    <meta name="demo:title" content="Quantum Worlds Store">
+    <meta name="demo:description" content="Explore 10 experimental P2P networked universes - from floating quantum gardens to fractal forests, music dimensions to dying stars.">
+    <meta name="demo:tags" content="Interactive Demo, Multiplayer Games">
+    <meta name="demo:status" content="ready">
+    <meta name="demo:statusLabel" content="LIVE">
+
+    <!-- App Metadata -->
+    <meta name="app:id" content="quantum-worlds-store">
+    <meta name="app:title" content="Quantum Worlds Store">
+    <meta name="app:description" content="Explore 10 experimental P2P networked universes with unique multiplayer experiences">
+    <meta name="app:tags" content="games, p2p, multiplayer, experimental">
+    <meta name="app:icon" content="🌌">
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #000;
+            color: #fff;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        /* Animated starfield background */
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 3s infinite;
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding: 2rem 0;
+        }
+
+        h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+        }
+
+        .tagline {
+            font-size: 1.2rem;
+            opacity: 0.8;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .worlds-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .world-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .world-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--world-color-1), var(--world-color-2));
+        }
+
+        .world-card:hover {
+            transform: translateY(-8px);
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.3);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .world-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .world-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: #fff;
+        }
+
+        .world-description {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            opacity: 0.7;
+            margin-bottom: 1rem;
+        }
+
+        .world-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .tag {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .launch-btn {
+            display: inline-block;
+            margin-top: 1rem;
+            padding: 0.75rem 1.5rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .launch-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        footer {
+            text-align: center;
+            padding: 2rem;
+            opacity: 0.5;
+            font-size: 0.9rem;
+        }
+
+        /* Color themes for each world */
+        .world-card:nth-child(1) { --world-color-1: #4facfe; --world-color-2: #00f2fe; }
+        .world-card:nth-child(2) { --world-color-1: #fa709a; --world-color-2: #fee140; }
+        .world-card:nth-child(3) { --world-color-1: #30cfd0; --world-color-2: #330867; }
+        .world-card:nth-child(4) { --world-color-1: #a8edea; --world-color-2: #fed6e3; }
+        .world-card:nth-child(5) { --world-color-1: #ff9a9e; --world-color-2: #fecfef; }
+        .world-card:nth-child(6) { --world-color-1: #667eea; --world-color-2: #764ba2; }
+        .world-card:nth-child(7) { --world-color-1: #ffecd2; --world-color-2: #fcb69f; }
+        .world-card:nth-child(8) { --world-color-1: #a1c4fd; --world-color-2: #c2e9fb; }
+        .world-card:nth-child(9) { --world-color-1: #fbc2eb; --world-color-2: #a6c1ee; }
+        .world-card:nth-child(10) { --world-color-1: #fdcbf1; --world-color-2: #e6dee9; }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 2rem; }
+            .worlds-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Starfield background -->
+    <div class="stars" id="starfield"></div>
+
+    <div class="container">
+        <header>
+            <h1>🌌 Quantum Worlds</h1>
+            <p class="tagline">
+                Explore 10 experimental P2P networked universes. Each world offers unique multiplayer experiences with stunning visuals and innovative mechanics.
+            </p>
+        </header>
+
+        <div class="worlds-grid" id="worlds-grid"></div>
+
+        <footer>
+            <p>Powered by The Matrix • Local-First P2P Architecture</p>
+        </footer>
+    </div>
+
+    <script>
+        // Generate starfield
+        const starfield = document.getElementById('starfield');
+        for (let i = 0; i < 200; i++) {
+            const star = document.createElement('div');
+            star.className = 'star';
+            star.style.left = Math.random() * 100 + '%';
+            star.style.top = Math.random() * 100 + '%';
+            star.style.animationDelay = Math.random() * 3 + 's';
+            starfield.appendChild(star);
+        }
+
+        // Quantum Worlds data
+        const worlds = [
+            {
+                id: 'quantum-garden',
+                title: 'Quantum Garden of Floating Islands',
+                icon: '🏝️',
+                description: 'Explore interconnected floating islands with bioluminescent plants, crystalline waterfalls flowing upward, and shifting gravity. Plant glowing seeds that grow into shared structures in real-time.',
+                tags: ['Fantastical', 'Social', 'Multiplayer'],
+                path: './quantum-garden.html'
+            },
+            {
+                id: 'neon-synthwave-city',
+                title: 'Neon Synthwave City at Perpetual Sunset',
+                icon: '🌆',
+                description: 'Massive cyberpunk metropolis in eternal pink/purple sunset. Flying cars, holographic billboards, underground raves, rooftop gardens. The city breathes with the music.',
+                tags: ['Cyberpunk', 'Artistic', 'Social'],
+                path: './neon-synthwave-city.html'
+            },
+            {
+                id: 'collaborative-music-garden',
+                title: 'Collaborative Music Garden',
+                icon: '🎵',
+                description: 'Every object generates tones, rhythms, or melodies. Build towers that harmonize, create rivers in musical scales. The world IS the instrument.',
+                tags: ['Music', 'Artistic', 'Social'],
+                path: './collaborative-music-garden.html'
+            },
+            {
+                id: 'impossible-architecture',
+                title: 'Impossible Architecture Museum',
+                icon: '🏛️',
+                description: 'M.C. Escher-inspired gravity-defying staircases, infinite loops, non-euclidean geometry. Walk on walls, doors lead to sky, hallways twist into themselves.',
+                tags: ['Fantastical', 'Scientific', 'Multiplayer'],
+                path: './impossible-architecture-museum.html'
+            },
+            {
+                id: 'ocean-trench',
+                title: 'Bioluminescent Deep Ocean Trench',
+                icon: '🌊',
+                description: 'Alien underwater abyss with zero-gravity swimming. Giant glowing jellyfish, hydrothermal vents, ancient ruins. Discover and illuminate new species together.',
+                tags: ['Fantastical', 'Scientific', 'Multiplayer'],
+                path: './bioluminescent-ocean-trench.html'
+            },
+            {
+                id: 'particle-physics',
+                title: 'Particle Physics Playground',
+                icon: '⚛️',
+                description: 'Players ARE subatomic particles. Race through particle accelerators, collide to create elements, observe quantum tunneling. Experience physics at Planck scale.',
+                tags: ['Scientific', 'Educational', 'Multiplayer'],
+                path: './particle-physics-playground.html'
+            },
+            {
+                id: 'space-station',
+                title: 'Zero-G Space Station Build Zone',
+                icon: '🛰️',
+                description: 'Float in orbit building a modular space station. Pure 6DOF movement, solar panels must face sun, external construction requires coordination.',
+                tags: ['Scientific', 'Social', 'Multiplayer'],
+                path: './zero-g-space-station.html'
+            },
+            {
+                id: 'fractal-forest',
+                title: 'Fractal Forest of Infinite Recursion',
+                icon: '🌳',
+                description: 'Every tree contains a smaller version of the entire forest. Zoom into leaves to find ecosystems. Shrink and grow to explore different scales of reality.',
+                tags: ['Fantastical', 'Scientific', 'Multiplayer'],
+                path: './fractal-forest.html'
+            },
+            {
+                id: 'living-paint',
+                title: 'Living Paint Dimension',
+                icon: '🎨',
+                description: 'Blank canvas where every movement leaves living, animated paint. Footsteps create gardens, jumping spawns creatures, spinning makes galaxies. Resets daily.',
+                tags: ['Artistic', 'Social', 'Multiplayer'],
+                path: './living-paint-dimension.html'
+            },
+            {
+                id: 'dying-star',
+                title: 'Ancient Ruins on a Dying Star',
+                icon: '⭐',
+                description: 'Explore alien temples on a red giant about to go supernova. Lava walkways over plasma seas, solar flares, ancient obelisks. Race against time before the star explodes.',
+                tags: ['Fantastical', 'Scientific', 'Action'],
+                path: './ancient-ruins-dying-star.html'
+            }
+        ];
+
+        // Render worlds
+        const grid = document.getElementById('worlds-grid');
+        worlds.forEach(world => {
+            const card = document.createElement('div');
+            card.className = 'world-card';
+            card.innerHTML = `
+                <span class="world-icon">${world.icon}</span>
+                <h2 class="world-title">${world.title}</h2>
+                <p class="world-description">${world.description}</p>
+                <div class="world-tags">
+                    ${world.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+                </div>
+                <button class="launch-btn" onclick="launchWorld('${world.path}')">
+                    Launch World →
+                </button>
+            `;
+            grid.appendChild(card);
+        });
+
+        // Launch world
+        function launchWorld(path) {
+            window.open(path, '_blank');
+        }
+    </script>
+</body>
+</html>

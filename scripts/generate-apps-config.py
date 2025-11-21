@@ -28,7 +28,8 @@ APPS_PATHS = [
     'apps/media',
     'apps/productivity',
     'apps/utilities',
-    'apps/index-variants'
+    'apps/index-variants',
+    'apps/quantum-worlds'
 ]
 
 # Metadata keys to look for in HTML files
