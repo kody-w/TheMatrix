@@ -2,165 +2,178 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Matrix Cathedral - Demonstration Gallery</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>🏛️ The Matrix Cathedral - 3D Experience</title>
+
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: #0a0a0a;
+            background: #000;
             color: #fff;
+            overflow: hidden;
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        #three-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            touch-action: none;
+        }
+
+        .cathedral-ui {
+            position: absolute;
+            top: env(safe-area-inset-top, 20px);
+            left: env(safe-area-inset-left, 20px);
+            z-index: 1001;
+            pointer-events: none;
+        }
+
+        .cathedral-title {
+            font-size: 3em;
+            font-weight: 100;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            background: linear-gradient(45deg, #667eea, #764ba2, #f093fb);
+            background-size: 400% 100%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: shimmer 8s ease-in-out infinite;
+            margin-bottom: 10px;
+            text-shadow: 0 0 20px rgba(102, 126, 234, 0.5);
+        }
+
+        .cathedral-description {
+            font-size: 1.2em;
+            color: rgba(255, 255, 255, 0.7);
+            max-width: 500px;
             line-height: 1.6;
         }
 
-        .hero {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
-            padding: 80px 20px;
+        @keyframes shimmer {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .loading {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
             text-align: center;
-        }
-
-        .hero h1 {
-            font-size: 3.5em;
-            margin-bottom: 20px;
-            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
-        }
-
-        .hero p {
             font-size: 1.5em;
-            opacity: 0.95;
-            max-width: 800px;
-            margin: 0 auto 30px;
+            color: rgba(255, 255, 255, 0.5);
+            font-weight: 200;
+            letter-spacing: 0.2em;
+            z-index: 2000;
         }
 
-        .hero-stats {
-            display: flex;
-            justify-content: center;
-            gap: 40px;
-            flex-wrap: wrap;
-            margin-top: 40px;
-        }
-
-        .stat {
-            text-align: center;
-        }
-
-        .stat-value {
-            font-size: 2.5em;
-            font-weight: bold;
+        .loading::after {
+            content: '';
             display: block;
+            width: 80px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #667eea, transparent);
+            margin: 30px auto;
+            animation: scan 2s linear infinite;
         }
 
-        .stat-label {
-            font-size: 1em;
+        @keyframes scan {
+            0% { transform: translateX(-100px); }
+            100% { transform: translateX(100px); }
+        }
+
+        .controls-hint {
+            position: fixed;
+            bottom: env(safe-area-inset-bottom, 30px);
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            padding: 15px 30px;
+            border-radius: 25px;
+            border: 2px solid rgba(102, 126, 234, 0.5);
+            backdrop-filter: blur(10px);
+            z-index: 1001;
+            text-align: center;
+            animation: fadeIn 2s ease-in;
+        }
+
+        .controls-hint p {
+            margin: 5px 0;
+            font-size: 0.95em;
             opacity: 0.9;
         }
 
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 60px 20px;
+        .controls-hint strong {
+            color: #667eea;
         }
 
-        .section-header {
-            text-align: center;
-            margin-bottom: 50px;
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translate(-50%, 20px); }
+            to { opacity: 1; transform: translate(-50%, 0); }
         }
 
-        .section-header h2 {
-            font-size: 2.5em;
-            margin-bottom: 15px;
-        }
-
-        .section-header p {
-            font-size: 1.2em;
-            opacity: 0.8;
-            max-width: 700px;
-            margin: 0 auto;
-        }
-
-        .controls {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            margin-bottom: 40px;
-            flex-wrap: wrap;
-        }
-
-        .filter-btn {
-            padding: 12px 25px;
-            font-size: 1em;
-            font-weight: 600;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            border-radius: 25px;
-            background: rgba(255, 255, 255, 0.1);
-            color: #fff;
-            cursor: pointer;
-            transition: all 0.3s;
-            backdrop-filter: blur(10px);
-        }
-
-        .filter-btn:hover {
-            background: rgba(255, 255, 255, 0.2);
-            border-color: rgba(255, 255, 255, 0.5);
-            transform: translateY(-2px);
-        }
-
-        .filter-btn.active {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            border-color: #667eea;
-        }
-
-        .demos-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
-            gap: 30px;
-            margin-bottom: 60px;
-        }
-
-        .demo-card {
-            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
-            border: 2px solid rgba(255, 255, 255, 0.1);
-            border-radius: 15px;
+        .demo-info-panel {
+            position: fixed;
+            top: 50%;
+            right: 30px;
+            transform: translateY(-50%);
+            background: rgba(10, 10, 20, 0.95);
+            border: 2px solid rgba(102, 126, 234, 0.5);
+            border-radius: 20px;
             padding: 30px;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            cursor: pointer;
-            position: relative;
-            overflow: hidden;
+            max-width: 400px;
+            z-index: 1002;
+            backdrop-filter: blur(10px);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s, transform 0.4s;
         }
 
-        .demo-card::before {
-            content: '';
+        .demo-info-panel.active {
+            opacity: 1;
+            pointer-events: all;
+            transform: translateY(-50%) translateX(0);
+        }
+
+        .demo-info-close {
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, #667eea, #764ba2, #f093fb);
-            transform: scaleX(0);
-            transition: transform 0.4s;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 24px;
+            cursor: pointer;
+            opacity: 0.7;
+            transition: opacity 0.3s;
         }
 
-        .demo-card:hover {
-            transform: translateY(-10px);
-            border-color: rgba(255, 255, 255, 0.3);
-            box-shadow: 0 20px 50px rgba(102, 126, 234, 0.3);
+        .demo-info-close:hover {
+            opacity: 1;
         }
 
-        .demo-card:hover::before {
-            transform: scaleX(1);
-        }
-
-        .demo-icon {
-            font-size: 3.5em;
+        .demo-info-icon {
+            font-size: 4em;
             margin-bottom: 15px;
         }
 
-        .demo-category {
+        .demo-info-category {
             display: inline-block;
             padding: 5px 12px;
             border-radius: 15px;
@@ -168,25 +181,25 @@
             font-weight: 600;
             margin-bottom: 15px;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
         }
 
         .category-software { background: rgba(16, 185, 129, 0.3); color: #10b981; }
         .category-content { background: rgba(59, 130, 246, 0.3); color: #3b82f6; }
-        .category-data { background: rgba(245, 158, 11, 0.3); color: #f59e0b; }
-        .category-devops { background: rgba(239, 68, 68, 0.3); color: #ef4444; }
         .category-creative { background: rgba(168, 85, 247, 0.3); color: #a855f7; }
         .category-meta { background: rgba(236, 72, 153, 0.3); color: #ec4899; }
 
-        .demo-title {
-            font-size: 1.8em;
+        .demo-info-title {
+            font-size: 2em;
             font-weight: 700;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #667eea, #f093fb);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
-        .demo-tagline {
-            font-size: 1.05em;
-            opacity: 0.85;
+        .demo-info-tagline {
+            font-size: 1.1em;
+            opacity: 0.8;
             margin-bottom: 20px;
             line-height: 1.5;
         }
@@ -199,14 +212,15 @@
         }
 
         .metric {
-            display: flex;
-            flex-direction: column;
+            flex: 1;
+            min-width: 100px;
         }
 
         .metric-value {
-            font-size: 1.5em;
+            font-size: 1.8em;
             font-weight: bold;
             color: #667eea;
+            display: block;
         }
 
         .metric-label {
@@ -216,12 +230,13 @@
 
         .demo-features {
             list-style: none;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
         }
 
         .demo-features li {
-            padding: 5px 0;
+            padding: 8px 0;
             opacity: 0.8;
+            line-height: 1.4;
         }
 
         .demo-features li::before {
@@ -231,7 +246,7 @@
             margin-right: 8px;
         }
 
-        .launch-btn {
+        .launch-demo-btn {
             display: block;
             width: 100%;
             padding: 15px;
@@ -240,136 +255,143 @@
             background: linear-gradient(135deg, #667eea, #764ba2);
             color: #fff;
             border: none;
-            border-radius: 10px;
+            border-radius: 12px;
             cursor: pointer;
             transition: all 0.3s;
             text-decoration: none;
             text-align: center;
         }
 
-        .launch-btn:hover {
-            transform: scale(1.02);
-            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        .launch-demo-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.5);
         }
 
-        .search-box {
-            max-width: 600px;
-            margin: 0 auto 40px;
-        }
-
-        .search-input {
-            width: 100%;
-            padding: 15px 20px;
-            font-size: 1.1em;
-            background: rgba(255, 255, 255, 0.1);
-            border: 2px solid rgba(255, 255, 255, 0.2);
-            border-radius: 30px;
-            color: #fff;
+        .stats-panel {
+            position: fixed;
+            top: env(safe-area-inset-top, 20px);
+            right: env(safe-area-inset-right, 20px);
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid rgba(102, 126, 234, 0.4);
+            border-radius: 15px;
+            padding: 20px;
+            z-index: 1001;
             backdrop-filter: blur(10px);
         }
 
-        .search-input::placeholder {
-            color: rgba(255, 255, 255, 0.5);
-        }
-
-        .search-input:focus {
-            outline: none;
-            border-color: #667eea;
-            background: rgba(255, 255, 255, 0.15);
-        }
-
-        footer {
-            background: #111;
-            padding: 40px 20px;
-            text-align: center;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        footer p {
+        .stats-panel h3 {
+            font-size: 1em;
+            margin-bottom: 15px;
             opacity: 0.7;
-            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
-        .back-link {
-            display: inline-block;
-            margin-top: 20px;
-            padding: 12px 30px;
+        .stat-item {
+            margin-bottom: 12px;
+        }
+
+        .stat-value {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #667eea;
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 0.85em;
+            opacity: 0.8;
+        }
+
+        .back-button {
+            position: fixed;
+            bottom: calc(env(safe-area-inset-bottom, 20px) + 80px);
+            left: env(safe-area-inset-left, 20px);
+            padding: 12px 25px;
             background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 25px;
             color: #fff;
             text-decoration: none;
-            border-radius: 25px;
+            font-weight: 600;
+            z-index: 1001;
             transition: all 0.3s;
+            backdrop-filter: blur(10px);
         }
 
-        .back-link:hover {
+        .back-button:hover {
             background: rgba(255, 255, 255, 0.2);
+            transform: translateX(-5px);
         }
 
         @media (max-width: 768px) {
-            .hero h1 {
-                font-size: 2.5em;
+            .cathedral-title {
+                font-size: 2em;
             }
 
-            .hero p {
-                font-size: 1.2em;
+            .cathedral-description {
+                font-size: 1em;
             }
 
-            .demos-grid {
-                grid-template-columns: 1fr;
+            .demo-info-panel {
+                right: 10px;
+                left: 10px;
+                max-width: none;
+            }
+
+            .stats-panel {
+                padding: 15px;
+            }
+
+            .controls-hint {
+                font-size: 0.85em;
+                padding: 10px 20px;
             }
         }
     </style>
 </head>
 <body>
-    <div class="hero">
-        <h1>🏛️ The Matrix Cathedral</h1>
-        <p>Experience the power of parallel AI orchestration through interactive demonstrations</p>
+    <div id="three-container"></div>
 
-        <div class="hero-stats">
-            <div class="stat">
-                <span class="stat-value">7</span>
-                <span class="stat-label">Live Demonstrations</span>
-            </div>
-            <div class="stat">
-                <span class="stat-value">12,000+</span>
-                <span class="stat-label">Artifacts Generated</span>
-            </div>
-            <div class="stat">
-                <span class="stat-value">500×</span>
-                <span class="stat-label">Efficiency Multiplier</span>
-            </div>
+    <div class="cathedral-ui">
+        <h1 class="cathedral-title">THE CATHEDRAL</h1>
+        <p class="cathedral-description">
+            Walk through the sacred halls of parallel orchestration.<br>
+            Each window reveals a demonstration of The Matrix's power.
+        </p>
+    </div>
+
+    <div class="stats-panel">
+        <h3>Cathedral Metrics</h3>
+        <div class="stat-item">
+            <span class="stat-value">7</span>
+            <span class="stat-label">Demonstrations</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-value">12,000+</span>
+            <span class="stat-label">Artifacts</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-value">500×</span>
+            <span class="stat-label">Multiplier</span>
         </div>
     </div>
 
-    <div class="container">
-        <div class="section-header">
-            <h2>Explore Orchestration Patterns</h2>
-            <p>Each demonstration showcases The Matrix's ability to compress months of work into minutes through intelligent parallel coordination</p>
-        </div>
-
-        <div class="search-box">
-            <input type="text" class="search-input" id="searchInput" placeholder="Search demonstrations...">
-        </div>
-
-        <div class="controls">
-            <button class="filter-btn active" data-filter="all">All Demonstrations</button>
-            <button class="filter-btn" data-filter="software">Software Dev</button>
-            <button class="filter-btn" data-filter="content">Content</button>
-            <button class="filter-btn" data-filter="creative">Creative</button>
-            <button class="filter-btn" data-filter="meta">Meta-Orchestration</button>
-        </div>
-
-        <div class="demos-grid" id="demosGrid">
-            <!-- Demos will be generated here -->
-        </div>
+    <div class="controls-hint">
+        <p><strong>Desktop:</strong> Click & drag to look around • WASD to move • Click windows to explore</p>
+        <p><strong>Mobile:</strong> Swipe to look around • Tap windows to explore</p>
     </div>
 
-    <footer>
-        <p>Built with The Matrix orchestration framework</p>
-        <p>Parallel agent coordination • Context preservation • Autonomous execution</p>
-        <a href="index.html" class="back-link">← Back to Matrix Gateway</a>
-    </footer>
+    <a href="index.html" class="back-button">← Back to Gateway</a>
 
+    <div class="demo-info-panel" id="demoInfoPanel">
+        <button class="demo-info-close" onclick="closeDemoInfo()">×</button>
+        <div id="demoInfoContent"></div>
+    </div>
+
+    <div class="loading" id="loading">Constructing Cathedral...</div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script>
         const demos = [
             {
@@ -383,12 +405,13 @@
                     { value: '250×', label: 'Faster' }
                 ],
                 features: [
-                    'Real-time migration progress',
-                    'Agent coordination visualization',
-                    'Generated React components',
-                    'Time & cost savings metrics'
+                    'Real-time migration progress visualization',
+                    'Agent coordination dashboard',
+                    'Generated React components preview',
+                    'Time & cost savings calculator'
                 ],
-                file: 'the-great-migration.html'
+                file: 'the-great-migration.html',
+                color: 0x10b981
             },
             {
                 icon: '✨',
@@ -402,11 +425,12 @@
                 ],
                 features: [
                     'Character, location & lore generation',
-                    'Automatic interconnections',
-                    'Multi-category worldbuilding',
+                    'Automatic relationship mapping',
+                    'Multi-category worldbuilding system',
                     'Interactive element explorer'
                 ],
-                file: 'universe-architect.html'
+                file: 'universe-architect.html',
+                color: 0xa855f7
             },
             {
                 icon: '🧠',
@@ -419,12 +443,13 @@
                     { value: '800', label: 'Research Hours' }
                 ],
                 features: [
-                    'Multi-paper synthesis',
-                    'Cross-reference tracking',
-                    'Citation management',
-                    'Knowledge graph building'
+                    'Multi-paper synthesis engine',
+                    'Cross-reference tracking system',
+                    'Citation management automation',
+                    'Knowledge graph visualization'
                 ],
-                file: 'knowledge-synthesizer.html'
+                file: 'knowledge-synthesizer.html',
+                color: 0x3b82f6
             },
             {
                 icon: '⚙️',
@@ -437,12 +462,13 @@
                     { value: '3,000', label: 'Dev Hours' }
                 ],
                 features: [
-                    'REST API generation',
-                    'OpenAPI specs included',
-                    'Automated tests & docs',
-                    'Service mesh ready'
+                    'REST API generation from specs',
+                    'OpenAPI specifications included',
+                    'Automated tests & documentation',
+                    'Service mesh ready architecture'
                 ],
-                file: 'api-factory.html'
+                file: 'api-factory.html',
+                color: 0x10b981
             },
             {
                 icon: '⚡',
@@ -455,12 +481,13 @@
                     { value: '3', label: 'Levels Deep' }
                 ],
                 features: [
-                    'Hierarchical orchestration',
-                    'Sub-orchestrator spawning',
-                    'Workflow automation',
-                    'Multi-level coordination'
+                    'Hierarchical orchestration system',
+                    'Autonomous sub-orchestrator spawning',
+                    'Workflow automation engine',
+                    'Multi-level coordination dashboard'
                 ],
-                file: 'automation-cascade.html'
+                file: 'automation-cascade.html',
+                color: 0xec4899
             },
             {
                 icon: '📚',
@@ -473,12 +500,13 @@
                     { value: '4,800', label: 'Cross-Links' }
                 ],
                 features: [
-                    'Automatic code analysis',
-                    'API documentation',
-                    'Search index generation',
-                    'Multi-section organization'
+                    'Automatic code analysis & extraction',
+                    'API documentation generation',
+                    'Search index creation',
+                    'Multi-section organization system'
                 ],
-                file: 'documentation-engine.html'
+                file: 'documentation-engine.html',
+                color: 0x3b82f6
             },
             {
                 icon: '🎨',
@@ -491,35 +519,461 @@
                     { value: '98%', label: 'Test Coverage' }
                 ],
                 features: [
-                    'TypeScript components',
-                    'Storybook integration',
-                    'Accessibility compliant',
-                    'Design token system'
+                    'TypeScript component generation',
+                    'Storybook integration included',
+                    'WCAG 2.1 accessibility compliant',
+                    'Design token system implemented'
                 ],
-                file: 'component-library.html'
+                file: 'component-library.html',
+                color: 0x10b981
             }
         ];
 
-        function renderDemos(filter = 'all', searchTerm = '') {
-            const grid = document.getElementById('demosGrid');
-            grid.innerHTML = '';
+        class CathedralExperience {
+            constructor() {
+                this.scene = null;
+                this.camera = null;
+                this.renderer = null;
+                this.raycaster = new THREE.Raycaster();
+                this.mouse = new THREE.Vector2();
+                this.clock = new THREE.Clock();
 
-            const filtered = demos.filter(demo => {
-                const matchesFilter = filter === 'all' || demo.category === filter;
-                const matchesSearch = searchTerm === '' ||
-                    demo.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                    demo.tagline.toLowerCase().includes(searchTerm.toLowerCase());
-                return matchesFilter && matchesSearch;
-            });
+                this.cameraRotation = { x: 0, y: 0 };
+                this.cameraPosition = { x: 0, y: 5, z: 30 };
+                this.targetCameraRotation = { x: 0, y: 0 };
 
-            filtered.forEach(demo => {
-                const card = document.createElement('div');
-                card.className = 'demo-card';
-                card.innerHTML = `
-                    <div class="demo-icon">${demo.icon}</div>
-                    <div class="demo-category category-${demo.category}">${demo.category}</div>
-                    <h3 class="demo-title">${demo.title}</h3>
-                    <p class="demo-tagline">${demo.tagline}</p>
+                this.isDragging = false;
+                this.previousMousePosition = { x: 0, y: 0 };
+
+                this.moveForward = false;
+                this.moveBackward = false;
+                this.moveLeft = false;
+                this.moveRight = false;
+
+                this.windows = [];
+                this.hoveredWindow = null;
+
+                this.isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+                this.init();
+            }
+
+            init() {
+                this.setupScene();
+                this.setupLighting();
+                this.createCathedral();
+                this.createStainedGlassWindows();
+                this.setupEventListeners();
+
+                setTimeout(() => {
+                    document.getElementById('loading').style.display = 'none';
+                }, 1500);
+
+                this.animate();
+            }
+
+            setupScene() {
+                this.scene = new THREE.Scene();
+                this.scene.fog = new THREE.Fog(0x0a0a0f, 10, 80);
+                this.scene.background = new THREE.Color(0x0a0a0f);
+
+                this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+                this.camera.position.set(0, 5, 30);
+
+                this.renderer = new THREE.WebGLRenderer({ antialias: true });
+                this.renderer.setSize(window.innerWidth, window.innerHeight);
+                this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+                this.renderer.shadowMap.enabled = true;
+                this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+                document.getElementById('three-container').appendChild(this.renderer.domElement);
+            }
+
+            setupLighting() {
+                const ambientLight = new THREE.AmbientLight(0x1a1a2e, 0.4);
+                this.scene.add(ambientLight);
+
+                // Main directional light (god rays effect)
+                const dirLight = new THREE.DirectionalLight(0x667eea, 1.5);
+                dirLight.position.set(0, 30, 0);
+                dirLight.castShadow = true;
+                dirLight.shadow.camera.left = -50;
+                dirLight.shadow.camera.right = 50;
+                dirLight.shadow.camera.top = 50;
+                dirLight.shadow.camera.bottom = -50;
+                this.scene.add(dirLight);
+
+                // Accent lights for atmosphere
+                const purpleLight = new THREE.PointLight(0x764ba2, 1, 50);
+                purpleLight.position.set(-20, 10, 0);
+                this.scene.add(purpleLight);
+
+                const blueLight = new THREE.PointLight(0x667eea, 1, 50);
+                blueLight.position.set(20, 10, 0);
+                this.scene.add(blueLight);
+            }
+
+            createCathedral() {
+                // Floor
+                const floorGeometry = new THREE.PlaneGeometry(100, 100);
+                const floorMaterial = new THREE.MeshStandardMaterial({
+                    color: 0x16213e,
+                    roughness: 0.8,
+                    metalness: 0.2
+                });
+                const floor = new THREE.Mesh(floorGeometry, floorMaterial);
+                floor.rotation.x = -Math.PI / 2;
+                floor.receiveShadow = true;
+                this.scene.add(floor);
+
+                // Cathedral walls
+                const wallMaterial = new THREE.MeshStandardMaterial({
+                    color: 0x1a1a2e,
+                    roughness: 0.9,
+                    metalness: 0.1
+                });
+
+                // Left wall
+                const leftWall = new THREE.Mesh(
+                    new THREE.BoxGeometry(1, 30, 60),
+                    wallMaterial
+                );
+                leftWall.position.set(-25, 15, 0);
+                leftWall.castShadow = true;
+                this.scene.add(leftWall);
+
+                // Right wall
+                const rightWall = new THREE.Mesh(
+                    new THREE.BoxGeometry(1, 30, 60),
+                    wallMaterial
+                );
+                rightWall.position.set(25, 15, 0);
+                rightWall.castShadow = true;
+                this.scene.add(rightWall);
+
+                // Back wall
+                const backWall = new THREE.Mesh(
+                    new THREE.BoxGeometry(50, 30, 1),
+                    wallMaterial
+                );
+                backWall.position.set(0, 15, -30);
+                backWall.castShadow = true;
+                this.scene.add(backWall);
+
+                // Ceiling arches
+                this.createCeilingArches();
+
+                // Atmospheric particles
+                this.createParticles();
+
+                // Pillars
+                this.createPillars();
+            }
+
+            createCeilingArches() {
+                const archMaterial = new THREE.MeshStandardMaterial({
+                    color: 0x2a2a3e,
+                    roughness: 0.7,
+                    metalness: 0.3
+                });
+
+                for (let i = -20; i <= 20; i += 10) {
+                    const arch = new THREE.Mesh(
+                        new THREE.TorusGeometry(5, 0.5, 16, 100, Math.PI),
+                        archMaterial
+                    );
+                    arch.rotation.z = Math.PI;
+                    arch.position.set(0, 20, i);
+                    this.scene.add(arch);
+                }
+            }
+
+            createPillars() {
+                const pillarMaterial = new THREE.MeshStandardMaterial({
+                    color: 0x2a2a3e,
+                    roughness: 0.8,
+                    metalness: 0.2
+                });
+
+                const positions = [
+                    [-15, 0, -20], [15, 0, -20],
+                    [-15, 0, 0], [15, 0, 0],
+                    [-15, 0, 20], [15, 0, 20]
+                ];
+
+                positions.forEach(pos => {
+                    const pillar = new THREE.Mesh(
+                        new THREE.CylinderGeometry(1, 1.2, 25, 8),
+                        pillarMaterial
+                    );
+                    pillar.position.set(pos[0], 12.5, pos[1]);
+                    pillar.castShadow = true;
+                    this.scene.add(pillar);
+
+                    // Pillar capital
+                    const capital = new THREE.Mesh(
+                        new THREE.CylinderGeometry(1.5, 1, 2, 8),
+                        pillarMaterial
+                    );
+                    capital.position.set(pos[0], 24, pos[1]);
+                    this.scene.add(capital);
+                });
+            }
+
+            createParticles() {
+                const particleGeometry = new THREE.BufferGeometry();
+                const particleCount = 500;
+                const positions = new Float32Array(particleCount * 3);
+                const colors = new Float32Array(particleCount * 3);
+
+                for (let i = 0; i < particleCount * 3; i += 3) {
+                    positions[i] = (Math.random() - 0.5) * 50;
+                    positions[i + 1] = Math.random() * 30;
+                    positions[i + 2] = (Math.random() - 0.5) * 60;
+
+                    colors[i] = 0.4 + Math.random() * 0.3;
+                    colors[i + 1] = 0.3 + Math.random() * 0.4;
+                    colors[i + 2] = 0.6 + Math.random() * 0.4;
+                }
+
+                particleGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+                particleGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+                const particleMaterial = new THREE.PointsMaterial({
+                    size: 0.15,
+                    transparent: true,
+                    opacity: 0.6,
+                    vertexColors: true,
+                    blending: THREE.AdditiveBlending
+                });
+
+                this.particles = new THREE.Points(particleGeometry, particleMaterial);
+                this.scene.add(this.particles);
+            }
+
+            createStainedGlassWindows() {
+                const spacing = 8;
+                const startZ = -24;
+                const windowsPerSide = Math.ceil(demos.length / 2);
+
+                demos.forEach((demo, index) => {
+                    const isLeftSide = index % 2 === 0;
+                    const sideIndex = Math.floor(index / 2);
+
+                    const windowGroup = new THREE.Group();
+
+                    // Window frame
+                    const frameGeometry = new THREE.BoxGeometry(0.3, 8, 5);
+                    const frameMaterial = new THREE.MeshStandardMaterial({
+                        color: 0x2a2a3e,
+                        roughness: 0.3,
+                        metalness: 0.7
+                    });
+                    const frame = new THREE.Mesh(frameGeometry, frameMaterial);
+                    windowGroup.add(frame);
+
+                    // Stained glass
+                    const glassGeometry = new THREE.PlaneGeometry(4.5, 7.5);
+                    const glassMaterial = new THREE.MeshStandardMaterial({
+                        color: demo.color,
+                        emissive: demo.color,
+                        emissiveIntensity: 0.3,
+                        transparent: true,
+                        opacity: 0.7,
+                        side: THREE.DoubleSide
+                    });
+                    const glass = new THREE.Mesh(glassGeometry, glassMaterial);
+                    glass.position.set(isLeftSide ? -0.2 : 0.2, 0, 0);
+                    glass.rotation.y = isLeftSide ? Math.PI / 2 : -Math.PI / 2;
+                    windowGroup.add(glass);
+
+                    // Glow effect
+                    const glowLight = new THREE.PointLight(demo.color, 1.5, 10);
+                    glowLight.position.set(isLeftSide ? -2 : 2, 0, 0);
+                    windowGroup.add(glowLight);
+
+                    // Position the window
+                    const xPos = isLeftSide ? -24.5 : 24.5;
+                    const zPos = startZ + (sideIndex * spacing);
+                    windowGroup.position.set(xPos, 10, zPos);
+
+                    this.scene.add(windowGroup);
+
+                    // Store window data for interaction
+                    this.windows.push({
+                        mesh: glass,
+                        demo: demo,
+                        group: windowGroup,
+                        light: glowLight
+                    });
+
+                    // Add demo icon as 3D text (simplified)
+                    this.createWindowLabel(windowGroup, demo, isLeftSide);
+                });
+            }
+
+            createWindowLabel(windowGroup, demo, isLeftSide) {
+                const canvas = document.createElement('canvas');
+                const context = canvas.getContext('2d');
+                canvas.width = 512;
+                canvas.height = 256;
+
+                context.fillStyle = 'rgba(0, 0, 0, 0.8)';
+                context.fillRect(0, 0, canvas.width, canvas.height);
+
+                context.font = 'bold 80px Arial';
+                context.fillStyle = '#ffffff';
+                context.textAlign = 'center';
+                context.textBaseline = 'middle';
+                context.fillText(demo.icon, 256, 90);
+
+                context.font = 'bold 32px Arial';
+                context.fillText(demo.title, 256, 180);
+
+                const texture = new THREE.CanvasTexture(canvas);
+                const labelMaterial = new THREE.MeshBasicMaterial({
+                    map: texture,
+                    transparent: true
+                });
+                const labelGeometry = new THREE.PlaneGeometry(4, 2);
+                const label = new THREE.Mesh(labelGeometry, labelMaterial);
+                label.position.set(isLeftSide ? 0.5 : -0.5, -5, 0);
+                label.rotation.y = isLeftSide ? Math.PI / 2 : -Math.PI / 2;
+                windowGroup.add(label);
+            }
+
+            setupEventListeners() {
+                window.addEventListener('resize', () => {
+                    this.camera.aspect = window.innerWidth / window.innerHeight;
+                    this.camera.updateProjectionMatrix();
+                    this.renderer.setSize(window.innerWidth, window.innerHeight);
+                });
+
+                // Mouse controls
+                this.renderer.domElement.addEventListener('mousedown', (e) => {
+                    this.isDragging = true;
+                    this.previousMousePosition = { x: e.clientX, y: e.clientY };
+                });
+
+                this.renderer.domElement.addEventListener('mousemove', (e) => {
+                    this.mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+                    this.mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+
+                    if (this.isDragging) {
+                        const deltaX = e.clientX - this.previousMousePosition.x;
+                        const deltaY = e.clientY - this.previousMousePosition.y;
+
+                        this.targetCameraRotation.y -= deltaX * 0.003;
+                        this.targetCameraRotation.x -= deltaY * 0.003;
+                        this.targetCameraRotation.x = Math.max(-Math.PI / 3, Math.min(Math.PI / 3, this.targetCameraRotation.x));
+
+                        this.previousMousePosition = { x: e.clientX, y: e.clientY };
+                    } else {
+                        this.checkWindowHover();
+                    }
+                });
+
+                this.renderer.domElement.addEventListener('mouseup', () => {
+                    this.isDragging = false;
+                });
+
+                this.renderer.domElement.addEventListener('click', (e) => {
+                    if (!this.isDragging) {
+                        this.checkWindowClick();
+                    }
+                });
+
+                // Touch controls
+                let touchStartX = 0, touchStartY = 0;
+                this.renderer.domElement.addEventListener('touchstart', (e) => {
+                    touchStartX = e.touches[0].clientX;
+                    touchStartY = e.touches[0].clientY;
+                }, { passive: true });
+
+                this.renderer.domElement.addEventListener('touchmove', (e) => {
+                    const deltaX = e.touches[0].clientX - touchStartX;
+                    const deltaY = e.touches[0].clientY - touchStartY;
+
+                    this.targetCameraRotation.y -= deltaX * 0.003;
+                    this.targetCameraRotation.x -= deltaY * 0.003;
+                    this.targetCameraRotation.x = Math.max(-Math.PI / 3, Math.min(Math.PI / 3, this.targetCameraRotation.x));
+
+                    touchStartX = e.touches[0].clientX;
+                    touchStartY = e.touches[0].clientY;
+                }, { passive: true });
+
+                this.renderer.domElement.addEventListener('touchend', () => {
+                    this.checkWindowClick();
+                }, { passive: true });
+
+                // Keyboard controls
+                window.addEventListener('keydown', (e) => {
+                    switch(e.code) {
+                        case 'KeyW': this.moveForward = true; break;
+                        case 'KeyS': this.moveBackward = true; break;
+                        case 'KeyA': this.moveLeft = true; break;
+                        case 'KeyD': this.moveRight = true; break;
+                    }
+                });
+
+                window.addEventListener('keyup', (e) => {
+                    switch(e.code) {
+                        case 'KeyW': this.moveForward = false; break;
+                        case 'KeyS': this.moveBackward = false; break;
+                        case 'KeyA': this.moveLeft = false; break;
+                        case 'KeyD': this.moveRight = false; break;
+                    }
+                });
+            }
+
+            checkWindowHover() {
+                this.raycaster.setFromCamera(this.mouse, this.camera);
+                const intersects = this.raycaster.intersectObjects(
+                    this.windows.map(w => w.mesh)
+                );
+
+                // Reset previous hover
+                if (this.hoveredWindow) {
+                    this.hoveredWindow.mesh.material.emissiveIntensity = 0.3;
+                    this.hoveredWindow.light.intensity = 1.5;
+                }
+
+                if (intersects.length > 0) {
+                    const window = this.windows.find(w => w.mesh === intersects[0].object);
+                    if (window) {
+                        this.hoveredWindow = window;
+                        window.mesh.material.emissiveIntensity = 0.6;
+                        window.light.intensity = 3;
+                        this.renderer.domElement.style.cursor = 'pointer';
+                    }
+                } else {
+                    this.hoveredWindow = null;
+                    this.renderer.domElement.style.cursor = 'default';
+                }
+            }
+
+            checkWindowClick() {
+                this.raycaster.setFromCamera(this.mouse, this.camera);
+                const intersects = this.raycaster.intersectObjects(
+                    this.windows.map(w => w.mesh)
+                );
+
+                if (intersects.length > 0) {
+                    const window = this.windows.find(w => w.mesh === intersects[0].object);
+                    if (window) {
+                        this.showDemoInfo(window.demo);
+                    }
+                }
+            }
+
+            showDemoInfo(demo) {
+                const panel = document.getElementById('demoInfoPanel');
+                const content = document.getElementById('demoInfoContent');
+
+                content.innerHTML = `
+                    <div class="demo-info-icon">${demo.icon}</div>
+                    <div class="demo-info-category category-${demo.category}">${demo.category}</div>
+                    <h2 class="demo-info-title">${demo.title}</h2>
+                    <p class="demo-info-tagline">${demo.tagline}</p>
                     <div class="demo-metrics">
                         ${demo.metrics.map(m => `
                             <div class="metric">
@@ -531,31 +985,84 @@
                     <ul class="demo-features">
                         ${demo.features.map(f => `<li>${f}</li>`).join('')}
                     </ul>
-                    <a href="demos/${demo.file}" class="launch-btn">Launch Demo →</a>
+                    <a href="demos/${demo.file}" class="launch-demo-btn">Launch Demo →</a>
                 `;
-                grid.appendChild(card);
-            });
+
+                panel.classList.add('active');
+            }
+
+            updateCamera() {
+                // Smooth camera rotation
+                this.cameraRotation.x += (this.targetCameraRotation.x - this.cameraRotation.x) * 0.1;
+                this.cameraRotation.y += (this.targetCameraRotation.y - this.cameraRotation.y) * 0.1;
+
+                // Movement
+                const moveSpeed = 0.3;
+                const forward = new THREE.Vector3(0, 0, -1);
+                const right = new THREE.Vector3(1, 0, 0);
+
+                forward.applyAxisAngle(new THREE.Vector3(0, 1, 0), this.cameraRotation.y);
+                right.applyAxisAngle(new THREE.Vector3(0, 1, 0), this.cameraRotation.y);
+
+                if (this.moveForward) {
+                    this.cameraPosition.x += forward.x * moveSpeed;
+                    this.cameraPosition.z += forward.z * moveSpeed;
+                }
+                if (this.moveBackward) {
+                    this.cameraPosition.x -= forward.x * moveSpeed;
+                    this.cameraPosition.z -= forward.z * moveSpeed;
+                }
+                if (this.moveLeft) {
+                    this.cameraPosition.x -= right.x * moveSpeed;
+                    this.cameraPosition.z -= right.z * moveSpeed;
+                }
+                if (this.moveRight) {
+                    this.cameraPosition.x += right.x * moveSpeed;
+                    this.cameraPosition.z += right.z * moveSpeed;
+                }
+
+                // Constrain movement within cathedral
+                this.cameraPosition.x = Math.max(-20, Math.min(20, this.cameraPosition.x));
+                this.cameraPosition.z = Math.max(-25, Math.min(25, this.cameraPosition.z));
+
+                // Apply camera transformation
+                this.camera.position.set(this.cameraPosition.x, this.cameraPosition.y, this.cameraPosition.z);
+                this.camera.rotation.set(this.cameraRotation.x, this.cameraRotation.y, 0);
+            }
+
+            animate() {
+                requestAnimationFrame(() => this.animate());
+
+                const time = this.clock.getElapsedTime();
+
+                // Animate particles
+                if (this.particles) {
+                    this.particles.rotation.y = time * 0.02;
+                    this.particles.position.y = Math.sin(time * 0.3) * 0.5;
+                }
+
+                // Pulse window lights
+                this.windows.forEach((window, index) => {
+                    const offset = index * 0.5;
+                    const intensity = 1.5 + Math.sin(time + offset) * 0.5;
+                    if (window !== this.hoveredWindow) {
+                        window.light.intensity = intensity;
+                    }
+                });
+
+                this.updateCamera();
+                this.renderer.render(this.scene, this.camera);
+            }
         }
 
-        // Filter buttons
-        document.querySelectorAll('.filter-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                const filter = btn.dataset.filter;
-                const searchTerm = document.getElementById('searchInput').value;
-                renderDemos(filter, searchTerm);
-            });
-        });
+        function closeDemoInfo() {
+            document.getElementById('demoInfoPanel').classList.remove('active');
+        }
 
-        // Search
-        document.getElementById('searchInput').addEventListener('input', (e) => {
-            const activeFilter = document.querySelector('.filter-btn.active').dataset.filter;
-            renderDemos(activeFilter, e.target.value);
+        // Initialize
+        window.addEventListener('DOMContentLoaded', () => {
+            new CathedralExperience();
         });
-
-        // Initial render
-        renderDemos();
     </script>
 </body>
 </html>

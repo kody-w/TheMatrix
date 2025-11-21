@@ -1,0 +1,2724 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Code Collaborator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/monokai.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/solarized.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/javascript/javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/python/python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/css/css.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/htmlmixed/htmlmixed.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/edit/closebrackets.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/edit/matchbrackets.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/peerjs@1.4.7/dist/peerjs.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #1e1e1e;
+            color: #d4d4d4;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+            position: relative;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 60px;
+            background: #252526;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px 0;
+            transition: width 0.3s;
+            z-index: 100;
+            border-right: 1px solid #3e3e42;
+        }
+
+        .sidebar.expanded {
+            width: 250px;
+        }
+
+        .sidebar-icon {
+            width: 40px;
+            height: 40px;
+            margin: 10px;
+            background: #3e3e42;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 20px;
+        }
+
+        .sidebar-icon:hover {
+            background: #505050;
+            transform: scale(1.1);
+        }
+
+        .sidebar-icon.active {
+            background: #007acc;
+        }
+
+        /* Main Area */
+        .main-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        .header {
+            height: 50px;
+            background: #2d2d30;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            border-bottom: 1px solid #3e3e42;
+            justify-content: space-between;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .connection-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 5px 12px;
+            background: #3e3e42;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #f48771;
+        }
+
+        .status-dot.connected {
+            background: #89d185;
+        }
+
+        .btn {
+            padding: 6px 14px;
+            background: #0e639c;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: background 0.2s;
+        }
+
+        .btn:hover {
+            background: #1177bb;
+        }
+
+        .btn.secondary {
+            background: #3e3e42;
+        }
+
+        .btn.secondary:hover {
+            background: #505050;
+        }
+
+        /* Content Area */
+        .content-area {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+
+        /* Code Editor Panel */
+        .editor-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #1e1e1e;
+        }
+
+        .editor-tabs {
+            height: 35px;
+            background: #2d2d30;
+            display: flex;
+            align-items: center;
+            padding: 0 10px;
+            gap: 5px;
+            overflow-x: auto;
+        }
+
+        .editor-tab {
+            padding: 6px 12px;
+            background: #2d2d30;
+            border-radius: 4px 4px 0 0;
+            cursor: pointer;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+        }
+
+        .editor-tab.active {
+            background: #1e1e1e;
+        }
+
+        .editor-tab .close {
+            opacity: 0.6;
+            cursor: pointer;
+        }
+
+        .editor-tab .close:hover {
+            opacity: 1;
+        }
+
+        .CodeMirror {
+            height: 100%;
+            font-size: 14px;
+        }
+
+        /* 3D Visualization Panel */
+        .viz-panel {
+            width: 350px;
+            background: #252526;
+            border-left: 1px solid #3e3e42;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .viz-panel.collapsed {
+            width: 0;
+            overflow: hidden;
+        }
+
+        .viz-header {
+            height: 40px;
+            background: #2d2d30;
+            display: flex;
+            align-items: center;
+            padding: 0 15px;
+            justify-content: space-between;
+            font-size: 13px;
+            font-weight: 600;
+            border-bottom: 1px solid #3e3e42;
+        }
+
+        #viz-canvas {
+            flex: 1;
+            display: block;
+        }
+
+        /* Terminal Panel */
+        .terminal-panel {
+            height: 200px;
+            background: #1e1e1e;
+            border-top: 1px solid #3e3e42;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .terminal-panel.collapsed {
+            height: 35px;
+        }
+
+        .terminal-header {
+            height: 35px;
+            background: #2d2d30;
+            display: flex;
+            align-items: center;
+            padding: 0 15px;
+            justify-content: space-between;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        .terminal-content {
+            flex: 1;
+            padding: 10px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 13px;
+            overflow-y: auto;
+        }
+
+        .terminal-collapsed .terminal-content {
+            display: none;
+        }
+
+        .terminal-line {
+            margin: 3px 0;
+        }
+
+        .terminal-input {
+            display: flex;
+            align-items: center;
+            padding: 5px 10px;
+            background: #252526;
+        }
+
+        .terminal-prompt {
+            color: #4ec9b0;
+            margin-right: 8px;
+        }
+
+        .terminal-input input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: #d4d4d4;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 13px;
+            outline: none;
+        }
+
+        /* Chat Panel */
+        .chat-panel {
+            width: 350px;
+            background: #252526;
+            border-left: 1px solid #3e3e42;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-panel.collapsed {
+            width: 0;
+            overflow: hidden;
+        }
+
+        .chat-header {
+            height: 40px;
+            background: #2d2d30;
+            display: flex;
+            align-items: center;
+            padding: 0 15px;
+            justify-content: space-between;
+            font-size: 13px;
+            font-weight: 600;
+            border-bottom: 1px solid #3e3e42;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+        }
+
+        .chat-message {
+            margin-bottom: 15px;
+        }
+
+        .chat-message-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 5px;
+        }
+
+        .chat-avatar {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #0e639c;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .chat-username {
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        .chat-timestamp {
+            font-size: 11px;
+            opacity: 0.6;
+        }
+
+        .chat-message-content {
+            padding-left: 32px;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .chat-input {
+            padding: 12px 15px;
+            background: #2d2d30;
+            border-top: 1px solid #3e3e42;
+        }
+
+        .chat-input-area {
+            display: flex;
+            gap: 8px;
+        }
+
+        .chat-input textarea {
+            flex: 1;
+            background: #3e3e42;
+            border: 1px solid #505050;
+            border-radius: 4px;
+            color: #d4d4d4;
+            padding: 8px;
+            font-size: 13px;
+            font-family: inherit;
+            resize: none;
+            outline: none;
+        }
+
+        .chat-input textarea:focus {
+            border-color: #007acc;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #252526;
+            border-radius: 8px;
+            padding: 25px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-header {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .modal-body {
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 8px 12px;
+            background: #3e3e42;
+            border: 1px solid #505050;
+            border-radius: 4px;
+            color: #d4d4d4;
+            font-size: 13px;
+            outline: none;
+        }
+
+        .form-input:focus {
+            border-color: #007acc;
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 8px 12px;
+            background: #3e3e42;
+            border: 1px solid #505050;
+            border-radius: 4px;
+            color: #d4d4d4;
+            font-size: 13px;
+            outline: none;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        /* Voice Control */
+        .voice-control {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: #007acc;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 122, 204, 0.4);
+            transition: all 0.3s;
+            z-index: 200;
+        }
+
+        .voice-control:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 16px rgba(0, 122, 204, 0.6);
+        }
+
+        .voice-control.listening {
+            background: #d13438;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.15); }
+        }
+
+        .voice-icon {
+            font-size: 24px;
+        }
+
+        /* Collaborators List */
+        .collaborators-list {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .collaborator-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #0e639c;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 600;
+            position: relative;
+        }
+
+        .collaborator-status {
+            position: absolute;
+            bottom: -2px;
+            right: -2px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #89d185;
+            border: 2px solid #2d2d30;
+        }
+
+        /* Settings Panel */
+        .settings-panel {
+            position: fixed;
+            top: 0;
+            right: -400px;
+            width: 400px;
+            height: 100vh;
+            background: #252526;
+            box-shadow: -4px 0 12px rgba(0, 0, 0, 0.3);
+            z-index: 999;
+            transition: right 0.3s;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .settings-panel.active {
+            right: 0;
+        }
+
+        .settings-header {
+            height: 50px;
+            background: #2d2d30;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            justify-content: space-between;
+            border-bottom: 1px solid #3e3e42;
+        }
+
+        .settings-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .settings-section {
+            margin-bottom: 25px;
+        }
+
+        .settings-section-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #007acc;
+        }
+
+        .settings-item {
+            margin-bottom: 15px;
+        }
+
+        .settings-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 0;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 44px;
+            height: 24px;
+            background: #3e3e42;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .toggle-switch.active {
+            background: #007acc;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 18px;
+            height: 18px;
+            background: white;
+            border-radius: 50%;
+            transition: left 0.3s;
+        }
+
+        .toggle-switch.active .toggle-slider {
+            left: 23px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .viz-panel, .chat-panel {
+                position: fixed;
+                top: 50px;
+                right: 0;
+                height: calc(100vh - 50px);
+                z-index: 99;
+                width: 100% !important;
+            }
+
+            .voice-control {
+                bottom: 20px;
+                right: 20px;
+                width: 50px;
+                height: 50px;
+            }
+
+            .voice-icon {
+                font-size: 20px;
+            }
+        }
+
+        /* Code Structure Visualization Styles */
+        .structure-info {
+            position: absolute;
+            top: 50px;
+            left: 70px;
+            background: rgba(45, 45, 48, 0.95);
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            pointer-events: none;
+            display: none;
+            max-width: 300px;
+            z-index: 150;
+        }
+
+        .structure-info.active {
+            display: block;
+        }
+
+        .structure-name {
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: #4ec9b0;
+        }
+
+        .structure-type {
+            color: #9cdcfe;
+            margin-bottom: 4px;
+        }
+
+        .structure-lines {
+            color: #ce9178;
+        }
+
+        /* Screen Share Controls */
+        .screen-share-controls {
+            display: none;
+            position: fixed;
+            top: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(45, 45, 48, 0.95);
+            padding: 10px 15px;
+            border-radius: 6px;
+            z-index: 150;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .screen-share-controls.active {
+            display: flex;
+        }
+
+        .annotation-tool {
+            padding: 6px 12px;
+            background: #3e3e42;
+            border: none;
+            border-radius: 4px;
+            color: #d4d4d4;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .annotation-tool.active {
+            background: #007acc;
+        }
+
+        .annotation-color {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+
+        .annotation-color.active {
+            border-color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-icon active" id="icon-editor" title="Code Editor">&#x1F4DD;</div>
+            <div class="sidebar-icon" id="icon-viz" title="3D Visualization">&#x1F4CA;</div>
+            <div class="sidebar-icon" id="icon-chat" title="Team Chat">&#x1F4AC;</div>
+            <div class="sidebar-icon" id="icon-terminal" title="Terminal">&#x1F5A5;</div>
+            <div class="sidebar-icon" id="icon-collab" title="Collaboration">&#x1F465;</div>
+            <div class="sidebar-icon" id="icon-settings" title="Settings" style="margin-top: auto;">&#x2699;</div>
+        </div>
+
+        <!-- Main Area -->
+        <div class="main-area">
+            <!-- Header -->
+            <div class="header">
+                <div class="header-left">
+                    <div style="font-weight: 600; font-size: 15px;">AI Code Collaborator</div>
+                    <div class="connection-status" id="connection-status">
+                        <div class="status-dot" id="status-dot"></div>
+                        <span id="status-text">Offline</span>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <div class="collaborators-list" id="collaborators-list"></div>
+                    <button class="btn secondary" id="btn-analyze-code">Analyze Code</button>
+                    <button class="btn" id="btn-share-session">Share Session</button>
+                    <button class="btn secondary" id="btn-voice-assist">Voice Assist</button>
+                    <button class="btn secondary" id="btn-screen-share">Screen Share</button>
+                </div>
+            </div>
+
+            <!-- Content Area -->
+            <div class="content-area">
+                <!-- Code Editor Panel -->
+                <div class="editor-panel">
+                    <div class="editor-tabs" id="editor-tabs">
+                        <div class="editor-tab active" data-file="main.js">
+                            <span>main.js</span>
+                            <span class="close">&times;</span>
+                        </div>
+                    </div>
+                    <textarea id="code-editor"></textarea>
+                </div>
+
+                <!-- 3D Visualization Panel -->
+                <div class="viz-panel" id="viz-panel">
+                    <div class="viz-header">
+                        <span>Code Structure</span>
+                        <span style="cursor: pointer;" id="viz-close">&times;</span>
+                    </div>
+                    <canvas id="viz-canvas"></canvas>
+                </div>
+
+                <!-- Chat Panel -->
+                <div class="chat-panel collapsed" id="chat-panel">
+                    <div class="chat-header">
+                        <span>Team Chat</span>
+                        <span style="cursor: pointer;" id="chat-close">&times;</span>
+                    </div>
+                    <div class="chat-messages" id="chat-messages">
+                        <div class="chat-message">
+                            <div class="chat-message-header">
+                                <div class="chat-avatar">AI</div>
+                                <span class="chat-username">Code Assistant</span>
+                                <span class="chat-timestamp">Just now</span>
+                            </div>
+                            <div class="chat-message-content">
+                                Welcome to AI Code Collaborator! Start typing code or invite team members to collaborate in real-time.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="chat-input">
+                        <div class="chat-input-area">
+                            <textarea id="chat-input-field" placeholder="Type a message..." rows="2"></textarea>
+                            <button class="btn" id="btn-send-chat">Send</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Terminal Panel -->
+            <div class="terminal-panel collapsed" id="terminal-panel">
+                <div class="terminal-header" id="terminal-header">
+                    <span>Terminal</span>
+                    <span>&#x25B2;</span>
+                </div>
+                <div class="terminal-content" id="terminal-content"></div>
+                <div class="terminal-input">
+                    <span class="terminal-prompt">$</span>
+                    <input type="text" id="terminal-input" placeholder="Enter command...">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Structure Info Tooltip -->
+    <div class="structure-info" id="structure-info">
+        <div class="structure-name"></div>
+        <div class="structure-type"></div>
+        <div class="structure-lines"></div>
+    </div>
+
+    <!-- Screen Share Annotation Controls -->
+    <div class="screen-share-controls" id="screen-share-controls">
+        <button class="annotation-tool" data-tool="pen">Pen</button>
+        <button class="annotation-tool" data-tool="arrow">Arrow</button>
+        <button class="annotation-tool" data-tool="text">Text</button>
+        <div class="annotation-color" style="background: #d13438;" data-color="#d13438"></div>
+        <div class="annotation-color" style="background: #0e639c;" data-color="#0e639c"></div>
+        <div class="annotation-color" style="background: #89d185;" data-color="#89d185"></div>
+        <button class="annotation-tool" id="clear-annotations">Clear</button>
+        <button class="annotation-tool" id="stop-screen-share">Stop</button>
+    </div>
+
+    <!-- Voice Control Button -->
+    <div class="voice-control" id="voice-control">
+        <div class="voice-icon">&#x1F3A4;</div>
+    </div>
+
+    <!-- Settings Panel -->
+    <div class="settings-panel" id="settings-panel">
+        <div class="settings-header">
+            <span style="font-weight: 600;">Settings</span>
+            <span style="cursor: pointer; font-size: 20px;" id="settings-close">&times;</span>
+        </div>
+        <div class="settings-content">
+            <div class="settings-section">
+                <div class="settings-section-title">Editor</div>
+                <div class="settings-item">
+                    <div class="form-group">
+                        <label class="form-label">Theme</label>
+                        <select class="form-select" id="setting-theme">
+                            <option value="monokai">Monokai</option>
+                            <option value="solarized">Solarized</option>
+                            <option value="default">Default</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="settings-item">
+                    <div class="form-group">
+                        <label class="form-label">Font Size</label>
+                        <select class="form-select" id="setting-fontsize">
+                            <option value="12">12px</option>
+                            <option value="13">13px</option>
+                            <option value="14" selected>14px</option>
+                            <option value="16">16px</option>
+                            <option value="18">18px</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="settings-item">
+                    <div class="settings-toggle">
+                        <span>Line Numbers</span>
+                        <div class="toggle-switch active" id="toggle-line-numbers">
+                            <div class="toggle-slider"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="settings-item">
+                    <div class="settings-toggle">
+                        <span>Auto-close Brackets</span>
+                        <div class="toggle-switch active" id="toggle-auto-brackets">
+                            <div class="toggle-slider"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="settings-section">
+                <div class="settings-section-title">Collaboration</div>
+                <div class="settings-item">
+                    <div class="form-group">
+                        <label class="form-label">Username</label>
+                        <input type="text" class="form-input" id="setting-username" value="Developer">
+                    </div>
+                </div>
+                <div class="settings-item">
+                    <div class="settings-toggle">
+                        <span>Show Collaborator Cursors</span>
+                        <div class="toggle-switch active" id="toggle-cursors">
+                            <div class="toggle-slider"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="settings-item">
+                    <div class="settings-toggle">
+                        <span>Auto-save Changes</span>
+                        <div class="toggle-switch active" id="toggle-autosave">
+                            <div class="toggle-slider"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="settings-section">
+                <div class="settings-section-title">AI Integration</div>
+                <div class="settings-item">
+                    <div class="settings-toggle">
+                        <span>Enable AI Features</span>
+                        <div class="toggle-switch active" id="toggle-ai">
+                            <div class="toggle-slider"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="settings-item">
+                    <div class="form-group">
+                        <label class="form-label">AI Endpoint (Optional)</label>
+                        <input type="text" class="form-input" id="setting-ai-endpoint" placeholder="https://api.example.com/v1/chat">
+                    </div>
+                </div>
+                <div class="settings-item">
+                    <div class="form-group">
+                        <label class="form-label">API Key (Optional)</label>
+                        <input type="password" class="form-input" id="setting-ai-apikey" placeholder="Enter API key">
+                    </div>
+                </div>
+                <div class="settings-item">
+                    <p style="font-size: 12px; opacity: 0.7; margin-top: 5px;">
+                        Leave endpoint blank to use smart fallback templates. No API key needed for offline mode.
+                    </p>
+                </div>
+            </div>
+
+            <div class="settings-section">
+                <div class="settings-section-title">Voice Assistant</div>
+                <div class="settings-item">
+                    <div class="settings-toggle">
+                        <span>Enable Voice Commands</span>
+                        <div class="toggle-switch active" id="toggle-voice">
+                            <div class="toggle-slider"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="settings-item">
+                    <div class="form-group">
+                        <label class="form-label">Voice Language</label>
+                        <select class="form-select" id="setting-voice-lang">
+                            <option value="en-US">English (US)</option>
+                            <option value="en-GB">English (UK)</option>
+                            <option value="es-ES">Spanish</option>
+                            <option value="fr-FR">French</option>
+                            <option value="de-DE">German</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="settings-section">
+                <div class="settings-section-title">Visualization</div>
+                <div class="settings-item">
+                    <div class="settings-toggle">
+                        <span>Auto-update Structure</span>
+                        <div class="toggle-switch active" id="toggle-auto-viz">
+                            <div class="toggle-slider"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="settings-item">
+                    <div class="settings-toggle">
+                        <span>Show Complexity Metrics</span>
+                        <div class="toggle-switch active" id="toggle-complexity">
+                            <div class="toggle-slider"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="settings-section">
+                <div class="settings-section-title">Data Management</div>
+                <div class="settings-item">
+                    <button class="btn" id="btn-export-settings" style="width: 100%; margin-bottom: 10px;">Export Settings</button>
+                    <button class="btn secondary" id="btn-import-settings" style="width: 100%; margin-bottom: 10px;">Import Settings</button>
+                    <button class="btn secondary" id="btn-clear-data" style="width: 100%;">Clear All Data</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Share Session Modal -->
+    <div class="modal" id="share-modal">
+        <div class="modal-content">
+            <div class="modal-header">Share Collaboration Session</div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Your Session ID</label>
+                    <input type="text" class="form-input" id="my-session-id" readonly>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Join Another Session</label>
+                    <input type="text" class="form-input" id="join-session-id" placeholder="Enter session ID...">
+                </div>
+                <p style="font-size: 12px; opacity: 0.7; margin-top: 10px;">
+                    Share your session ID with collaborators to work together in real-time.
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn secondary" id="btn-copy-session">Copy My ID</button>
+                <button class="btn" id="btn-join-session">Join Session</button>
+                <button class="btn secondary" id="btn-close-share">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Application State
+        const AppState = {
+            editor: null,
+            currentFile: 'main.js',
+            files: {
+                'main.js': '// Welcome to AI Code Collaborator\n// Start typing your code here\n\nfunction helloWorld() {\n    console.log("Hello, World!");\n}\n\nhelloWorld();'
+            },
+            peer: null,
+            peerId: null,
+            connections: new Map(),
+            username: 'Developer',
+            settings: {
+                theme: 'monokai',
+                fontSize: 14,
+                lineNumbers: true,
+                autoBrackets: true,
+                showCursors: true,
+                autoSave: true,
+                voiceEnabled: true,
+                voiceLang: 'en-US',
+                autoViz: true,
+                showComplexity: true,
+                aiEnabled: true,
+                aiEndpoint: '',
+                aiApiKey: ''
+            },
+            voiceRecognition: null,
+            isListening: false,
+            screenStream: null,
+            annotationCanvas: null,
+            annotationCtx: null,
+            currentTool: 'pen',
+            currentColor: '#d13438',
+            vizScene: null,
+            vizCamera: null,
+            vizRenderer: null,
+            vizObjects: [],
+            vizAnimationId: null,
+            aiManager: null,
+            codeAssistant: null
+        };
+
+        // AI Manager - Handles AI integration with fallbacks
+        class AIManager {
+            constructor() {
+                this.aiAvailable = false;
+                this.endpoint = AppState.settings.aiEndpoint;
+                this.apiKey = AppState.settings.aiApiKey;
+                this.requestQueue = [];
+                this.processing = false;
+            }
+
+            async checkAvailability() {
+                if (!this.endpoint || !this.apiKey) {
+                    this.aiAvailable = false;
+                    return false;
+                }
+
+                try {
+                    // Attempt to ping AI service (simplified)
+                    this.aiAvailable = true;
+                    return true;
+                } catch (err) {
+                    this.aiAvailable = false;
+                    return false;
+                }
+            }
+
+            async generateCode(prompt, context = '') {
+                if (this.aiAvailable && this.endpoint) {
+                    return await this.generateWithAI(prompt, context);
+                } else {
+                    return this.generateWithFallback(prompt, context);
+                }
+            }
+
+            async generateWithAI(prompt, context) {
+                try {
+                    // This would integrate with actual AI API
+                    // For now, return fallback with indication
+                    return {
+                        success: true,
+                        code: this.generateWithFallback(prompt, context).code,
+                        source: 'fallback',
+                        message: 'AI endpoint not configured. Using smart fallbacks.'
+                    };
+                } catch (err) {
+                    return this.generateWithFallback(prompt, context);
+                }
+            }
+
+            generateWithFallback(prompt, context) {
+                const lowerPrompt = prompt.toLowerCase();
+
+                // Pattern matching for common requests
+                if (lowerPrompt.includes('function') && lowerPrompt.includes('fetch')) {
+                    return {
+                        success: true,
+                        code: this.templates.fetchFunction(this.extractName(prompt)),
+                        source: 'template',
+                        message: 'Generated from template library'
+                    };
+                } else if (lowerPrompt.includes('class') && lowerPrompt.includes('api')) {
+                    return {
+                        success: true,
+                        code: this.templates.apiClass(this.extractName(prompt)),
+                        source: 'template',
+                        message: 'Generated from template library'
+                    };
+                } else if (lowerPrompt.includes('error handling')) {
+                    return {
+                        success: true,
+                        code: this.templates.errorHandler(),
+                        source: 'template',
+                        message: 'Generated error handling pattern'
+                    };
+                } else if (lowerPrompt.includes('async') || lowerPrompt.includes('promise')) {
+                    return {
+                        success: true,
+                        code: this.templates.asyncFunction(this.extractName(prompt)),
+                        source: 'template',
+                        message: 'Generated async pattern'
+                    };
+                } else if (lowerPrompt.includes('test') || lowerPrompt.includes('unit test')) {
+                    return {
+                        success: true,
+                        code: this.templates.testSuite(this.extractName(prompt)),
+                        source: 'template',
+                        message: 'Generated test suite'
+                    };
+                } else {
+                    return {
+                        success: true,
+                        code: this.templates.genericFunction(this.extractName(prompt)),
+                        source: 'template',
+                        message: 'Generated generic template'
+                    };
+                }
+            }
+
+            extractName(prompt) {
+                const words = prompt.split(' ');
+                const nameWords = words.filter(w =>
+                    w.length > 2 &&
+                    !['the', 'and', 'for', 'with', 'create', 'make', 'add', 'generate'].includes(w.toLowerCase())
+                );
+                return nameWords[0] || 'myFunction';
+            }
+
+            templates = {
+                fetchFunction: (name) => `
+async function ${name}(url, options = {}) {
+    try {
+        const response = await fetch(url, {
+            method: options.method || 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                ...options.headers
+            },
+            body: options.body ? JSON.stringify(options.body) : undefined
+        });
+
+        if (!response.ok) {
+            throw new Error(\`HTTP error! status: \${response.status}\`);
+        }
+
+        const data = await response.json();
+        return { success: true, data };
+    } catch (error) {
+        console.error('Fetch error:', error);
+        return { success: false, error: error.message };
+    }
+}`,
+
+                apiClass: (name) => `
+class ${name}API {
+    constructor(baseURL, apiKey) {
+        this.baseURL = baseURL;
+        this.apiKey = apiKey;
+    }
+
+    async request(endpoint, options = {}) {
+        const url = \`\${this.baseURL}\${endpoint}\`;
+        const response = await fetch(url, {
+            ...options,
+            headers: {
+                'Authorization': \`Bearer \${this.apiKey}\`,
+                'Content-Type': 'application/json',
+                ...options.headers
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error(\`API Error: \${response.status}\`);
+        }
+
+        return await response.json();
+    }
+
+    async get(endpoint) {
+        return await this.request(endpoint, { method: 'GET' });
+    }
+
+    async post(endpoint, data) {
+        return await this.request(endpoint, {
+            method: 'POST',
+            body: JSON.stringify(data)
+        });
+    }
+
+    async put(endpoint, data) {
+        return await this.request(endpoint, {
+            method: 'PUT',
+            body: JSON.stringify(data)
+        });
+    }
+
+    async delete(endpoint) {
+        return await this.request(endpoint, { method: 'DELETE' });
+    }
+}`,
+
+                errorHandler: () => `
+class ErrorHandler {
+    static handle(error, context = '') {
+        const errorInfo = {
+            message: error.message,
+            stack: error.stack,
+            context: context,
+            timestamp: new Date().toISOString()
+        };
+
+        console.error('Error occurred:', errorInfo);
+
+        // Log to external service if available
+        this.logToService(errorInfo);
+
+        return errorInfo;
+    }
+
+    static logToService(errorInfo) {
+        // Implement external logging here
+        console.log('Logging error:', errorInfo);
+    }
+
+    static async withRetry(fn, maxRetries = 3, delay = 1000) {
+        for (let i = 0; i < maxRetries; i++) {
+            try {
+                return await fn();
+            } catch (error) {
+                if (i === maxRetries - 1) throw error;
+                await new Promise(resolve => setTimeout(resolve, delay * (i + 1)));
+            }
+        }
+    }
+}`,
+
+                asyncFunction: (name) => `
+async function ${name}(params) {
+    try {
+        // Validate input
+        if (!params) {
+            throw new Error('Parameters are required');
+        }
+
+        // Perform async operation
+        const result = await performOperation(params);
+
+        // Process result
+        return {
+            success: true,
+            data: result
+        };
+    } catch (error) {
+        console.error(\`Error in \${${name}}:\`, error);
+        return {
+            success: false,
+            error: error.message
+        };
+    }
+}
+
+async function performOperation(params) {
+    // Implementation here
+    return new Promise((resolve) => {
+        setTimeout(() => resolve(params), 1000);
+    });
+}`,
+
+                testSuite: (name) => `
+describe('${name}', () => {
+    beforeEach(() => {
+        // Setup test environment
+    });
+
+    afterEach(() => {
+        // Cleanup
+    });
+
+    test('should handle valid input', () => {
+        const result = ${name}(validInput);
+        expect(result).toBeDefined();
+        expect(result.success).toBe(true);
+    });
+
+    test('should handle invalid input', () => {
+        const result = ${name}(invalidInput);
+        expect(result.success).toBe(false);
+        expect(result.error).toBeDefined();
+    });
+
+    test('should handle edge cases', () => {
+        const result = ${name}(edgeCaseInput);
+        expect(result).toMatchSnapshot();
+    });
+});`,
+
+                genericFunction: (name) => `
+function ${name}(params) {
+    // TODO: Implement ${name}
+
+    // Validate input
+    if (!params) {
+        throw new Error('Parameters are required');
+    }
+
+    // Process
+    const result = processData(params);
+
+    // Return result
+    return result;
+}
+
+function processData(data) {
+    // Implementation
+    return data;
+}`
+            };
+        }
+
+        // Code Assistant - Static code analysis and suggestions
+        class CodeAssistant {
+            constructor() {
+                this.snippets = this.loadSnippets();
+                this.patterns = this.loadPatterns();
+            }
+
+            analyzeCode(code) {
+                return {
+                    errors: this.findErrors(code),
+                    warnings: this.findWarnings(code),
+                    suggestions: this.generateSuggestions(code),
+                    complexity: this.calculateComplexity(code),
+                    metrics: this.calculateMetrics(code)
+                };
+            }
+
+            findErrors(code) {
+                const errors = [];
+
+                // Check for common syntax errors
+                try {
+                    new Function(code);
+                } catch (e) {
+                    errors.push({
+                        type: 'syntax',
+                        message: e.message,
+                        severity: 'error'
+                    });
+                }
+
+                // Check for undefined variables (simplified)
+                const undefinedVars = code.match(/\b(?!function|const|let|var|if|else|for|while|return|class)\w+\s*(?=\()/g);
+                if (undefinedVars) {
+                    undefinedVars.forEach(v => {
+                        if (!code.includes(`function ${v}`) && !code.includes(`const ${v}`) && !code.includes(`let ${v}`)) {
+                            errors.push({
+                                type: 'undefined',
+                                message: `Potential undefined reference: ${v}`,
+                                severity: 'warning'
+                            });
+                        }
+                    });
+                }
+
+                return errors;
+            }
+
+            findWarnings(code) {
+                const warnings = [];
+
+                // Check for console.log (should be removed in production)
+                if (code.includes('console.log')) {
+                    warnings.push({
+                        message: 'console.log statements should be removed in production',
+                        line: this.getLineNumber(code, 'console.log')
+                    });
+                }
+
+                // Check for var usage (prefer const/let)
+                if (code.includes('var ')) {
+                    warnings.push({
+                        message: 'Consider using const or let instead of var',
+                        line: this.getLineNumber(code, 'var ')
+                    });
+                }
+
+                // Check for == instead of ===
+                if (code.includes('==') && !code.includes('===')) {
+                    warnings.push({
+                        message: 'Use === for strict equality comparison',
+                        line: this.getLineNumber(code, '==')
+                    });
+                }
+
+                return warnings;
+            }
+
+            generateSuggestions(code) {
+                const suggestions = [];
+
+                // Suggest adding error handling
+                if (code.includes('async') && !code.includes('try')) {
+                    suggestions.push({
+                        type: 'refactor',
+                        message: 'Consider adding try-catch for error handling',
+                        action: 'Add error handling'
+                    });
+                }
+
+                // Suggest extracting repeated code
+                const functions = code.match(/function\s+\w+/g);
+                if (functions && functions.length > 5) {
+                    suggestions.push({
+                        type: 'refactor',
+                        message: 'Consider splitting into multiple files',
+                        action: 'Refactor code'
+                    });
+                }
+
+                // Suggest documentation
+                if (code.includes('function') && !code.includes('/**')) {
+                    suggestions.push({
+                        type: 'documentation',
+                        message: 'Add JSDoc comments for better documentation',
+                        action: 'Add documentation'
+                    });
+                }
+
+                return suggestions;
+            }
+
+            calculateComplexity(code) {
+                let complexity = 1;
+
+                // Count decision points
+                complexity += (code.match(/if\s*\(/g) || []).length;
+                complexity += (code.match(/else\s+if/g) || []).length;
+                complexity += (code.match(/for\s*\(/g) || []).length;
+                complexity += (code.match(/while\s*\(/g) || []).length;
+                complexity += (code.match(/case\s+/g) || []).length;
+                complexity += (code.match(/\&\&/g) || []).length;
+                complexity += (code.match(/\|\|/g) || []).length;
+
+                return {
+                    score: complexity,
+                    rating: complexity < 10 ? 'low' : complexity < 20 ? 'medium' : 'high'
+                };
+            }
+
+            calculateMetrics(code) {
+                const lines = code.split('\n');
+                const codeLines = lines.filter(l => l.trim() && !l.trim().startsWith('//')).length;
+                const commentLines = lines.filter(l => l.trim().startsWith('//')).length;
+                const functions = (code.match(/function\s+\w+/g) || []).length;
+                const classes = (code.match(/class\s+\w+/g) || []).length;
+
+                return {
+                    totalLines: lines.length,
+                    codeLines,
+                    commentLines,
+                    commentRatio: commentLines / codeLines,
+                    functions,
+                    classes
+                };
+            }
+
+            getLineNumber(code, search) {
+                const lines = code.split('\n');
+                for (let i = 0; i < lines.length; i++) {
+                    if (lines[i].includes(search)) {
+                        return i + 1;
+                    }
+                }
+                return 0;
+            }
+
+            getAutoComplete(code, cursor) {
+                const line = code.split('\n')[cursor.line];
+                const beforeCursor = line.substring(0, cursor.ch);
+
+                // Detect context
+                if (beforeCursor.endsWith('.')) {
+                    return this.getMethodSuggestions();
+                } else if (beforeCursor.match(/\bimport\s+.*from\s+['"]$/)) {
+                    return this.getModuleSuggestions();
+                } else {
+                    return this.getKeywordSuggestions();
+                }
+            }
+
+            getMethodSuggestions() {
+                return [
+                    { text: 'map', type: 'method' },
+                    { text: 'filter', type: 'method' },
+                    { text: 'reduce', type: 'method' },
+                    { text: 'forEach', type: 'method' },
+                    { text: 'find', type: 'method' },
+                    { text: 'includes', type: 'method' },
+                    { text: 'push', type: 'method' },
+                    { text: 'pop', type: 'method' }
+                ];
+            }
+
+            getModuleSuggestions() {
+                return [
+                    { text: 'react', type: 'module' },
+                    { text: 'lodash', type: 'module' },
+                    { text: 'axios', type: 'module' },
+                    { text: 'moment', type: 'module' }
+                ];
+            }
+
+            getKeywordSuggestions() {
+                return [
+                    { text: 'function', type: 'keyword' },
+                    { text: 'const', type: 'keyword' },
+                    { text: 'let', type: 'keyword' },
+                    { text: 'async', type: 'keyword' },
+                    { text: 'await', type: 'keyword' },
+                    { text: 'return', type: 'keyword' },
+                    { text: 'class', type: 'keyword' }
+                ];
+            }
+
+            loadSnippets() {
+                return {
+                    'for': 'for (let i = 0; i < array.length; i++) {\n    \n}',
+                    'foreach': 'array.forEach((item) => {\n    \n});',
+                    'map': 'array.map((item) => {\n    return item;\n});',
+                    'filter': 'array.filter((item) => {\n    return condition;\n});',
+                    'reduce': 'array.reduce((acc, item) => {\n    return acc;\n}, initialValue);',
+                    'promise': 'new Promise((resolve, reject) => {\n    \n});',
+                    'async': 'async function name() {\n    try {\n        \n    } catch (error) {\n        \n    }\n}',
+                    'class': 'class ClassName {\n    constructor() {\n        \n    }\n}',
+                    'import': 'import { } from \'\';',
+                    'export': 'export default ',
+                    'timeout': 'setTimeout(() => {\n    \n}, 1000);',
+                    'interval': 'setInterval(() => {\n    \n}, 1000);'
+                };
+            }
+
+            loadPatterns() {
+                return {
+                    singleton: `
+class Singleton {
+    constructor() {
+        if (Singleton.instance) {
+            return Singleton.instance;
+        }
+        Singleton.instance = this;
+    }
+}`,
+                    observer: `
+class Observable {
+    constructor() {
+        this.observers = [];
+    }
+    subscribe(fn) {
+        this.observers.push(fn);
+    }
+    notify(data) {
+        this.observers.forEach(fn => fn(data));
+    }
+}`,
+                    factory: `
+class Factory {
+    create(type) {
+        switch(type) {
+            case 'A': return new TypeA();
+            case 'B': return new TypeB();
+            default: throw new Error('Unknown type');
+        }
+    }
+}`
+                };
+            }
+        }
+
+        // Initialize Application
+        function init() {
+            // Initialize AI components
+            AppState.aiManager = new AIManager();
+            AppState.codeAssistant = new CodeAssistant();
+
+            initEditor();
+            initPeerConnection();
+            initVoiceRecognition();
+            init3DVisualization();
+            initEventListeners();
+            loadSettings();
+            loadFiles();
+            startTerminalSimulation();
+
+            // Check AI availability
+            AppState.aiManager.checkAvailability().then(available => {
+                if (available) {
+                    addChatMessage('AI Assistant', 'AI connection established. Ready to help!', false);
+                } else {
+                    addChatMessage('AI Assistant', 'Running in offline mode with smart fallbacks.', false);
+                }
+            });
+        }
+
+        // Initialize CodeMirror Editor
+        function initEditor() {
+            const textarea = document.getElementById('code-editor');
+            AppState.editor = CodeMirror.fromTextArea(textarea, {
+                mode: 'javascript',
+                theme: 'monokai',
+                lineNumbers: true,
+                autoCloseBrackets: true,
+                matchBrackets: true,
+                indentUnit: 4,
+                tabSize: 4,
+                lineWrapping: false
+            });
+
+            AppState.editor.setSize('100%', '100%');
+            AppState.editor.setValue(AppState.files[AppState.currentFile]);
+
+            // Editor change handler
+            AppState.editor.on('change', (cm, change) => {
+                AppState.files[AppState.currentFile] = cm.getValue();
+                if (AppState.settings.autoSave) {
+                    saveFiles();
+                }
+                if (AppState.settings.autoViz) {
+                    updateVisualization();
+                }
+                broadcastChange(change);
+            });
+
+            // Cursor activity handler
+            AppState.editor.on('cursorActivity', (cm) => {
+                const cursor = cm.getCursor();
+                broadcastCursor(cursor);
+            });
+        }
+
+        // Initialize PeerJS Connection
+        function initPeerConnection() {
+            try {
+                AppState.peer = new Peer();
+
+                AppState.peer.on('open', (id) => {
+                    AppState.peerId = id;
+                    updateConnectionStatus(true);
+                    console.log('Peer connection established:', id);
+                });
+
+                AppState.peer.on('connection', (conn) => {
+                    setupConnection(conn);
+                });
+
+                AppState.peer.on('error', (err) => {
+                    console.error('Peer error:', err);
+                    updateConnectionStatus(false);
+                });
+            } catch (err) {
+                console.error('Failed to initialize peer connection:', err);
+            }
+        }
+
+        // Setup Connection
+        function setupConnection(conn) {
+            conn.on('open', () => {
+                AppState.connections.set(conn.peer, conn);
+                addCollaborator(conn.peer);
+                sendInitialState(conn);
+            });
+
+            conn.on('data', (data) => {
+                handleIncomingData(data, conn.peer);
+            });
+
+            conn.on('close', () => {
+                AppState.connections.delete(conn.peer);
+                removeCollaborator(conn.peer);
+            });
+        }
+
+        // Initialize Voice Recognition
+        function initVoiceRecognition() {
+            if ('webkitSpeechRecognition' in window) {
+                AppState.voiceRecognition = new webkitSpeechRecognition();
+                AppState.voiceRecognition.continuous = false;
+                AppState.voiceRecognition.interimResults = false;
+                AppState.voiceRecognition.lang = AppState.settings.voiceLang;
+
+                AppState.voiceRecognition.onresult = (event) => {
+                    const transcript = event.results[0][0].transcript;
+                    handleVoiceCommand(transcript);
+                };
+
+                AppState.voiceRecognition.onerror = (event) => {
+                    console.error('Voice recognition error:', event.error);
+                    stopListening();
+                };
+
+                AppState.voiceRecognition.onend = () => {
+                    stopListening();
+                };
+            } else {
+                console.warn('Speech recognition not supported in this browser');
+            }
+        }
+
+        // Initialize 3D Visualization
+        function init3DVisualization() {
+            const canvas = document.getElementById('viz-canvas');
+            const width = canvas.clientWidth;
+            const height = canvas.clientHeight;
+
+            // Scene
+            AppState.vizScene = new THREE.Scene();
+            AppState.vizScene.background = new THREE.Color(0x1e1e1e);
+
+            // Camera
+            AppState.vizCamera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
+            AppState.vizCamera.position.z = 30;
+
+            // Renderer
+            AppState.vizRenderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+            AppState.vizRenderer.setSize(width, height);
+
+            // Lights
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+            AppState.vizScene.add(ambientLight);
+
+            const pointLight = new THREE.PointLight(0xffffff, 0.8);
+            pointLight.position.set(10, 10, 10);
+            AppState.vizScene.add(pointLight);
+
+            // Initial visualization
+            updateVisualization();
+
+            // Animation loop
+            animate3D();
+
+            // Handle resize
+            window.addEventListener('resize', () => {
+                if (!document.getElementById('viz-panel').classList.contains('collapsed')) {
+                    const width = canvas.clientWidth;
+                    const height = canvas.clientHeight;
+                    AppState.vizCamera.aspect = width / height;
+                    AppState.vizCamera.updateProjectionMatrix();
+                    AppState.vizRenderer.setSize(width, height);
+                }
+            });
+        }
+
+        // Update 3D Visualization
+        function updateVisualization() {
+            // Clear existing objects
+            AppState.vizObjects.forEach(obj => AppState.vizScene.remove(obj));
+            AppState.vizObjects = [];
+
+            const code = AppState.editor.getValue();
+            const structure = analyzeCodeStructure(code);
+
+            // Create visualization based on structure
+            let yOffset = 0;
+            const spacing = 5;
+
+            structure.functions.forEach((func, index) => {
+                const complexity = func.lines;
+                const size = Math.max(1, Math.min(5, complexity / 10));
+                const color = getComplexityColor(complexity);
+
+                const geometry = new THREE.BoxGeometry(size, size, size);
+                const material = new THREE.MeshPhongMaterial({
+                    color: color,
+                    emissive: color,
+                    emissiveIntensity: 0.3
+                });
+                const cube = new THREE.Mesh(geometry, material);
+
+                cube.position.y = yOffset;
+                cube.userData = {
+                    type: 'function',
+                    name: func.name,
+                    lines: func.lines
+                };
+
+                AppState.vizScene.add(cube);
+                AppState.vizObjects.push(cube);
+
+                yOffset -= spacing;
+            });
+
+            // Add classes
+            structure.classes.forEach((cls, index) => {
+                const complexity = cls.lines;
+                const size = Math.max(2, Math.min(6, complexity / 5));
+                const color = getComplexityColor(complexity);
+
+                const geometry = new THREE.SphereGeometry(size / 2, 16, 16);
+                const material = new THREE.MeshPhongMaterial({
+                    color: color,
+                    emissive: color,
+                    emissiveIntensity: 0.3
+                });
+                const sphere = new THREE.Mesh(geometry, material);
+
+                sphere.position.x = 10;
+                sphere.position.y = yOffset;
+                sphere.userData = {
+                    type: 'class',
+                    name: cls.name,
+                    lines: cls.lines
+                };
+
+                AppState.vizScene.add(sphere);
+                AppState.vizObjects.push(sphere);
+
+                yOffset -= spacing;
+            });
+        }
+
+        // Analyze Code Structure
+        function analyzeCodeStructure(code) {
+            const structure = {
+                functions: [],
+                classes: [],
+                variables: []
+            };
+
+            // Extract functions
+            const functionRegex = /function\s+(\w+)\s*\([^)]*\)\s*{/g;
+            let match;
+            while ((match = functionRegex.exec(code)) !== null) {
+                const name = match[1];
+                const start = match.index;
+                let braceCount = 1;
+                let end = start + match[0].length;
+
+                while (braceCount > 0 && end < code.length) {
+                    if (code[end] === '{') braceCount++;
+                    if (code[end] === '}') braceCount--;
+                    end++;
+                }
+
+                const funcCode = code.substring(start, end);
+                const lines = funcCode.split('\n').length;
+
+                structure.functions.push({ name, lines });
+            }
+
+            // Extract classes
+            const classRegex = /class\s+(\w+)\s*{/g;
+            while ((match = classRegex.exec(code)) !== null) {
+                const name = match[1];
+                const start = match.index;
+                let braceCount = 1;
+                let end = start + match[0].length;
+
+                while (braceCount > 0 && end < code.length) {
+                    if (code[end] === '{') braceCount++;
+                    if (code[end] === '}') braceCount--;
+                    end++;
+                }
+
+                const classCode = code.substring(start, end);
+                const lines = classCode.split('\n').length;
+
+                structure.classes.push({ name, lines });
+            }
+
+            return structure;
+        }
+
+        // Get Complexity Color
+        function getComplexityColor(lines) {
+            if (lines < 20) return 0x89d185; // Green
+            if (lines < 50) return 0x4ec9b0; // Teal
+            if (lines < 100) return 0xdcdcaa; // Yellow
+            return 0xf48771; // Red
+        }
+
+        // Animate 3D Scene
+        function animate3D() {
+            AppState.vizAnimationId = requestAnimationFrame(animate3D);
+
+            // Rotate objects
+            AppState.vizObjects.forEach((obj, index) => {
+                obj.rotation.x += 0.01;
+                obj.rotation.y += 0.01;
+            });
+
+            AppState.vizRenderer.render(AppState.vizScene, AppState.vizCamera);
+        }
+
+        // Handle Voice Command
+        async function handleVoiceCommand(transcript) {
+            const command = transcript.toLowerCase();
+            addChatMessage('You', `Voice: ${transcript}`, true);
+
+            // AI-powered code generation
+            if (command.includes('generate') || command.includes('create') || command.includes('add')) {
+                const result = await AppState.aiManager.generateCode(transcript, AppState.editor.getValue());
+                if (result.success) {
+                    insertCode('\n' + result.code + '\n');
+                    speak(`Generated code using ${result.source}`);
+                    addChatMessage('AI Assistant', result.message, false);
+                } else {
+                    speak('Failed to generate code');
+                }
+            }
+            // Analyze current code
+            else if (command.includes('analyze') || command.includes('check') || command.includes('review')) {
+                const analysis = AppState.codeAssistant.analyzeCode(AppState.editor.getValue());
+                let feedback = `Code Analysis:\n`;
+                feedback += `- Complexity: ${analysis.complexity.rating} (score: ${analysis.complexity.score})\n`;
+                feedback += `- Functions: ${analysis.metrics.functions}\n`;
+                feedback += `- Classes: ${analysis.metrics.classes}\n`;
+                feedback += `- Code lines: ${analysis.metrics.codeLines}\n`;
+
+                if (analysis.errors.length > 0) {
+                    feedback += `\nErrors found:\n`;
+                    analysis.errors.forEach(err => feedback += `- ${err.message}\n`);
+                }
+
+                if (analysis.warnings.length > 0) {
+                    feedback += `\nWarnings:\n`;
+                    analysis.warnings.slice(0, 3).forEach(warn => feedback += `- ${warn.message}\n`);
+                }
+
+                if (analysis.suggestions.length > 0) {
+                    feedback += `\nSuggestions:\n`;
+                    analysis.suggestions.slice(0, 3).forEach(sug => feedback += `- ${sug.message}\n`);
+                }
+
+                addChatMessage('AI Assistant', feedback, false);
+                speak('Code analysis complete');
+            }
+            // Explain code
+            else if (command.includes('explain')) {
+                const code = AppState.editor.getSelection() || AppState.editor.getValue();
+                const structure = analyzeCodeStructure(code);
+                let explanation = `Code contains:\n`;
+                explanation += `- ${structure.functions.length} functions\n`;
+                explanation += `- ${structure.classes.length} classes\n`;
+                addChatMessage('AI Assistant', explanation, false);
+                speak('Explanation generated');
+            }
+            // Refactor suggestions
+            else if (command.includes('refactor') || command.includes('improve')) {
+                const analysis = AppState.codeAssistant.analyzeCode(AppState.editor.getValue());
+                if (analysis.suggestions.length > 0) {
+                    const suggestion = analysis.suggestions[0];
+                    addChatMessage('AI Assistant', `Refactoring suggestion: ${suggestion.message}`, false);
+                    speak(suggestion.message);
+                } else {
+                    addChatMessage('AI Assistant', 'No refactoring suggestions at this time.', false);
+                    speak('Code looks good');
+                }
+            }
+            // Comment code
+            else if (command.includes('comment')) {
+                const selection = AppState.editor.getSelection();
+                if (selection) {
+                    AppState.editor.replaceSelection(`// ${selection}`);
+                    speak('Added comment');
+                } else {
+                    speak('Please select code to comment');
+                }
+            }
+            // Save files
+            else if (command.includes('save')) {
+                saveFiles();
+                speak('Files saved');
+            }
+            // Help
+            else if (command.includes('help')) {
+                const helpText = `Available commands:\n- Generate/create [description]\n- Analyze/check/review code\n- Explain code\n- Refactor/improve\n- Add comment\n- Save files`;
+                addChatMessage('AI Assistant', helpText, false);
+                speak('Help information displayed');
+            }
+            // Default: Try AI generation
+            else {
+                const result = await AppState.aiManager.generateCode(transcript, AppState.editor.getValue());
+                if (result.success) {
+                    const preview = result.code.substring(0, 100) + '...';
+                    addChatMessage('AI Assistant', `Generated code (${result.source}):\n${preview}\n\nUse? Say "yes" to insert.`, false);
+                    speak('Code suggestion ready');
+                } else {
+                    speak('Command not recognized. Say help for available commands.');
+                }
+            }
+        }
+
+        // Extract Function Name from Voice Command
+        function extractFunctionName(command) {
+            const words = command.split(' ');
+            const funcIndex = words.findIndex(w => w === 'function');
+            if (funcIndex >= 0 && funcIndex < words.length - 1) {
+                return words[funcIndex + 1].replace(/[^a-zA-Z0-9]/g, '');
+            }
+            return 'newFunction';
+        }
+
+        // Extract Class Name from Voice Command
+        function extractClassName(command) {
+            const words = command.split(' ');
+            const classIndex = words.findIndex(w => w === 'class');
+            if (classIndex >= 0 && classIndex < words.length - 1) {
+                const name = words[classIndex + 1].replace(/[^a-zA-Z0-9]/g, '');
+                return name.charAt(0).toUpperCase() + name.slice(1);
+            }
+            return 'NewClass';
+        }
+
+        // Insert Code at Cursor
+        function insertCode(code) {
+            const cursor = AppState.editor.getCursor();
+            AppState.editor.replaceRange(code, cursor);
+        }
+
+        // Speak Text
+        function speak(text) {
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = AppState.settings.voiceLang;
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        // Start Voice Listening
+        function startListening() {
+            if (!AppState.settings.voiceEnabled || !AppState.voiceRecognition) return;
+
+            try {
+                AppState.voiceRecognition.start();
+                AppState.isListening = true;
+                document.getElementById('voice-control').classList.add('listening');
+            } catch (err) {
+                console.error('Failed to start voice recognition:', err);
+            }
+        }
+
+        // Stop Voice Listening
+        function stopListening() {
+            AppState.isListening = false;
+            document.getElementById('voice-control').classList.remove('listening');
+        }
+
+        // Initialize Event Listeners
+        function initEventListeners() {
+            // Sidebar icons
+            document.getElementById('icon-editor').addEventListener('click', () => {
+                // Editor is always visible
+            });
+
+            document.getElementById('icon-viz').addEventListener('click', () => {
+                const panel = document.getElementById('viz-panel');
+                panel.classList.toggle('collapsed');
+            });
+
+            document.getElementById('icon-chat').addEventListener('click', () => {
+                const panel = document.getElementById('chat-panel');
+                panel.classList.toggle('collapsed');
+            });
+
+            document.getElementById('icon-terminal').addEventListener('click', () => {
+                const panel = document.getElementById('terminal-panel');
+                panel.classList.toggle('collapsed');
+            });
+
+            document.getElementById('icon-settings').addEventListener('click', () => {
+                document.getElementById('settings-panel').classList.add('active');
+            });
+
+            // Close buttons
+            document.getElementById('viz-close').addEventListener('click', () => {
+                document.getElementById('viz-panel').classList.add('collapsed');
+            });
+
+            document.getElementById('chat-close').addEventListener('click', () => {
+                document.getElementById('chat-panel').classList.add('collapsed');
+            });
+
+            document.getElementById('settings-close').addEventListener('click', () => {
+                document.getElementById('settings-panel').classList.remove('active');
+            });
+
+            // Terminal
+            document.getElementById('terminal-header').addEventListener('click', () => {
+                document.getElementById('terminal-panel').classList.toggle('collapsed');
+            });
+
+            document.getElementById('terminal-input').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    const input = e.target.value;
+                    executeTerminalCommand(input);
+                    e.target.value = '';
+                }
+            });
+
+            // Voice control
+            document.getElementById('voice-control').addEventListener('click', () => {
+                if (AppState.isListening) {
+                    stopListening();
+                } else {
+                    startListening();
+                }
+            });
+
+            // Chat
+            document.getElementById('btn-send-chat').addEventListener('click', sendChatMessage);
+            document.getElementById('chat-input-field').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendChatMessage();
+                }
+            });
+
+            // Share session
+            document.getElementById('btn-share-session').addEventListener('click', () => {
+                document.getElementById('my-session-id').value = AppState.peerId || 'Connecting...';
+                document.getElementById('share-modal').classList.add('active');
+            });
+
+            document.getElementById('btn-copy-session').addEventListener('click', () => {
+                const input = document.getElementById('my-session-id');
+                input.select();
+                document.execCommand('copy');
+                speak('Session ID copied');
+            });
+
+            document.getElementById('btn-join-session').addEventListener('click', () => {
+                const peerId = document.getElementById('join-session-id').value.trim();
+                if (peerId) {
+                    joinSession(peerId);
+                }
+            });
+
+            document.getElementById('btn-close-share').addEventListener('click', () => {
+                document.getElementById('share-modal').classList.remove('active');
+            });
+
+            // Screen share
+            document.getElementById('btn-screen-share').addEventListener('click', startScreenShare);
+            document.getElementById('stop-screen-share').addEventListener('click', stopScreenShare);
+
+            // Analyze code
+            document.getElementById('btn-analyze-code').addEventListener('click', () => {
+                const analysis = AppState.codeAssistant.analyzeCode(AppState.editor.getValue());
+                let feedback = `<strong>Code Analysis</strong><br><br>`;
+                feedback += `<strong>Metrics:</strong><br>`;
+                feedback += `- Complexity: ${analysis.complexity.rating} (score: ${analysis.complexity.score})<br>`;
+                feedback += `- Functions: ${analysis.metrics.functions}<br>`;
+                feedback += `- Classes: ${analysis.metrics.classes}<br>`;
+                feedback += `- Code lines: ${analysis.metrics.codeLines}<br>`;
+                feedback += `- Comment ratio: ${(analysis.metrics.commentRatio * 100).toFixed(1)}%<br><br>`;
+
+                if (analysis.errors.length > 0) {
+                    feedback += `<strong>Errors:</strong><br>`;
+                    analysis.errors.forEach(err => feedback += `- ${err.message}<br>`);
+                    feedback += `<br>`;
+                }
+
+                if (analysis.warnings.length > 0) {
+                    feedback += `<strong>Warnings:</strong><br>`;
+                    analysis.warnings.slice(0, 5).forEach(warn => feedback += `- ${warn.message} (line ${warn.line})<br>`);
+                    feedback += `<br>`;
+                }
+
+                if (analysis.suggestions.length > 0) {
+                    feedback += `<strong>Suggestions:</strong><br>`;
+                    analysis.suggestions.forEach(sug => feedback += `- ${sug.message}<br>`);
+                }
+
+                const messagesDiv = document.getElementById('chat-messages');
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'chat-message';
+                messageDiv.innerHTML = `
+                    <div class="chat-message-header">
+                        <div class="chat-avatar">AI</div>
+                        <span class="chat-username">Code Assistant</span>
+                        <span class="chat-timestamp">${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                    </div>
+                    <div class="chat-message-content">${feedback}</div>
+                `;
+                messagesDiv.appendChild(messageDiv);
+                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+
+                // Open chat panel if closed
+                document.getElementById('chat-panel').classList.remove('collapsed');
+                speak('Code analysis complete');
+            });
+
+            // Settings
+            initSettingsListeners();
+        }
+
+        // Initialize Settings Listeners
+        function initSettingsListeners() {
+            document.getElementById('setting-theme').addEventListener('change', (e) => {
+                AppState.settings.theme = e.target.value;
+                AppState.editor.setOption('theme', e.target.value);
+                saveSettings();
+            });
+
+            document.getElementById('setting-fontsize').addEventListener('change', (e) => {
+                AppState.settings.fontSize = parseInt(e.target.value);
+                document.querySelector('.CodeMirror').style.fontSize = e.target.value + 'px';
+                saveSettings();
+            });
+
+            document.getElementById('toggle-line-numbers').addEventListener('click', function() {
+                this.classList.toggle('active');
+                AppState.settings.lineNumbers = this.classList.contains('active');
+                AppState.editor.setOption('lineNumbers', AppState.settings.lineNumbers);
+                saveSettings();
+            });
+
+            document.getElementById('toggle-auto-brackets').addEventListener('click', function() {
+                this.classList.toggle('active');
+                AppState.settings.autoBrackets = this.classList.contains('active');
+                AppState.editor.setOption('autoCloseBrackets', AppState.settings.autoBrackets);
+                saveSettings();
+            });
+
+            document.getElementById('setting-username').addEventListener('change', (e) => {
+                AppState.username = e.target.value;
+                saveSettings();
+            });
+
+            document.getElementById('toggle-cursors').addEventListener('click', function() {
+                this.classList.toggle('active');
+                AppState.settings.showCursors = this.classList.contains('active');
+                saveSettings();
+            });
+
+            document.getElementById('toggle-autosave').addEventListener('click', function() {
+                this.classList.toggle('active');
+                AppState.settings.autoSave = this.classList.contains('active');
+                saveSettings();
+            });
+
+            document.getElementById('toggle-voice').addEventListener('click', function() {
+                this.classList.toggle('active');
+                AppState.settings.voiceEnabled = this.classList.contains('active');
+                saveSettings();
+            });
+
+            document.getElementById('setting-voice-lang').addEventListener('change', (e) => {
+                AppState.settings.voiceLang = e.target.value;
+                if (AppState.voiceRecognition) {
+                    AppState.voiceRecognition.lang = e.target.value;
+                }
+                saveSettings();
+            });
+
+            document.getElementById('toggle-auto-viz').addEventListener('click', function() {
+                this.classList.toggle('active');
+                AppState.settings.autoViz = this.classList.contains('active');
+                saveSettings();
+            });
+
+            document.getElementById('toggle-complexity').addEventListener('click', function() {
+                this.classList.toggle('active');
+                AppState.settings.showComplexity = this.classList.contains('active');
+                saveSettings();
+            });
+
+            document.getElementById('toggle-ai').addEventListener('click', function() {
+                this.classList.toggle('active');
+                AppState.settings.aiEnabled = this.classList.contains('active');
+                saveSettings();
+            });
+
+            document.getElementById('setting-ai-endpoint').addEventListener('change', (e) => {
+                AppState.settings.aiEndpoint = e.target.value;
+                AppState.aiManager.endpoint = e.target.value;
+                saveSettings();
+                AppState.aiManager.checkAvailability();
+            });
+
+            document.getElementById('setting-ai-apikey').addEventListener('change', (e) => {
+                AppState.settings.aiApiKey = e.target.value;
+                AppState.aiManager.apiKey = e.target.value;
+                saveSettings();
+                AppState.aiManager.checkAvailability();
+            });
+
+            document.getElementById('btn-export-settings').addEventListener('click', exportSettings);
+            document.getElementById('btn-import-settings').addEventListener('click', importSettings);
+            document.getElementById('btn-clear-data').addEventListener('click', clearAllData);
+        }
+
+        // Send Chat Message
+        function sendChatMessage() {
+            const input = document.getElementById('chat-input-field');
+            const message = input.value.trim();
+            if (!message) return;
+
+            addChatMessage(AppState.username, message, false);
+            broadcastChatMessage(message);
+            input.value = '';
+        }
+
+        // Add Chat Message
+        function addChatMessage(username, message, isVoice = false) {
+            const messagesDiv = document.getElementById('chat-messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'chat-message';
+
+            const avatar = username === 'You' ? 'Y' : username.charAt(0).toUpperCase();
+            const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+            messageDiv.innerHTML = `
+                <div class="chat-message-header">
+                    <div class="chat-avatar">${avatar}</div>
+                    <span class="chat-username">${username}</span>
+                    <span class="chat-timestamp">${timestamp}</span>
+                </div>
+                <div class="chat-message-content">${message}</div>
+            `;
+
+            messagesDiv.appendChild(messageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        // Update Connection Status
+        function updateConnectionStatus(connected) {
+            const statusDot = document.getElementById('status-dot');
+            const statusText = document.getElementById('status-text');
+
+            if (connected) {
+                statusDot.classList.add('connected');
+                statusText.textContent = 'Online';
+            } else {
+                statusDot.classList.remove('connected');
+                statusText.textContent = 'Offline';
+            }
+        }
+
+        // Add Collaborator
+        function addCollaborator(peerId) {
+            const container = document.getElementById('collaborators-list');
+            const avatar = document.createElement('div');
+            avatar.className = 'collaborator-avatar';
+            avatar.id = 'collab-' + peerId;
+            avatar.innerHTML = `
+                ${peerId.substring(0, 2).toUpperCase()}
+                <div class="collaborator-status"></div>
+            `;
+            container.appendChild(avatar);
+        }
+
+        // Remove Collaborator
+        function removeCollaborator(peerId) {
+            const avatar = document.getElementById('collab-' + peerId);
+            if (avatar) avatar.remove();
+        }
+
+        // Join Session
+        function joinSession(peerId) {
+            const conn = AppState.peer.connect(peerId);
+            setupConnection(conn);
+            document.getElementById('share-modal').classList.remove('active');
+            speak('Joining session');
+        }
+
+        // Send Initial State
+        function sendInitialState(conn) {
+            conn.send({
+                type: 'init',
+                files: AppState.files,
+                currentFile: AppState.currentFile,
+                username: AppState.username
+            });
+        }
+
+        // Broadcast Change
+        function broadcastChange(change) {
+            AppState.connections.forEach(conn => {
+                conn.send({
+                    type: 'change',
+                    change: change,
+                    file: AppState.currentFile
+                });
+            });
+        }
+
+        // Broadcast Cursor
+        function broadcastCursor(cursor) {
+            AppState.connections.forEach(conn => {
+                conn.send({
+                    type: 'cursor',
+                    cursor: cursor,
+                    file: AppState.currentFile,
+                    username: AppState.username
+                });
+            });
+        }
+
+        // Broadcast Chat Message
+        function broadcastChatMessage(message) {
+            AppState.connections.forEach(conn => {
+                conn.send({
+                    type: 'chat',
+                    message: message,
+                    username: AppState.username
+                });
+            });
+        }
+
+        // Handle Incoming Data
+        function handleIncomingData(data, peerId) {
+            switch (data.type) {
+                case 'init':
+                    AppState.files = data.files;
+                    AppState.currentFile = data.currentFile;
+                    AppState.editor.setValue(AppState.files[AppState.currentFile]);
+                    break;
+
+                case 'change':
+                    if (data.file === AppState.currentFile) {
+                        // Apply change without triggering another broadcast
+                        const currentValue = AppState.editor.getValue();
+                        AppState.editor.setValue(AppState.files[data.file]);
+                    }
+                    break;
+
+                case 'cursor':
+                    if (AppState.settings.showCursors && data.file === AppState.currentFile) {
+                        // Show collaborator cursor (simplified)
+                        console.log(`${data.username} cursor at:`, data.cursor);
+                    }
+                    break;
+
+                case 'chat':
+                    addChatMessage(data.username, data.message);
+                    break;
+            }
+        }
+
+        // Start Screen Share
+        async function startScreenShare() {
+            try {
+                AppState.screenStream = await navigator.mediaDevices.getDisplayMedia({
+                    video: true,
+                    audio: false
+                });
+
+                document.getElementById('screen-share-controls').classList.add('active');
+                speak('Screen sharing started');
+
+                // Broadcast screen stream to collaborators
+                AppState.connections.forEach(conn => {
+                    const call = AppState.peer.call(conn.peer, AppState.screenStream);
+                });
+
+                AppState.screenStream.getVideoTracks()[0].onended = () => {
+                    stopScreenShare();
+                };
+            } catch (err) {
+                console.error('Screen share error:', err);
+                speak('Failed to start screen sharing');
+            }
+        }
+
+        // Stop Screen Share
+        function stopScreenShare() {
+            if (AppState.screenStream) {
+                AppState.screenStream.getTracks().forEach(track => track.stop());
+                AppState.screenStream = null;
+            }
+            document.getElementById('screen-share-controls').classList.remove('active');
+            speak('Screen sharing stopped');
+        }
+
+        // Execute Terminal Command
+        function executeTerminalCommand(command) {
+            const terminal = document.getElementById('terminal-content');
+            const line = document.createElement('div');
+            line.className = 'terminal-line';
+            line.innerHTML = `<span class="terminal-prompt">$</span> ${command}`;
+            terminal.appendChild(line);
+
+            // Simulate command execution
+            setTimeout(() => {
+                const output = document.createElement('div');
+                output.className = 'terminal-line';
+
+                if (command.startsWith('help')) {
+                    output.textContent = 'Available commands: help, clear, ls, pwd, node, python';
+                } else if (command === 'clear') {
+                    terminal.innerHTML = '';
+                    return;
+                } else if (command === 'ls') {
+                    output.textContent = Object.keys(AppState.files).join('  ');
+                } else if (command === 'pwd') {
+                    output.textContent = '/workspace';
+                } else if (command.startsWith('node ')) {
+                    output.textContent = 'Executing JavaScript...';
+                    output.style.color = '#4ec9b0';
+                } else if (command.startsWith('python ')) {
+                    output.textContent = 'Executing Python...';
+                    output.style.color = '#4ec9b0';
+                } else {
+                    output.textContent = `Command not found: ${command}`;
+                    output.style.color = '#f48771';
+                }
+
+                terminal.appendChild(output);
+                terminal.scrollTop = terminal.scrollHeight;
+            }, 100);
+        }
+
+        // Start Terminal Simulation
+        function startTerminalSimulation() {
+            const terminal = document.getElementById('terminal-content');
+            const welcome = document.createElement('div');
+            welcome.className = 'terminal-line';
+            welcome.innerHTML = 'AI Code Collaborator Terminal v1.0.0<br>Type "help" for available commands.';
+            terminal.appendChild(welcome);
+        }
+
+        // Save Files
+        function saveFiles() {
+            try {
+                localStorage.setItem('aiCodeCollabFiles', JSON.stringify(AppState.files));
+                console.log('Files saved');
+            } catch (err) {
+                console.error('Failed to save files:', err);
+            }
+        }
+
+        // Load Files
+        function loadFiles() {
+            try {
+                const saved = localStorage.getItem('aiCodeCollabFiles');
+                if (saved) {
+                    AppState.files = JSON.parse(saved);
+                    AppState.editor.setValue(AppState.files[AppState.currentFile] || '');
+                }
+            } catch (err) {
+                console.error('Failed to load files:', err);
+            }
+        }
+
+        // Save Settings
+        function saveSettings() {
+            try {
+                localStorage.setItem('aiCodeCollabSettings', JSON.stringify({
+                    settings: AppState.settings,
+                    username: AppState.username
+                }));
+            } catch (err) {
+                console.error('Failed to save settings:', err);
+            }
+        }
+
+        // Load Settings
+        function loadSettings() {
+            try {
+                const saved = localStorage.getItem('aiCodeCollabSettings');
+                if (saved) {
+                    const data = JSON.parse(saved);
+                    AppState.settings = { ...AppState.settings, ...data.settings };
+                    AppState.username = data.username || 'Developer';
+
+                    // Apply settings to UI
+                    document.getElementById('setting-theme').value = AppState.settings.theme;
+                    document.getElementById('setting-fontsize').value = AppState.settings.fontSize;
+                    document.getElementById('setting-username').value = AppState.username;
+                    document.getElementById('setting-voice-lang').value = AppState.settings.voiceLang;
+                    document.getElementById('setting-ai-endpoint').value = AppState.settings.aiEndpoint || '';
+                    document.getElementById('setting-ai-apikey').value = AppState.settings.aiApiKey || '';
+
+                    // Apply toggles
+                    document.getElementById('toggle-line-numbers').classList.toggle('active', AppState.settings.lineNumbers);
+                    document.getElementById('toggle-auto-brackets').classList.toggle('active', AppState.settings.autoBrackets);
+                    document.getElementById('toggle-cursors').classList.toggle('active', AppState.settings.showCursors);
+                    document.getElementById('toggle-autosave').classList.toggle('active', AppState.settings.autoSave);
+                    document.getElementById('toggle-voice').classList.toggle('active', AppState.settings.voiceEnabled);
+                    document.getElementById('toggle-auto-viz').classList.toggle('active', AppState.settings.autoViz);
+                    document.getElementById('toggle-complexity').classList.toggle('active', AppState.settings.showComplexity);
+                    document.getElementById('toggle-ai').classList.toggle('active', AppState.settings.aiEnabled);
+
+                    // Apply to editor
+                    AppState.editor.setOption('theme', AppState.settings.theme);
+                    document.querySelector('.CodeMirror').style.fontSize = AppState.settings.fontSize + 'px';
+
+                    // Update AI manager settings
+                    if (AppState.aiManager) {
+                        AppState.aiManager.endpoint = AppState.settings.aiEndpoint;
+                        AppState.aiManager.apiKey = AppState.settings.aiApiKey;
+                    }
+                }
+            } catch (err) {
+                console.error('Failed to load settings:', err);
+            }
+        }
+
+        // Export Settings
+        function exportSettings() {
+            const data = {
+                settings: AppState.settings,
+                username: AppState.username,
+                files: AppState.files
+            };
+
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'ai-code-collab-settings.json';
+            a.click();
+            URL.revokeObjectURL(url);
+
+            speak('Settings exported');
+        }
+
+        // Import Settings
+        function importSettings() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'application/json';
+            input.onchange = (e) => {
+                const file = e.target.files[0];
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    try {
+                        const data = JSON.parse(event.target.result);
+                        if (data.settings) AppState.settings = data.settings;
+                        if (data.username) AppState.username = data.username;
+                        if (data.files) AppState.files = data.files;
+
+                        saveSettings();
+                        loadSettings();
+                        speak('Settings imported');
+                        location.reload();
+                    } catch (err) {
+                        console.error('Failed to import settings:', err);
+                        speak('Import failed');
+                    }
+                };
+                reader.readAsText(file);
+            };
+            input.click();
+        }
+
+        // Clear All Data
+        function clearAllData() {
+            if (confirm('Are you sure you want to clear all data? This cannot be undone.')) {
+                localStorage.removeItem('aiCodeCollabFiles');
+                localStorage.removeItem('aiCodeCollabSettings');
+                speak('All data cleared');
+                location.reload();
+            }
+        }
+
+        // Initialize app on load
+        window.addEventListener('load', init);
+    </script>
+</body>
+</html>
