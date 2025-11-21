@@ -110,7 +110,7 @@
             backdrop-filter: blur(10px);
             z-index: 1001;
             text-align: center;
-            animation: fadeIn 2s ease-in;
+            animation: fadeIn 2s ease-in, fadeOut 1s ease-out 8s forwards;
         }
 
         .controls-hint p {
@@ -126,6 +126,11 @@
         @keyframes fadeIn {
             from { opacity: 0; transform: translate(-50%, 20px); }
             to { opacity: 1; transform: translate(-50%, 0); }
+        }
+
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; pointer-events: none; }
         }
 
         .demo-info-panel {
@@ -378,7 +383,7 @@
     </div>
 
     <div class="controls-hint">
-        <p><strong>Desktop:</strong> Click & drag to look around • WASD to move • Click windows to explore</p>
+        <p><strong>Desktop:</strong> Click & drag to look around • WASD/Arrows to move • ESC to close</p>
         <p><strong>Mobile:</strong> Swipe to look around • Tap windows to explore</p>
     </div>
 
@@ -571,6 +576,9 @@
                 this.createCathedral();
                 this.createStainedGlassWindows();
                 this.setupEventListeners();
+
+                // Store instance for cleanup
+                window.cathedralInstance = this;
 
                 setTimeout(() => {
                     document.getElementById('loading').style.display = 'none';
@@ -1084,12 +1092,23 @@
             }
 
             updateCamera() {
-                // Smooth camera rotation
-                this.cameraRotation.x += (this.targetCameraRotation.x - this.cameraRotation.x) * 0.1;
-                this.cameraRotation.y += (this.targetCameraRotation.y - this.cameraRotation.y) * 0.1;
+                const time = this.clock.getElapsedTime();
 
-                // Movement
-                const moveSpeed = 0.3;
+                // Smooth camera rotation with easing
+                const rotationEase = this.isMobile ? 0.15 : 0.1;
+                this.cameraRotation.x += (this.targetCameraRotation.x - this.cameraRotation.x) * rotationEase;
+                this.cameraRotation.y += (this.targetCameraRotation.y - this.cameraRotation.y) * rotationEase;
+
+                // Subtle ambient camera sway when idle (no movement keys pressed)
+                const isIdle = !this.moveForward && !this.moveBackward && !this.moveLeft && !this.moveRight;
+                let ambientX = 0, ambientY = 0;
+                if (isIdle && !this.isDragging) {
+                    ambientX = Math.sin(time * 0.3) * 0.005;
+                    ambientY = Math.cos(time * 0.4) * 0.003;
+                }
+
+                // Movement with variable speed
+                const moveSpeed = this.isMobile ? 0.25 : 0.3;
                 const forward = new THREE.Vector3(0, 0, -1);
                 const right = new THREE.Vector3(1, 0, 0);
 
@@ -1113,13 +1132,14 @@
                     this.cameraPosition.z += right.z * moveSpeed;
                 }
 
-                // Constrain movement within cathedral
-                this.cameraPosition.x = Math.max(-20, Math.min(20, this.cameraPosition.x));
-                this.cameraPosition.z = Math.max(-25, Math.min(25, this.cameraPosition.z));
+                // Constrain movement within cathedral with soft bounds
+                const boundPadding = 2;
+                this.cameraPosition.x = Math.max(-20 + boundPadding, Math.min(20 - boundPadding, this.cameraPosition.x));
+                this.cameraPosition.z = Math.max(-25 + boundPadding, Math.min(25 - boundPadding, this.cameraPosition.z));
 
-                // Apply camera transformation
+                // Apply camera transformation with ambient sway
                 this.camera.position.set(this.cameraPosition.x, this.cameraPosition.y, this.cameraPosition.z);
-                this.camera.rotation.set(this.cameraRotation.x, this.cameraRotation.y, 0);
+                this.camera.rotation.set(this.cameraRotation.x + ambientX, this.cameraRotation.y + ambientY, 0);
             }
 
             animate() {
@@ -1199,9 +1219,34 @@
             document.getElementById('demoInfoPanel').classList.remove('active');
         }
 
-        // Initialize
+        // Initialize with error handling
         window.addEventListener('DOMContentLoaded', () => {
-            new CathedralExperience();
+            try {
+                if (typeof THREE === 'undefined') {
+                    throw new Error('Three.js failed to load');
+                }
+
+                // Check for WebGL support
+                const canvas = document.createElement('canvas');
+                const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+                if (!gl) {
+                    throw new Error('WebGL not supported');
+                }
+
+                new CathedralExperience();
+            } catch (error) {
+                console.error('Cathedral initialization failed:', error);
+                const loading = document.getElementById('loading');
+                loading.innerHTML = 'Failed to load 3D experience.<br><small>Please try a different browser or device.</small>';
+                loading.style.color = 'rgba(255, 100, 100, 0.8)';
+            }
+        });
+
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', () => {
+            if (window.cathedralInstance) {
+                window.cathedralInstance.dispose();
+            }
         });
     </script>
 </body>

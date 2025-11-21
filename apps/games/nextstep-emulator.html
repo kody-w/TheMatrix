@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NeXTSTEP Workspace - Interactive Emulator</title>
+    <meta name="description" content="Experience the revolutionary NeXTSTEP operating system - the foundation of modern macOS">
+
+    <!-- Demo Metadata -->
+    <meta name="demo:id" content="nextstep-emulator">
+    <meta name="demo:title" content="NeXTSTEP Workspace Emulator">
+    <meta name="demo:description" content="Authentic recreation of Steve Jobs' NeXTSTEP OS. Experience the revolutionary interface that became macOS with functional apps, iconic Dock, and distinctive grayscale aesthetic.">
+    <meta name="demo:tags" content="Retro OS, Historical Computing, Interactive Demo">
+    <meta name="demo:status" content="ready">
+    <meta name="demo:statusLabel" content="LIVE">
+
+    <style>
+        /* NeXTSTEP Color Palette - Authentic Grayscale Aesthetic */
+        :root {
+            --next-medium-gray: #999;
+            --next-light-gray: #ccc;
+            --next-dark-gray: #666;
+            --next-darker-gray: #444;
+            --next-white: #fff;
+            --next-black: #000;
+            --next-highlight: #00f;
+            --workspace-bg: #888;
+            --window-gray: #bbb;
+            --dock-gray: #aaa;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            font-size: 12px;
+            background: var(--workspace-bg);
+            min-height: 100vh;
+            overflow: hidden;
+            color: var(--next-black);
+        }
+
+        /* Boot Screen */
+        #boot-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--next-black);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            animation: fadeOut 3s 2s forwards;
+        }
+
+        @keyframes fadeOut {
+            to { opacity: 0; visibility: hidden; }
+        }
+
+        .next-logo {
+            width: 200px;
+            height: 200px;
+            background: linear-gradient(135deg,
+                #ff0000 0%, #ff0000 14.28%,
+                #ff7f00 14.28%, #ff7f00 28.56%,
+                #ffff00 28.56%, #ffff00 42.84%,
+                #00ff00 42.84%, #00ff00 57.12%,
+                #0000ff 57.12%, #0000ff 71.4%,
+                #4b0082 71.4%, #4b0082 85.68%,
+                #9400d3 85.68%, #9400d3 100%);
+            border-radius: 50%;
+            margin-bottom: 30px;
+            animation: pulse 2s ease-in-out infinite;
+            box-shadow: 0 0 50px rgba(255, 255, 255, 0.5);
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .boot-text {
+            color: var(--next-white);
+            font-size: 18px;
+            font-weight: 300;
+            letter-spacing: 2px;
+        }
+
+        /* Desktop Workspace */
+        #workspace {
+            width: 100%;
+            height: 100vh;
+            position: relative;
+            background: var(--workspace-bg);
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,.02) 2px, rgba(0,0,0,.02) 4px),
+                repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(0,0,0,.02) 2px, rgba(0,0,0,.02) 4px);
+        }
+
+        /* The Dock - Vertical, Left Side */
+        #dock {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 80px;
+            height: 100vh;
+            background: var(--dock-gray);
+            border-right: 2px solid var(--next-white);
+            box-shadow: inset -1px 0 var(--next-dark-gray), 2px 0 5px rgba(0,0,0,0.3);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 15px 0;
+            z-index: 1000;
+        }
+
+        .dock-app {
+            width: 56px;
+            height: 56px;
+            background: var(--next-light-gray);
+            border: 2px solid var(--next-white);
+            border-bottom-color: var(--next-dark-gray);
+            border-right-color: var(--next-dark-gray);
+            margin: 8px 0;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: bold;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .dock-app:hover {
+            background: var(--next-white);
+            transform: scale(1.1);
+        }
+
+        .dock-app:active {
+            border: 2px solid var(--next-dark-gray);
+            border-top-color: var(--next-white);
+            border-left-color: var(--next-white);
+        }
+
+        .dock-icon {
+            font-size: 24px;
+            margin-bottom: 4px;
+        }
+
+        .dock-label {
+            font-size: 8px;
+            text-align: center;
+        }
+
+        /* Window System */
+        .window {
+            position: absolute;
+            background: var(--window-gray);
+            border: 2px solid var(--next-white);
+            border-bottom-color: var(--next-darker-gray);
+            border-right-color: var(--next-darker-gray);
+            min-width: 400px;
+            min-height: 300px;
+            box-shadow: 5px 5px 15px rgba(0,0,0,0.4);
+            display: none;
+        }
+
+        .window.active {
+            display: block;
+            z-index: 100;
+        }
+
+        /* NeXT Window Controls - LEFT SIDE */
+        .window-titlebar {
+            background: var(--next-black);
+            color: var(--next-white);
+            padding: 8px;
+            display: flex;
+            align-items: center;
+            cursor: move;
+            user-select: none;
+            border-bottom: 2px solid var(--next-white);
+        }
+
+        .window-controls {
+            display: flex;
+            gap: 4px;
+            margin-right: 12px;
+        }
+
+        .window-button {
+            width: 18px;
+            height: 18px;
+            background: var(--next-light-gray);
+            border: 1px solid var(--next-white);
+            border-bottom-color: var(--next-dark-gray);
+            border-right-color: var(--next-dark-gray);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: bold;
+        }
+
+        .window-button:hover {
+            background: var(--next-white);
+        }
+
+        .window-title {
+            font-weight: bold;
+            font-size: 13px;
+            flex: 1;
+        }
+
+        .window-content {
+            background: var(--next-white);
+            height: calc(100% - 34px);
+            overflow: auto;
+            padding: 12px;
+        }
+
+        /* Menu Bar */
+        .menu-bar {
+            background: var(--next-dark-gray);
+            color: var(--next-white);
+            padding: 4px 12px;
+            display: flex;
+            gap: 20px;
+            font-size: 12px;
+            border-bottom: 1px solid var(--next-black);
+        }
+
+        .menu-item {
+            cursor: pointer;
+            padding: 2px 8px;
+        }
+
+        .menu-item:hover {
+            background: var(--next-black);
+        }
+
+        /* Terminal */
+        .terminal {
+            background: var(--next-black);
+            color: #0f0;
+            font-family: 'Courier New', monospace;
+            padding: 12px;
+            height: 100%;
+            overflow-y: auto;
+        }
+
+        .terminal-line {
+            margin: 4px 0;
+        }
+
+        .terminal-prompt {
+            color: #fff;
+            font-weight: bold;
+        }
+
+        .terminal-input {
+            background: transparent;
+            border: none;
+            color: #0f0;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            outline: none;
+            width: calc(100% - 100px);
+        }
+
+        /* File Browser */
+        .file-browser {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            gap: 16px;
+            padding: 16px;
+        }
+
+        .file-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            padding: 8px;
+        }
+
+        .file-item:hover {
+            background: var(--next-light-gray);
+        }
+
+        .file-icon {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+
+        .file-name {
+            font-size: 11px;
+            text-align: center;
+            word-break: break-word;
+        }
+
+        /* Text Editor */
+        .text-editor {
+            width: 100%;
+            height: 100%;
+            border: none;
+            padding: 12px;
+            font-family: 'Helvetica Neue', Helvetica, sans-serif;
+            font-size: 13px;
+            resize: none;
+            outline: none;
+        }
+
+        /* About Box */
+        .about-box {
+            text-align: center;
+            padding: 24px;
+        }
+
+        .about-logo {
+            font-size: 64px;
+            margin-bottom: 16px;
+        }
+
+        .about-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .about-version {
+            font-size: 14px;
+            color: var(--next-dark-gray);
+            margin-bottom: 16px;
+        }
+
+        .about-text {
+            line-height: 1.6;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            #dock {
+                width: 60px;
+            }
+
+            .dock-app {
+                width: 44px;
+                height: 44px;
+            }
+
+            .window {
+                min-width: 90%;
+                left: 5% !important;
+                top: 50px !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Boot Screen -->
+    <div id="boot-screen">
+        <div class="next-logo"></div>
+        <div class="boot-text">NeXTSTEP™</div>
+    </div>
+
+    <!-- Workspace -->
+    <div id="workspace">
+        <!-- The Dock -->
+        <div id="dock">
+            <div class="dock-app" onclick="openWindow('terminal')">
+                <div class="dock-icon">⌨️</div>
+                <div class="dock-label">Terminal</div>
+            </div>
+            <div class="dock-app" onclick="openWindow('files')">
+                <div class="dock-icon">📁</div>
+                <div class="dock-label">Files</div>
+            </div>
+            <div class="dock-app" onclick="openWindow('writer')">
+                <div class="dock-icon">📝</div>
+                <div class="dock-label">Writer</div>
+            </div>
+            <div class="dock-app" onclick="openWindow('mail')">
+                <div class="dock-icon">✉️</div>
+                <div class="dock-label">Mail</div>
+            </div>
+            <div class="dock-app" onclick="openWindow('preferences')">
+                <div class="dock-icon">⚙️</div>
+                <div class="dock-label">Prefs</div>
+            </div>
+            <div class="dock-app" onclick="openWindow('about')">
+                <div class="dock-icon">ℹ️</div>
+                <div class="dock-label">About</div>
+            </div>
+        </div>
+
+        <!-- Terminal Window -->
+        <div id="terminal-window" class="window" style="left: 200px; top: 100px; width: 600px; height: 400px;">
+            <div class="window-titlebar" onmousedown="startDrag(event, 'terminal-window')">
+                <div class="window-controls">
+                    <div class="window-button" onclick="closeWindow('terminal-window')">×</div>
+                    <div class="window-button" onclick="minimizeWindow('terminal-window')">_</div>
+                </div>
+                <div class="window-title">Terminal - NeXT Shell</div>
+            </div>
+            <div class="window-content">
+                <div class="terminal" id="terminal">
+                    <div class="terminal-line">NeXTSTEP Shell (sh) version 3.3</div>
+                    <div class="terminal-line">Copyright (c) 1996 NeXT Computer, Inc.</div>
+                    <div class="terminal-line">&nbsp;</div>
+                    <div class="terminal-line">
+                        <span class="terminal-prompt">localhost:~ user$</span>
+                        <input type="text" class="terminal-input" id="terminal-input" onkeydown="handleTerminalInput(event)" autofocus>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- File Browser Window -->
+        <div id="files-window" class="window" style="left: 250px; top: 150px; width: 500px; height: 400px;">
+            <div class="window-titlebar" onmousedown="startDrag(event, 'files-window')">
+                <div class="window-controls">
+                    <div class="window-button" onclick="closeWindow('files-window')">×</div>
+                    <div class="window-button" onclick="minimizeWindow('files-window')">_</div>
+                </div>
+                <div class="window-title">File Browser - /Users/user</div>
+            </div>
+            <div class="window-content">
+                <div class="menu-bar">
+                    <div class="menu-item">View</div>
+                    <div class="menu-item">Edit</div>
+                    <div class="menu-item">File</div>
+                </div>
+                <div class="file-browser">
+                    <div class="file-item" ondblclick="openWindow('writer')">
+                        <div class="file-icon">📄</div>
+                        <div class="file-name">Document.txt</div>
+                    </div>
+                    <div class="file-item">
+                        <div class="file-icon">📁</div>
+                        <div class="file-name">Documents</div>
+                    </div>
+                    <div class="file-item">
+                        <div class="file-icon">📁</div>
+                        <div class="file-name">Applications</div>
+                    </div>
+                    <div class="file-item">
+                        <div class="file-icon">📁</div>
+                        <div class="file-name">Library</div>
+                    </div>
+                    <div class="file-item">
+                        <div class="file-icon">🖼️</div>
+                        <div class="file-name">Photo.tiff</div>
+                    </div>
+                    <div class="file-item">
+                        <div class="file-icon">📊</div>
+                        <div class="file-name">Data.db</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- WriteNow Window -->
+        <div id="writer-window" class="window" style="left: 300px; top: 200px; width: 600px; height: 500px;">
+            <div class="window-titlebar" onmousedown="startDrag(event, 'writer-window')">
+                <div class="window-controls">
+                    <div class="window-button" onclick="closeWindow('writer-window')">×</div>
+                    <div class="window-button" onclick="minimizeWindow('writer-window')">_</div>
+                </div>
+                <div class="window-title">WriteNow - Untitled</div>
+            </div>
+            <div class="window-content">
+                <div class="menu-bar">
+                    <div class="menu-item">File</div>
+                    <div class="menu-item">Edit</div>
+                    <div class="menu-item">Format</div>
+                    <div class="menu-item">Tools</div>
+                </div>
+                <textarea class="text-editor" placeholder="Start writing...">Welcome to WriteNow on NeXTSTEP!
+
+This is a faithful recreation of the revolutionary operating system created by Steve Jobs at NeXT Computer in 1988.
+
+NeXTSTEP introduced many concepts that later became standard in modern computing:
+• The Dock (vertical application launcher)
+• Object-oriented programming (Objective-C)
+• Display PostScript for graphics
+• Digital Librarian for search
+• Bundled applications
+
+WriteNow was one of the first WYSIWYG word processors for NeXTSTEP.
+
+Try the other applications from the Dock!</textarea>
+            </div>
+        </div>
+
+        <!-- Mail Window -->
+        <div id="mail-window" class="window" style="left: 350px; top: 250px; width: 550px; height: 450px;">
+            <div class="window-titlebar" onmousedown="startDrag(event, 'mail-window')">
+                <div class="window-controls">
+                    <div class="window-button" onclick="closeWindow('mail-window')">×</div>
+                    <div class="window-button" onclick="minimizeWindow('mail-window')">_</div>
+                </div>
+                <div class="window-title">Mail.app - Inbox</div>
+            </div>
+            <div class="window-content">
+                <div class="menu-bar">
+                    <div class="menu-item">Mailbox</div>
+                    <div class="menu-item">Message</div>
+                    <div class="menu-item">Format</div>
+                </div>
+                <div style="padding: 16px;">
+                    <div style="border-bottom: 2px solid var(--next-dark-gray); padding-bottom: 8px; margin-bottom: 12px;">
+                        <strong>From:</strong> Steve Jobs &lt;sjobs@next.com&gt;<br>
+                        <strong>Date:</strong> March 19, 1989<br>
+                        <strong>Subject:</strong> Welcome to NeXTSTEP
+                    </div>
+                    <div style="line-height: 1.6;">
+                        <p>Welcome to NeXTSTEP!</p>
+                        <p>You're experiencing the future of computing. This operating system represents a quantum leap in user interface design and object-oriented programming.</p>
+                        <p>NeXTSTEP is designed for creative professionals, researchers, and anyone who demands more from their computer.</p>
+                        <p>Explore the applications in the Dock and discover what makes NeXTSTEP revolutionary.</p>
+                        <p>- Steve</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Preferences Window -->
+        <div id="preferences-window" class="window" style="left: 400px; top: 300px; width: 450px; height: 350px;">
+            <div class="window-titlebar" onmousedown="startDrag(event, 'preferences-window')">
+                <div class="window-controls">
+                    <div class="window-button" onclick="closeWindow('preferences-window')">×</div>
+                    <div class="window-button" onclick="minimizeWindow('preferences-window')">_</div>
+                </div>
+                <div class="window-title">Preferences</div>
+            </div>
+            <div class="window-content">
+                <div class="menu-bar">
+                    <div class="menu-item">Display</div>
+                    <div class="menu-item">Sound</div>
+                    <div class="menu-item">Network</div>
+                    <div class="menu-item">System</div>
+                </div>
+                <div style="padding: 24px;">
+                    <h3 style="margin-bottom: 16px;">Display Settings</h3>
+                    <div style="margin-bottom: 12px;">
+                        <label><input type="checkbox" checked> Show Dock</label>
+                    </div>
+                    <div style="margin-bottom: 12px;">
+                        <label><input type="checkbox" checked> Enable shadows</label>
+                    </div>
+                    <div style="margin-bottom: 12px;">
+                        <label><input type="checkbox"> Hide Dock automatically</label>
+                    </div>
+                    <div style="margin-bottom: 20px;">
+                        <label>Desktop Color:</label>
+                        <input type="color" value="#888888" onchange="changeWorkspaceColor(event)">
+                    </div>
+                    <button onclick="alert('Preferences saved!')" style="padding: 6px 24px; background: var(--next-light-gray); border: 2px solid var(--next-white); border-bottom-color: var(--next-dark-gray); border-right-color: var(--next-dark-gray); cursor: pointer;">Apply</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- About Window -->
+        <div id="about-window" class="window" style="left: 450px; top: 350px; width: 500px; height: 400px;">
+            <div class="window-titlebar" onmousedown="startDrag(event, 'about-window')">
+                <div class="window-controls">
+                    <div class="window-button" onclick="closeWindow('about-window')">×</div>
+                    <div class="window-button" onclick="minimizeWindow('about-window')">_</div>
+                </div>
+                <div class="window-title">About NeXTSTEP</div>
+            </div>
+            <div class="window-content">
+                <div class="about-box">
+                    <div class="about-logo">
+                        <div style="width: 120px; height: 120px; background: linear-gradient(135deg, #ff0000 0%, #ff7f00 14%, #ffff00 28%, #00ff00 42%, #0000ff 57%, #4b0082 71%, #9400d3 85%, #9400d3 100%); border-radius: 50%; margin: 0 auto 24px;"></div>
+                    </div>
+                    <div class="about-title">NeXTSTEP</div>
+                    <div class="about-version">Version 3.3 (WebSimulator)</div>
+                    <div class="about-text">
+                        <p style="margin-bottom: 12px;">NeXTSTEP was a revolutionary object-oriented, multitasking operating system developed by NeXT Computer, founded by Steve Jobs after leaving Apple in 1985.</p>
+                        <p style="margin-bottom: 12px;">It introduced many concepts that later became standard in macOS: the Dock, object-oriented APIs, Display PostScript, and the foundation of modern UI design.</p>
+                        <p style="margin-bottom: 12px;"><strong>This is an interactive HTML/CSS/JS recreation for educational and nostalgic purposes.</strong></p>
+                        <p style="font-size: 11px; color: var(--next-dark-gray);">© 2025 - A tribute to NeXT Computer, Inc.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Window Dragging
+        let draggedWindow = null;
+        let offsetX = 0, offsetY = 0;
+
+        function startDrag(e, windowId) {
+            draggedWindow = document.getElementById(windowId);
+            const rect = draggedWindow.getBoundingClientRect();
+            offsetX = e.clientX - rect.left;
+            offsetY = e.clientY - rect.top;
+
+            // Bring window to front
+            const windows = document.querySelectorAll('.window');
+            windows.forEach(w => w.style.zIndex = 100);
+            draggedWindow.style.zIndex = 200;
+        }
+
+        document.addEventListener('mousemove', (e) => {
+            if (draggedWindow) {
+                const newX = e.clientX - offsetX;
+                const newY = e.clientY - offsetY;
+                draggedWindow.style.left = Math.max(80, Math.min(newX, window.innerWidth - 100)) + 'px';
+                draggedWindow.style.top = Math.max(0, Math.min(newY, window.innerHeight - 50)) + 'px';
+            }
+        });
+
+        document.addEventListener('mouseup', () => {
+            draggedWindow = null;
+        });
+
+        // Window Management
+        function openWindow(windowType) {
+            const windowId = windowType + '-window';
+            const window = document.getElementById(windowId);
+            if (window) {
+                window.classList.add('active');
+                window.style.display = 'block';
+
+                // Bring to front
+                const windows = document.querySelectorAll('.window');
+                windows.forEach(w => w.style.zIndex = 100);
+                window.style.zIndex = 200;
+            }
+        }
+
+        function closeWindow(windowId) {
+            const window = document.getElementById(windowId);
+            if (window) {
+                window.classList.remove('active');
+                window.style.display = 'none';
+            }
+        }
+
+        function minimizeWindow(windowId) {
+            // Just close for now (could animate to dock)
+            closeWindow(windowId);
+        }
+
+        // Terminal
+        const terminalHistory = [];
+        let historyIndex = -1;
+
+        function handleTerminalInput(e) {
+            if (e.key === 'Enter') {
+                const input = e.target;
+                const command = input.value.trim();
+                const terminal = document.getElementById('terminal');
+
+                // Add command to history
+                if (command) {
+                    terminalHistory.push(command);
+                    historyIndex = terminalHistory.length;
+
+                    // Display command
+                    const cmdLine = document.createElement('div');
+                    cmdLine.className = 'terminal-line';
+                    cmdLine.innerHTML = `<span class="terminal-prompt">localhost:~ user$</span> ${command}`;
+                    terminal.insertBefore(cmdLine, terminal.lastElementChild);
+
+                    // Process command
+                    processCommand(command);
+                }
+
+                input.value = '';
+                terminal.scrollTop = terminal.scrollHeight;
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                if (historyIndex > 0) {
+                    historyIndex--;
+                    e.target.value = terminalHistory[historyIndex];
+                }
+            } else if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                if (historyIndex < terminalHistory.length - 1) {
+                    historyIndex++;
+                    e.target.value = terminalHistory[historyIndex];
+                } else {
+                    historyIndex = terminalHistory.length;
+                    e.target.value = '';
+                }
+            }
+        }
+
+        function processCommand(cmd) {
+            const terminal = document.getElementById('terminal');
+            const output = document.createElement('div');
+            output.className = 'terminal-line';
+
+            const parts = cmd.toLowerCase().split(' ');
+            const command = parts[0];
+
+            switch(command) {
+                case 'help':
+                    output.innerHTML = `Available commands:
+<br>  help - Show this help
+<br>  ls - List files
+<br>  pwd - Print working directory
+<br>  whoami - Display current user
+<br>  date - Show current date
+<br>  uname - System information
+<br>  clear - Clear terminal
+<br>  about - About NeXTSTEP`;
+                    break;
+                case 'ls':
+                    output.innerHTML = 'Documents  Applications  Library  Desktop  NeXTSTEP';
+                    break;
+                case 'pwd':
+                    output.textContent = '/Users/user';
+                    break;
+                case 'whoami':
+                    output.textContent = 'user';
+                    break;
+                case 'date':
+                    output.textContent = new Date().toString();
+                    break;
+                case 'uname':
+                    output.innerHTML = 'NeXTSTEP 3.3 (Mach 2.5) on NeXT Computer';
+                    break;
+                case 'clear':
+                    const lines = terminal.querySelectorAll('.terminal-line:not(:last-child)');
+                    lines.forEach(line => line.remove());
+                    return;
+                case 'about':
+                    output.innerHTML = `NeXTSTEP Operating System
+<br>Version 3.3 (Web Emulator)
+<br>Copyright (c) 1988-1996 NeXT Computer, Inc.
+<br>
+<br>This is a tribute to the revolutionary OS that became macOS.`;
+                    break;
+                default:
+                    output.textContent = `sh: ${command}: command not found`;
+            }
+
+            terminal.insertBefore(output, terminal.lastElementChild);
+        }
+
+        // Workspace color change
+        function changeWorkspaceColor(e) {
+            document.getElementById('workspace').style.background = e.target.value;
+        }
+
+        // Initialize - open about window on load
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                openWindow('about');
+            }, 5000);
+        });
+
+        // PWA Manifest
+        const manifest = {
+            name: "NeXTSTEP Workspace",
+            short_name: "NeXTSTEP",
+            description: "Experience the revolutionary NeXTSTEP operating system",
+            start_url: "./nextstep-emulator.html",
+            display: "fullscreen",
+            background_color: "#888888",
+            theme_color: "#999999",
+            icons: [{
+                src: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+                sizes: "512x512",
+                type: "image/png"
+            }]
+        };
+
+        const manifestBlob = new Blob([JSON.stringify(manifest)], {type: 'application/json'});
+        const manifestURL = URL.createObjectURL(manifestBlob);
+        document.getElementById('pwa-manifest').setAttribute('href', manifestURL);
+    </script>
+</body>
+</html>

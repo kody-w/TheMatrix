@@ -77,9 +77,9 @@ The Matrix is a **domain-agnostic AI orchestration framework** that demonstrates
 **What Autonomous Agents Built in This Repository:**
 
 ### 1. Large-Scale Application Generation
-- **100+ HTML Applications**: Built through parallel agent execution
-- **9 Categories**: AI Tools, Games, Development, Business, Education, Health, Media, Productivity, Utilities
-- **Zero Dependencies**: Every app is self-contained and works offline
+- **175+ HTML Applications**: Built through parallel agent execution
+- **11 Categories**: AI Tools, Games, Development, Business, Education, Finance, Health, Media, Productivity, Utilities, Quantum Worlds
+- **Zero Build Dependencies**: Every app is a complete standalone HTML file—no npm, no build process, no package managers. CDN resources are fine.
 - **Consistent Quality**: All apps follow extracted patterns
 
 ### 2. Comprehensive Documentation
@@ -585,7 +585,7 @@ Demonstrates advanced AI engineering principles:
 
 ## 🎮 Apps Gallery
 
-The Matrix now includes **100+ local-first HTML applications** demonstrating the power of parallel orchestration and self-contained architecture.
+The Matrix now includes **175+ local-first HTML applications** demonstrating the power of parallel orchestration and self-contained architecture.
 
 **[→ Browse the Apps Gallery](https://kody-w.github.io/TheMatrix/apps-gallery.html)**
 
@@ -593,19 +593,22 @@ The Matrix now includes **100+ local-first HTML applications** demonstrating the
 
 - 🤖 **AI Tools** (17 apps): Agent browsers, voice assistants, MCP registry, Claude subagents tutorials
 - 🎮 **Games** (50+ apps): 3D worlds, emulators, card games, simulations, puzzle games
-- 💻 **Development** (13 apps): GitHub managers, artifact converters, browser VMs, Mermaid viewers
+- 💻 **Development** (21 apps): GitHub managers, artifact converters, browser VMs, Mermaid viewers
 - 💼 **Business** (6 apps): CRM systems, presentation apps, email automation, sales demos
 - 🎓 **Education** (16 apps): Physics playgrounds, quantum simulations, learning tools
-- 📋 **Productivity** (6 apps): Journals, prompt libraries, task managers, workflow tools
-- 📹 **Media** (5 apps): Dual camera recorders, hologram tools, webcam sync
+- 💰 **Finance** (1 app): Portfolio management, investment tracking **NEW!**
+- 📋 **Productivity** (14 apps): Journals, prompt libraries, task managers, workflow tools
+- 📹 **Media** (7 apps): Dual camera recorders, hologram tools, webcam sync
 - ❤️ **Health** (2 apps): Breathwork guides, wellness trackers
-- 🔧 **Utilities** (1 app): Text file splitter and more
+- 🔧 **Utilities** (13 apps): Text file splitter, quantum messaging, time converters
+- 🌌 **Quantum Worlds** (11 apps): Experimental multiplayer P2P worlds
+- 🎯 **Index Variants** (6 apps): Alternative gateway configurations
 
 ### Features
 
-- ✅ **Self-Contained**: Each app is a single HTML file (no dependencies)
-- ✅ **Local-First**: Works offline, data stays in browser
-- ✅ **No Build Process**: Direct HTML files, no compilation
+- ✅ **Self-Contained**: Each app is a complete standalone HTML file
+- ✅ **Local-First**: Data stays in browser, no backend required
+- ✅ **No Build Process**: Direct HTML files, no npm/webpack/compilation. CDN resources used where beneficial.
 - ✅ **Searchable**: Real-time search across all apps
 - ✅ **Filterable**: Browse by category
 - ✅ **Mobile-Friendly**: Responsive design for all devices

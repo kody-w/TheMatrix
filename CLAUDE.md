@@ -21,6 +21,19 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is **The Matrix** - a generalized AI orchestration framework built on Claude Code's hierarchical agent architecture AND a living portfolio demonstrating autonomous agent capabilities. The system demonstrates context-aware orchestration where a 200k context orchestrator (you) manages parallel execution of specialized agents to produce any outcome at scale.
 
+### Dependency Philosophy
+
+**"Zero Dependencies" means NO BUILD PROCESS, not no external resources.**
+
+- ✅ **Self-Contained**: Each file is a complete standalone HTML file
+- ✅ **No Build Process**: No npm install, no webpack, no compilation required
+- ✅ **No Package Managers**: No node_modules, no package.json dependencies
+- ✅ **CDN Resources Welcome**: External CDN libraries (Three.js, QRious, etc.) are perfectly fine
+- ✅ **Local P2P Networking**: Local networking and peer-to-peer connections are encouraged
+- ⚠️ **Network Trade-offs**: CDN variants require connectivity; fully inlined variants available for offline use
+
+**TL;DR**: If you can open the HTML file directly in a browser without running `npm install` or a build command, it's "zero dependencies" regardless of CDN usage.
+
 ## Architecture
 
 ### Core Orchestration Pattern

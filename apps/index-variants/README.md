@@ -103,7 +103,7 @@ Each variant can be customized:
 | index_slim_cloud_qr.html | 192KB | <380ms | QR Features | External CDN |
 | index_slim_cloud_tools.html | 220KB | <420ms | Dev Tools | External CDN |
 
-**Note**: Cloud variants with external CDN dependencies may require network connectivity and violate the framework's "zero dependencies" principle. Consider using self-contained variants for offline capability.
+**Note**: "Self-contained" means each file is a complete standalone HTML file requiring no build process or npm packages. External CDN dependencies (Three.js, QRious, etc.) are perfectly fine and don't violate the framework's "zero dependencies" principle. Cloud variants with CDN dependencies require network connectivity; use fully inlined variants for offline capability.
 
 ---
 

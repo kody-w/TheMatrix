@@ -1,0 +1,981 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeOS Deskbar - Interactive Emulator</title>
+    <meta name="description" content="Interactive BeOS R5 desktop environment emulator with authentic yellow tab aesthetics and functional applications">
+    <meta name="keywords" content="BeOS, Haiku, retro computing, operating system emulator, desktop environment">
+    <meta name="demo-category" content="games">
+    <meta name="demo-subcategory" content="emulators">
+    <meta name="demo-tags" content="retro,os,simulation,interactive,beos,haiku">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --beos-gray: #d0d0d0;
+            --beos-dark-gray: #a0a0a0;
+            --beos-darker-gray: #707070;
+            --beos-yellow: #ffc733;
+            --beos-blue: #4169e1;
+            --beos-light-blue: #87ceeb;
+            --beos-border: #ffffff;
+            --beos-shadow: #808080;
+            --beos-text: #000000;
+        }
+
+        body {
+            font-family: 'Geneva', 'Verdana', sans-serif;
+            overflow: hidden;
+            background: var(--beos-blue);
+            background: linear-gradient(135deg, #4169e1 0%, #87ceeb 100%);
+            user-select: none;
+        }
+
+        #boot-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            color: #fff;
+        }
+
+        #boot-logo {
+            width: 200px;
+            height: 200px;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .leaf {
+            position: absolute;
+            background: var(--beos-yellow);
+            border-radius: 50%;
+        }
+
+        .leaf:nth-child(1) {
+            width: 80px;
+            height: 120px;
+            top: 20px;
+            left: 60px;
+            transform: rotate(-30deg);
+            border-radius: 50% 50% 50% 20%;
+        }
+
+        .leaf:nth-child(2) {
+            width: 80px;
+            height: 120px;
+            top: 20px;
+            right: 60px;
+            transform: rotate(30deg);
+            border-radius: 50% 50% 20% 50%;
+        }
+
+        .leaf:nth-child(3) {
+            width: 100px;
+            height: 140px;
+            bottom: 10px;
+            left: 50px;
+            transform: rotate(-10deg);
+            border-radius: 20% 50% 50% 50%;
+        }
+
+        .leaf:nth-child(4) {
+            width: 100px;
+            height: 140px;
+            bottom: 10px;
+            right: 50px;
+            transform: rotate(10deg);
+            border-radius: 50% 20% 50% 50%;
+        }
+
+        #boot-text {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        #boot-progress {
+            width: 300px;
+            height: 8px;
+            background: #333;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        #boot-progress-bar {
+            height: 100%;
+            background: var(--beos-yellow);
+            width: 0%;
+            transition: width 0.3s;
+        }
+
+        #desktop {
+            width: 100%;
+            height: 100vh;
+            position: relative;
+            display: none;
+        }
+
+        #deskbar {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 64px;
+            height: 100vh;
+            background: var(--beos-gray);
+            border-left: 2px solid var(--beos-shadow);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 8px;
+            z-index: 9000;
+        }
+
+        .deskbar-icon {
+            width: 48px;
+            height: 48px;
+            margin-bottom: 8px;
+            background: var(--beos-dark-gray);
+            border: 2px outset var(--beos-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 24px;
+            color: var(--beos-text);
+        }
+
+        .deskbar-icon:hover {
+            background: var(--beos-darker-gray);
+        }
+
+        .deskbar-icon:active {
+            border-style: inset;
+        }
+
+        #clock {
+            position: absolute;
+            bottom: 8px;
+            width: 48px;
+            background: #000;
+            color: var(--beos-yellow);
+            padding: 4px;
+            font-size: 10px;
+            text-align: center;
+            border-radius: 2px;
+        }
+
+        .window {
+            position: absolute;
+            background: var(--beos-gray);
+            border: 1px solid var(--beos-shadow);
+            box-shadow: 4px 4px 8px rgba(0,0,0,0.3);
+            display: none;
+            min-width: 400px;
+            min-height: 300px;
+            max-width: 90vw;
+            max-height: 90vh;
+        }
+
+        .window.active {
+            display: block;
+        }
+
+        .title-bar {
+            height: 26px;
+            background: var(--beos-yellow);
+            padding: 4px 8px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: move;
+            border-bottom: 1px solid var(--beos-shadow);
+        }
+
+        .title-text {
+            font-weight: bold;
+            font-size: 12px;
+            color: var(--beos-text);
+        }
+
+        .window-controls {
+            display: flex;
+            gap: 4px;
+        }
+
+        .window-button {
+            width: 16px;
+            height: 16px;
+            border: 1px outset var(--beos-border);
+            background: var(--beos-dark-gray);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+        }
+
+        .window-button:hover {
+            background: var(--beos-darker-gray);
+        }
+
+        .window-button:active {
+            border-style: inset;
+        }
+
+        .window-content {
+            padding: 16px;
+            background: #fff;
+            height: calc(100% - 26px);
+            overflow: auto;
+        }
+
+        .menu-bar {
+            background: var(--beos-gray);
+            border-bottom: 1px solid var(--beos-shadow);
+            padding: 4px;
+            display: flex;
+            gap: 8px;
+            font-size: 12px;
+        }
+
+        .menu-item {
+            padding: 2px 8px;
+            cursor: pointer;
+        }
+
+        .menu-item:hover {
+            background: var(--beos-yellow);
+        }
+
+        #terminal-output {
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            white-space: pre-wrap;
+            margin-bottom: 8px;
+            color: #000;
+        }
+
+        #terminal-input-line {
+            display: flex;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+        }
+
+        #terminal-prompt {
+            color: var(--beos-blue);
+            margin-right: 4px;
+        }
+
+        #terminal-input {
+            flex: 1;
+            border: none;
+            outline: none;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            background: transparent;
+        }
+
+        .file-browser {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            gap: 16px;
+            padding: 16px;
+        }
+
+        .file-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            padding: 8px;
+        }
+
+        .file-item:hover {
+            background: var(--beos-light-blue);
+        }
+
+        .file-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--beos-yellow);
+            border: 2px outset var(--beos-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-bottom: 4px;
+        }
+
+        .file-name {
+            font-size: 11px;
+            text-align: center;
+            word-break: break-word;
+        }
+
+        .text-editor {
+            width: 100%;
+            height: calc(100% - 60px);
+            border: 1px inset var(--beos-shadow);
+            padding: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            resize: none;
+        }
+
+        .toolbar {
+            background: var(--beos-dark-gray);
+            padding: 4px;
+            display: flex;
+            gap: 4px;
+            border-bottom: 1px solid var(--beos-shadow);
+        }
+
+        .tool-button {
+            padding: 4px 12px;
+            background: var(--beos-gray);
+            border: 1px outset var(--beos-border);
+            cursor: pointer;
+            font-size: 11px;
+        }
+
+        .tool-button:hover {
+            background: var(--beos-yellow);
+        }
+
+        .tool-button:active {
+            border-style: inset;
+        }
+
+        .preferences-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .pref-section {
+            border: 1px solid var(--beos-shadow);
+            padding: 12px;
+            border-radius: 4px;
+        }
+
+        .pref-title {
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: var(--beos-blue);
+        }
+
+        .pref-option {
+            margin: 8px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .about-content {
+            text-align: center;
+            padding: 24px;
+        }
+
+        .about-logo {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 16px;
+            position: relative;
+        }
+
+        .about-text {
+            line-height: 1.6;
+            margin-bottom: 12px;
+        }
+
+        #workspace {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 64px;
+            bottom: 0;
+        }
+
+        @media (max-width: 768px) {
+            #deskbar {
+                width: 100%;
+                height: 56px;
+                top: auto;
+                bottom: 0;
+                right: 0;
+                flex-direction: row;
+                padding: 4px;
+                border-left: none;
+                border-top: 2px solid var(--beos-shadow);
+            }
+
+            .deskbar-icon {
+                width: 44px;
+                height: 44px;
+                margin: 0 4px;
+            }
+
+            #clock {
+                position: relative;
+                bottom: auto;
+                margin-left: auto;
+            }
+
+            #workspace {
+                right: 0;
+                bottom: 56px;
+            }
+
+            .window {
+                min-width: 280px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="boot-screen">
+        <div id="boot-logo">
+            <div class="leaf"></div>
+            <div class="leaf"></div>
+            <div class="leaf"></div>
+            <div class="leaf"></div>
+        </div>
+        <div id="boot-text">BeOS R5</div>
+        <div id="boot-progress">
+            <div id="boot-progress-bar"></div>
+        </div>
+    </div>
+
+    <div id="desktop">
+        <div id="workspace"></div>
+
+        <div id="deskbar">
+            <div class="deskbar-icon" onclick="openWindow('tracker')" title="Tracker">📁</div>
+            <div class="deskbar-icon" onclick="openWindow('terminal')" title="Terminal">⌨️</div>
+            <div class="deskbar-icon" onclick="openWindow('styededit')" title="StyledEdit">📝</div>
+            <div class="deskbar-icon" onclick="openWindow('mail')" title="BeMail">✉️</div>
+            <div class="deskbar-icon" onclick="openWindow('media')" title="MediaPlayer">🎵</div>
+            <div class="deskbar-icon" onclick="openWindow('preferences')" title="Preferences">⚙️</div>
+            <div class="deskbar-icon" onclick="openWindow('about')" title="About BeOS">ℹ️</div>
+            <div id="clock">
+                <div id="time">12:00</div>
+                <div id="date">PM</div>
+            </div>
+        </div>
+
+        <!-- Tracker Window -->
+        <div id="tracker-window" class="window" style="left: 50px; top: 50px; width: 600px; height: 450px;">
+            <div class="title-bar" onmousedown="startDrag(event, 'tracker-window')">
+                <span class="title-text">Tracker - /boot/home</span>
+                <div class="window-controls">
+                    <div class="window-button" onclick="minimizeWindow('tracker-window')">_</div>
+                    <div class="window-button" onclick="closeWindow('tracker-window')">×</div>
+                </div>
+            </div>
+            <div class="menu-bar">
+                <span class="menu-item">File</span>
+                <span class="menu-item">Edit</span>
+                <span class="menu-item">View</span>
+                <span class="menu-item">Window</span>
+            </div>
+            <div class="window-content">
+                <div class="file-browser">
+                    <div class="file-item">
+                        <div class="file-icon">📁</div>
+                        <div class="file-name">Desktop</div>
+                    </div>
+                    <div class="file-item">
+                        <div class="file-icon">📁</div>
+                        <div class="file-name">config</div>
+                    </div>
+                    <div class="file-item">
+                        <div class="file-icon">📁</div>
+                        <div class="file-name">mail</div>
+                    </div>
+                    <div class="file-item">
+                        <div class="file-icon">📄</div>
+                        <div class="file-name">Welcome.txt</div>
+                    </div>
+                    <div class="file-item">
+                        <div class="file-icon">📄</div>
+                        <div class="file-name">ReadMe</div>
+                    </div>
+                    <div class="file-item">
+                        <div class="file-icon">🖼️</div>
+                        <div class="file-name">BeOS.png</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Terminal Window -->
+        <div id="terminal-window" class="window" style="left: 100px; top: 100px; width: 640px; height: 400px;">
+            <div class="title-bar" onmousedown="startDrag(event, 'terminal-window')">
+                <span class="title-text">Terminal</span>
+                <div class="window-controls">
+                    <div class="window-button" onclick="minimizeWindow('terminal-window')">_</div>
+                    <div class="window-button" onclick="closeWindow('terminal-window')">×</div>
+                </div>
+            </div>
+            <div class="window-content" style="background: #fff;">
+                <div id="terminal-output">BeOS Terminal - Release 5
+Type 'help' for available commands.
+
+</div>
+                <div id="terminal-input-line">
+                    <span id="terminal-prompt">/boot/home&gt;</span>
+                    <input type="text" id="terminal-input" autofocus onkeypress="handleTerminalInput(event)">
+                </div>
+            </div>
+        </div>
+
+        <!-- StyledEdit Window -->
+        <div id="styededit-window" class="window" style="left: 150px; top: 150px; width: 560px; height: 420px;">
+            <div class="title-bar" onmousedown="startDrag(event, 'styededit-window')">
+                <span class="title-text">StyledEdit - Untitled</span>
+                <div class="window-controls">
+                    <div class="window-button" onclick="minimizeWindow('styededit-window')">_</div>
+                    <div class="window-button" onclick="closeWindow('styededit-window')">×</div>
+                </div>
+            </div>
+            <div class="menu-bar">
+                <span class="menu-item">File</span>
+                <span class="menu-item">Edit</span>
+                <span class="menu-item">Font</span>
+                <span class="menu-item">Document</span>
+            </div>
+            <div class="toolbar">
+                <div class="tool-button">New</div>
+                <div class="tool-button">Open</div>
+                <div class="tool-button">Save</div>
+                <div class="tool-button">Cut</div>
+                <div class="tool-button">Copy</div>
+                <div class="tool-button">Paste</div>
+            </div>
+            <div class="window-content" style="padding: 0;">
+                <textarea class="text-editor" placeholder="Type your text here...">Welcome to BeOS StyledEdit!
+
+BeOS was an innovative operating system developed by Be Inc. in the 1990s, designed for multimedia applications and offering advanced multitasking capabilities.
+
+Key features included:
+• Pervasive multithreading
+• Modular I/O bandwidth
+• 64-bit journaling file system (BFS)
+• Database-like file system with metadata support
+
+The legacy of BeOS lives on in Haiku OS, an open-source recreation.</textarea>
+            </div>
+        </div>
+
+        <!-- BeMail Window -->
+        <div id="mail-window" class="window" style="left: 200px; top: 120px; width: 520px; height: 380px;">
+            <div class="title-bar" onmousedown="startDrag(event, 'mail-window')">
+                <span class="title-text">BeMail</span>
+                <div class="window-controls">
+                    <div class="window-button" onclick="minimizeWindow('mail-window')">_</div>
+                    <div class="window-button" onclick="closeWindow('mail-window')">×</div>
+                </div>
+            </div>
+            <div class="menu-bar">
+                <span class="menu-item">File</span>
+                <span class="menu-item">Edit</span>
+                <span class="menu-item">Mailbox</span>
+            </div>
+            <div class="window-content">
+                <h3 style="color: var(--beos-blue); margin-bottom: 12px;">Inbox</h3>
+                <div style="border: 1px solid var(--beos-shadow); padding: 8px; margin-bottom: 8px; cursor: pointer;">
+                    <div style="font-weight: bold;">Welcome to BeOS!</div>
+                    <div style="font-size: 11px; color: #666;">System &lt;system@beos.local&gt;</div>
+                    <div style="font-size: 11px; margin-top: 4px;">Thank you for choosing BeOS R5. Experience the power of true multithreading...</div>
+                </div>
+                <div style="border: 1px solid var(--beos-shadow); padding: 8px; margin-bottom: 8px; cursor: pointer;">
+                    <div style="font-weight: bold;">BFS File System Guide</div>
+                    <div style="font-size: 11px; color: #666;">Documentation &lt;docs@be.com&gt;</div>
+                    <div style="font-size: 11px; margin-top: 4px;">Learn about the revolutionary BeOS File System with its metadata capabilities...</div>
+                </div>
+                <div style="border: 1px solid var(--beos-shadow); padding: 8px; cursor: pointer;">
+                    <div style="font-weight: bold;">Media Kit Tutorial</div>
+                    <div style="font-size: 11px; color: #666;">Support &lt;support@be.com&gt;</div>
+                    <div style="font-size: 11px; margin-top: 4px;">Discover how to build multimedia applications with the powerful Media Kit...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MediaPlayer Window -->
+        <div id="media-window" class="window" style="left: 250px; top: 180px; width: 400px; height: 300px;">
+            <div class="title-bar" onmousedown="startDrag(event, 'media-window')">
+                <span class="title-text">MediaPlayer</span>
+                <div class="window-controls">
+                    <div class="window-button" onclick="minimizeWindow('media-window')">_</div>
+                    <div class="window-button" onclick="closeWindow('media-window')">×</div>
+                </div>
+            </div>
+            <div class="window-content" style="display: flex; flex-direction: column; align-items: center; justify-content: center; background: #000;">
+                <div style="color: var(--beos-yellow); font-size: 64px; margin-bottom: 16px;">🎵</div>
+                <div style="color: #fff; margin-bottom: 24px;">No Media Loaded</div>
+                <div style="display: flex; gap: 16px;">
+                    <div style="width: 40px; height: 40px; background: var(--beos-gray); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer;">⏮</div>
+                    <div style="width: 40px; height: 40px; background: var(--beos-yellow); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer;">▶</div>
+                    <div style="width: 40px; height: 40px; background: var(--beos-gray); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer;">⏭</div>
+                </div>
+                <div style="color: #888; font-size: 11px; margin-top: 16px;">BeOS Media Kit - Low Latency Audio</div>
+            </div>
+        </div>
+
+        <!-- Preferences Window -->
+        <div id="preferences-window" class="window" style="left: 80px; top: 80px; width: 500px; height: 450px;">
+            <div class="title-bar" onmousedown="startDrag(event, 'preferences-window')">
+                <span class="title-text">Preferences</span>
+                <div class="window-controls">
+                    <div class="window-button" onclick="minimizeWindow('preferences-window')">_</div>
+                    <div class="window-button" onclick="closeWindow('preferences-window')">×</div>
+                </div>
+            </div>
+            <div class="window-content">
+                <div class="preferences-panel">
+                    <div class="pref-section">
+                        <div class="pref-title">Appearance</div>
+                        <div class="pref-option">
+                            <input type="checkbox" id="yellow-tabs" checked>
+                            <label for="yellow-tabs">Yellow Title Bars</label>
+                        </div>
+                        <div class="pref-option">
+                            <input type="checkbox" id="smooth-fonts">
+                            <label for="smooth-fonts">Anti-aliased Fonts</label>
+                        </div>
+                    </div>
+                    <div class="pref-section">
+                        <div class="pref-title">Deskbar</div>
+                        <div class="pref-option">
+                            <input type="radio" name="deskbar-pos" id="deskbar-right" checked>
+                            <label for="deskbar-right">Right Side</label>
+                        </div>
+                        <div class="pref-option">
+                            <input type="radio" name="deskbar-pos" id="deskbar-bottom">
+                            <label for="deskbar-bottom">Bottom</label>
+                        </div>
+                    </div>
+                    <div class="pref-section">
+                        <div class="pref-title">Workspace</div>
+                        <div class="pref-option">
+                            <label>Number of Workspaces:</label>
+                            <select>
+                                <option>1</option>
+                                <option>2</option>
+                                <option selected>4</option>
+                                <option>6</option>
+                                <option>9</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="pref-section">
+                        <div class="pref-title">File System</div>
+                        <div class="pref-option">
+                            <input type="checkbox" id="live-queries" checked>
+                            <label for="live-queries">Enable Live Queries</label>
+                        </div>
+                        <div class="pref-option">
+                            <input type="checkbox" id="index-metadata" checked>
+                            <label for="index-metadata">Index File Metadata</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- About Window -->
+        <div id="about-window" class="window" style="left: 300px; top: 200px; width: 460px; height: 480px;">
+            <div class="title-bar" onmousedown="startDrag(event, 'about-window')">
+                <span class="title-text">About BeOS</span>
+                <div class="window-controls">
+                    <div class="window-button" onclick="closeWindow('about-window')">×</div>
+                </div>
+            </div>
+            <div class="window-content">
+                <div class="about-content">
+                    <div class="about-logo">
+                        <div class="leaf"></div>
+                        <div class="leaf"></div>
+                        <div class="leaf"></div>
+                        <div class="leaf"></div>
+                    </div>
+                    <h2 style="color: var(--beos-blue); margin-bottom: 8px;">BeOS R5</h2>
+                    <div class="about-text">Version 5.0.3 Personal Edition</div>
+                    <div class="about-text" style="font-size: 12px; color: #666; margin-top: 16px;">
+                        BeOS was an operating system designed for digital media work, featuring pervasive multithreading,
+                        preemptive multitasking, and a 64-bit journaling file system.
+                    </div>
+                    <div class="about-text" style="font-size: 12px; color: #666;">
+                        Developed by Be Inc. (1991-2001), BeOS was known for its clean design, advanced multimedia capabilities,
+                        and innovative database-like file system with extended attributes.
+                    </div>
+                    <div class="about-text" style="font-size: 12px; color: #666;">
+                        The BeOS legacy continues through Haiku, an open-source operating system that recreates and extends BeOS.
+                    </div>
+                    <div style="margin-top: 24px; padding: 12px; background: var(--beos-light-blue); border-radius: 4px;">
+                        <div style="font-weight: bold; margin-bottom: 4px;">System Information</div>
+                        <div style="font-size: 11px;">Processor: Intel Pentium III @ 600 MHz</div>
+                        <div style="font-size: 11px;">Memory: 128 MB RAM</div>
+                        <div style="font-size: 11px;">File System: BFS (BeOS File System)</div>
+                        <div style="font-size: 11px;">Kernel: Microkernel Architecture</div>
+                    </div>
+                    <div style="margin-top: 16px; font-size: 11px; color: #888;">
+                        © 1991-2001 Be Incorporated
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Boot sequence
+        window.addEventListener('load', () => {
+            let progress = 0;
+            const bootInterval = setInterval(() => {
+                progress += Math.random() * 15;
+                if (progress >= 100) {
+                    progress = 100;
+                    clearInterval(bootInterval);
+                    setTimeout(() => {
+                        document.getElementById('boot-screen').style.display = 'none';
+                        document.getElementById('desktop').style.display = 'block';
+                        updateClock();
+                    }, 500);
+                }
+                document.getElementById('boot-progress-bar').style.width = progress + '%';
+            }, 200);
+        });
+
+        // Clock
+        function updateClock() {
+            const now = new Date();
+            const hours = now.getHours();
+            const minutes = now.getMinutes().toString().padStart(2, '0');
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            const displayHours = hours % 12 || 12;
+
+            document.getElementById('time').textContent = `${displayHours}:${minutes}`;
+            document.getElementById('date').textContent = ampm;
+
+            setTimeout(updateClock, 1000);
+        }
+
+        // Window management
+        let currentZ = 100;
+        let draggedWindow = null;
+        let dragOffset = { x: 0, y: 0 };
+
+        function openWindow(windowType) {
+            const windowId = windowType + '-window';
+            const window = document.getElementById(windowId);
+            window.classList.add('active');
+            window.style.zIndex = ++currentZ;
+
+            if (windowType === 'terminal') {
+                document.getElementById('terminal-input').focus();
+            }
+        }
+
+        function closeWindow(windowId) {
+            document.getElementById(windowId).classList.remove('active');
+        }
+
+        function minimizeWindow(windowId) {
+            document.getElementById(windowId).classList.remove('active');
+        }
+
+        function startDrag(e, windowId) {
+            draggedWindow = document.getElementById(windowId);
+            draggedWindow.style.zIndex = ++currentZ;
+
+            const rect = draggedWindow.getBoundingClientRect();
+            dragOffset.x = e.clientX - rect.left;
+            dragOffset.y = e.clientY - rect.top;
+
+            document.addEventListener('mousemove', drag);
+            document.addEventListener('mouseup', stopDrag);
+        }
+
+        function drag(e) {
+            if (!draggedWindow) return;
+
+            let newX = e.clientX - dragOffset.x;
+            let newY = e.clientY - dragOffset.y;
+
+            // Bounds checking
+            const maxX = window.innerWidth - draggedWindow.offsetWidth;
+            const maxY = window.innerHeight - draggedWindow.offsetHeight;
+
+            newX = Math.max(0, Math.min(newX, maxX));
+            newY = Math.max(0, Math.min(newY, maxY));
+
+            draggedWindow.style.left = newX + 'px';
+            draggedWindow.style.top = newY + 'px';
+        }
+
+        function stopDrag() {
+            document.removeEventListener('mousemove', drag);
+            document.removeEventListener('mouseup', stopDrag);
+            draggedWindow = null;
+        }
+
+        // Terminal
+        const terminalHistory = [];
+        let historyIndex = -1;
+
+        function handleTerminalInput(e) {
+            if (e.key === 'Enter') {
+                const input = document.getElementById('terminal-input');
+                const command = input.value.trim();
+                const output = document.getElementById('terminal-output');
+
+                output.textContent += `/boot/home> ${command}\n`;
+
+                if (command) {
+                    terminalHistory.unshift(command);
+                    historyIndex = -1;
+                    processCommand(command, output);
+                }
+
+                input.value = '';
+                output.scrollTop = output.scrollHeight;
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                if (historyIndex < terminalHistory.length - 1) {
+                    historyIndex++;
+                    document.getElementById('terminal-input').value = terminalHistory[historyIndex];
+                }
+            } else if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                if (historyIndex > 0) {
+                    historyIndex--;
+                    document.getElementById('terminal-input').value = terminalHistory[historyIndex];
+                } else {
+                    historyIndex = -1;
+                    document.getElementById('terminal-input').value = '';
+                }
+            }
+        }
+
+        function processCommand(cmd, output) {
+            const parts = cmd.split(' ');
+            const command = parts[0].toLowerCase();
+
+            switch(command) {
+                case 'help':
+                    output.textContent += `Available commands:
+  help       - Show this help message
+  ls         - List directory contents
+  pwd        - Print working directory
+  uname      - System information
+  df         - Disk space usage
+  ps         - List running processes
+  query      - Search using BFS attributes
+  mimeset    - Set MIME types
+  clear      - Clear terminal
+  date       - Show current date/time
+
+BeOS-specific commands:
+  query [attr] - Query files by attribute (BFS feature)
+  mimeset -all - Update MIME database
+  listattr     - List extended attributes
+
+`;
+                    break;
+                case 'ls':
+                    output.textContent += `Desktop/
+config/
+mail/
+Welcome.txt
+ReadMe
+BeOS.png
+
+`;
+                    break;
+                case 'pwd':
+                    output.textContent += `/boot/home
+`;
+                    break;
+                case 'uname':
+                    output.textContent += `BeOS 5.0.3 BePC Pentium
+`;
+                    break;
+                case 'df':
+                    output.textContent += `Filesystem     Size    Used   Avail  Use%  Mounted on
+/dev/disk/ata/0  10.0G   2.3G   7.7G   23%  /boot
+
+`;
+                    break;
+                case 'ps':
+                    output.textContent += `  PID  Command
+  123  /boot/system/Tracker
+  124  /boot/system/Deskbar
+  125  /boot/system/app_server
+  126  /boot/beos/bin/Terminal
+  127  /boot/beos/system/servers/input_server
+
+`;
+                    break;
+                case 'query':
+                    output.textContent += `Querying BFS attributes...
+Found 3 files matching query:
+  /boot/home/mail/welcome
+  /boot/home/config/settings/prefs
+  /boot/home/Desktop/notes.txt
+
+`;
+                    break;
+                case 'mimeset':
+                    output.textContent += `Updating MIME database...
+Processed 1247 files.
+MIME database updated successfully.
+
+`;
+                    break;
+                case 'listattr':
+                    output.textContent += `File: Welcome.txt
+  BEOS:TYPE        : text/plain
+  BEOS:APP_SIG     : application/x-vnd.Be-StyledEdit
+  META:keywords    : welcome, beos, tutorial
+
+`;
+                    break;
+                case 'date':
+                    const now = new Date();
+                    output.textContent += `${now.toString()}\n\n`;
+                    break;
+                case 'clear':
+                    output.textContent = '';
+                    break;
+                default:
+                    output.textContent += `bash: ${command}: command not found
+Try 'help' for available commands.
+
+`;
+            }
+        }
+
+        // PWA Support
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('data:text/javascript;base64,')
+                    .catch(() => {});
+            });
+        }
+    </script>
+</body>
+</html>
