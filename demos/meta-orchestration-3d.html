@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meta-Orchestration: 8 Strategy Agents in 3D</title>
+    <meta name="description" content="Watch 8 strategy agents work in parallel to solve a problem, visualized in real-time 3D">
+    <meta name="keywords" content="orchestration, parallel agents, 3D visualization, particle system, meta-strategy">
+    <meta name="demo:id" content="meta-orchestration-3d">
+    <meta name="demo:title" content="Meta-Orchestration in 3D">
+    <meta name="demo:description" content="8 strategy agents propose solutions in parallel, converge to consensus, visualized with particles and data flow">
+    <meta name="demo:tags" content="3D,Orchestration,Particles,Interactive,Meta">
+    <meta name="demo:status" content="ready">
+    <meta name="demo:statusLabel" content="LIVE">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #000;
+            color: #fff;
+            overflow: hidden;
+        }
+
+        #canvas-container {
+            width: 100vw;
+            height: 100vh;
+        }
+
+        .hud {
+            position: fixed;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 14px;
+            z-index: 1000;
+        }
+
+        .hud-top-left {
+            top: 20px;
+            left: 20px;
+            max-width: 300px;
+        }
+
+        .hud-top-right {
+            top: 20px;
+            right: 20px;
+        }
+
+        .hud-bottom {
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+        }
+
+        .hud h2 {
+            font-size: 16px;
+            margin-bottom: 10px;
+            color: #00d4ff;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .hud h3 {
+            font-size: 14px;
+            margin: 10px 0 5px 0;
+            color: #00d4ff;
+        }
+
+        .metric {
+            margin: 5px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .metric-label {
+            opacity: 0.7;
+        }
+
+        .metric-value {
+            font-weight: bold;
+            color: #00ff88;
+        }
+
+        .phase-indicator {
+            font-size: 18px;
+            font-weight: bold;
+            color: #00d4ff;
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px #00d4ff;
+        }
+
+        .agent-list {
+            margin-top: 10px;
+        }
+
+        .agent-item {
+            margin: 8px 0;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 5px;
+            border-left: 3px solid;
+            font-size: 12px;
+        }
+
+        .controls {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        button {
+            padding: 8px 16px;
+            margin: 5px;
+            background: rgba(0, 212, 255, 0.2);
+            border: 1px solid #00d4ff;
+            border-radius: 5px;
+            color: #00d4ff;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s;
+        }
+
+        button:hover {
+            background: rgba(0, 212, 255, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .loading {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 24px;
+            color: #00d4ff;
+            text-shadow: 0 0 20px #00d4ff;
+            z-index: 2000;
+        }
+    </style>
+</head>
+<body>
+    <div id="loading" class="loading">Initializing Meta-Orchestration...</div>
+    <div id="canvas-container"></div>
+
+    <div class="hud hud-top-left">
+        <h2>Meta-Orchestration</h2>
+        <div class="phase-indicator" id="phase">Initializing...</div>
+
+        <h3>System Metrics</h3>
+        <div class="metric">
+            <span class="metric-label">Active Agents:</span>
+            <span class="metric-value" id="active-agents">0/8</span>
+        </div>
+        <div class="metric">
+            <span class="metric-label">Proposals Generated:</span>
+            <span class="metric-value" id="proposals">0/8</span>
+        </div>
+        <div class="metric">
+            <span class="metric-label">Consensus:</span>
+            <span class="metric-value" id="consensus">0%</span>
+        </div>
+        <div class="metric">
+            <span class="metric-label">Time Elapsed:</span>
+            <span class="metric-value" id="time-elapsed">0.0s</span>
+        </div>
+    </div>
+
+    <div class="hud hud-top-right">
+        <h2>Strategy Agents</h2>
+        <div class="agent-list" id="agent-list"></div>
+    </div>
+
+    <div class="hud hud-bottom">
+        <div class="controls">
+            <button onclick="resetAnimation()">Reset</button>
+            <button onclick="togglePause()">Pause/Play</button>
+            <button onclick="toggleSpeed()">Speed: <span id="speed">1x</span></button>
+        </div>
+        <div style="margin-top: 10px; opacity: 0.7; font-size: 12px;">
+            Drag to rotate • Scroll to zoom • Double-click to reset view
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/EffectComposer.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/RenderPass.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/CopyShader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/ShaderPass.js"></script>
+
+    <script>
+        // Scene setup
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x000814);
+        scene.fog = new THREE.FogExp2(0x000814, 0.015);
+
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(0, 15, 30);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+        // Orbit controls
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.05;
+        controls.minDistance = 10;
+        controls.maxDistance = 80;
+
+        // Lighting
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
+        scene.add(ambientLight);
+
+        const pointLight = new THREE.PointLight(0x00d4ff, 2, 100);
+        pointLight.position.set(0, 0, 0);
+        scene.add(pointLight);
+
+        // Agent colors (spectrum)
+        const agentColors = [
+            0xff1744, // Red
+            0xff6e00, // Orange
+            0xffb300, // Yellow
+            0x00e676, // Green
+            0x00e5ff, // Cyan
+            0x2979ff, // Blue
+            0xf500ff, // Magenta
+            0x651fff  // Violet
+        ];
+
+        const agentNames = [
+            'Particle System',
+            'Architectural',
+            'Organic/Biological',
+            'Geometric/Abstract',
+            'Data Flow',
+            'Timeline/Temporal',
+            'Game/Simulation',
+            'Dashboard/Analytical'
+        ];
+
+        // Create orchestrator (central sphere)
+        const orchestratorGeometry = new THREE.IcosahedronGeometry(2, 3);
+        const orchestratorMaterial = new THREE.MeshPhongMaterial({
+            color: 0x00d4ff,
+            emissive: 0x00a8cc,
+            emissiveIntensity: 0.8,
+            shininess: 100
+        });
+        const orchestrator = new THREE.Mesh(orchestratorGeometry, orchestratorMaterial);
+        scene.add(orchestrator);
+
+        // Orchestrator glow ring
+        const ringGeometry = new THREE.TorusGeometry(3, 0.1, 16, 100);
+        const ringMaterial = new THREE.MeshBasicMaterial({
+            color: 0x00d4ff,
+            transparent: true,
+            opacity: 0.5
+        });
+        const ring = new THREE.Mesh(ringGeometry, ringMaterial);
+        ring.rotation.x = Math.PI / 2;
+        orchestrator.add(ring);
+
+        // Strategy agents
+        const agents = [];
+        const agentRadius = 12;
+
+        for (let i = 0; i < 8; i++) {
+            const angle = (i / 8) * Math.PI * 2;
+            const geometry = new THREE.SphereGeometry(0.8, 32, 32);
+            const material = new THREE.MeshPhongMaterial({
+                color: agentColors[i],
+                emissive: agentColors[i],
+                emissiveIntensity: 0.6,
+                shininess: 80
+            });
+
+            const agent = new THREE.Mesh(geometry, material);
+            agent.position.set(
+                Math.cos(angle) * agentRadius,
+                0,
+                Math.sin(angle) * agentRadius
+            );
+
+            agent.userData = {
+                index: i,
+                name: agentNames[i],
+                color: agentColors[i],
+                angle: angle,
+                active: false,
+                proposalGenerated: false
+            };
+
+            scene.add(agent);
+            agents.push(agent);
+        }
+
+        // Particle systems for data flow
+        const particleSystems = [];
+
+        function createParticleSystem(startPos, endPos, color) {
+            const particleCount = 100;
+            const geometry = new THREE.BufferGeometry();
+            const positions = new Float32Array(particleCount * 3);
+            const velocities = new Float32Array(particleCount * 3);
+
+            for (let i = 0; i < particleCount; i++) {
+                positions[i * 3] = startPos.x;
+                positions[i * 3 + 1] = startPos.y;
+                positions[i * 3 + 2] = startPos.z;
+
+                velocities[i * 3] = (endPos.x - startPos.x) / 100;
+                velocities[i * 3 + 1] = (endPos.y - startPos.y) / 100;
+                velocities[i * 3 + 2] = (endPos.z - startPos.z) / 100;
+            }
+
+            geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+
+            const material = new THREE.PointsMaterial({
+                color: color,
+                size: 0.2,
+                transparent: true,
+                opacity: 0.8,
+                blending: THREE.AdditiveBlending
+            });
+
+            const particles = new THREE.Points(geometry, material);
+            particles.userData = {
+                velocities: velocities,
+                startPos: startPos,
+                endPos: endPos
+            };
+
+            scene.add(particles);
+            return particles;
+        }
+
+        // Connection lines from orchestrator to agents
+        const connections = [];
+        agents.forEach((agent, i) => {
+            const points = [];
+            points.push(new THREE.Vector3(0, 0, 0));
+            points.push(agent.position.clone());
+
+            const geometry = new THREE.BufferGeometry().setFromPoints(points);
+            const material = new THREE.LineBasicMaterial({
+                color: agentColors[i],
+                transparent: true,
+                opacity: 0.3
+            });
+
+            const line = new THREE.Line(geometry, material);
+            scene.add(line);
+            connections.push(line);
+
+            // Create particle system for this connection
+            const ps = createParticleSystem(
+                new THREE.Vector3(0, 0, 0),
+                agent.position.clone(),
+                agentColors[i]
+            );
+            ps.visible = false;
+            particleSystems.push(ps);
+        });
+
+        // Consensus sphere (appears later)
+        const consensusGeometry = new THREE.OctahedronGeometry(3, 2);
+        const consensusMaterial = new THREE.MeshPhongMaterial({
+            color: 0xffffff,
+            emissive: 0xffffff,
+            emissiveIntensity: 0.5,
+            transparent: true,
+            opacity: 0
+        });
+        const consensusSphere = new THREE.Mesh(consensusGeometry, consensusMaterial);
+        consensusSphere.position.set(0, 8, 0);
+        scene.add(consensusSphere);
+
+        // Animation state
+        let animationTime = 0;
+        let isPaused = false;
+        let speedMultiplier = 1;
+        const clock = new THREE.Clock();
+
+        // Animation phases
+        const PHASES = {
+            INIT: { start: 0, end: 2, name: 'Initializing' },
+            SPAWN: { start: 2, end: 5, name: 'Spawning Agents' },
+            PARALLEL: { start: 5, end: 15, name: 'Parallel Strategy Generation' },
+            CONVERGENCE: { start: 15, end: 20, name: 'Convergence to Consensus' },
+            COMPLETE: { start: 20, end: 25, name: 'Complete' }
+        };
+
+        function getCurrentPhase(time) {
+            for (let key in PHASES) {
+                const phase = PHASES[key];
+                if (time >= phase.start && time < phase.end) {
+                    return phase;
+                }
+            }
+            return PHASES.COMPLETE;
+        }
+
+        // Update HUD
+        function updateHUD() {
+            const phase = getCurrentPhase(animationTime);
+            document.getElementById('phase').textContent = phase.name;
+            document.getElementById('time-elapsed').textContent = animationTime.toFixed(1) + 's';
+
+            let activeCount = 0;
+            let proposalCount = 0;
+            agents.forEach(agent => {
+                if (agent.userData.active) activeCount++;
+                if (agent.userData.proposalGenerated) proposalCount++;
+            });
+
+            document.getElementById('active-agents').textContent = activeCount + '/8';
+            document.getElementById('proposals').textContent = proposalCount + '/8';
+
+            if (animationTime >= PHASES.CONVERGENCE.start) {
+                const consensusProgress = Math.min(
+                    ((animationTime - PHASES.CONVERGENCE.start) /
+                    (PHASES.CONVERGENCE.end - PHASES.CONVERGENCE.start)) * 100,
+                    100
+                );
+                document.getElementById('consensus').textContent = Math.floor(consensusProgress) + '%';
+            }
+
+            // Update agent list
+            const agentListHTML = agents.map((agent, i) => {
+                const status = agent.userData.proposalGenerated ? 'Complete' :
+                              agent.userData.active ? 'Working' : 'Pending';
+                const color = '#' + agent.userData.color.toString(16).padStart(6, '0');
+                return `<div class="agent-item" style="border-left-color: ${color}">
+                    <strong>${agent.userData.name}</strong><br>
+                    <span style="opacity: 0.7; font-size: 11px;">${status}</span>
+                </div>`;
+            }).join('');
+            document.getElementById('agent-list').innerHTML = agentListHTML;
+        }
+
+        // Animation loop
+        function animate() {
+            requestAnimationFrame(animate);
+
+            if (!isPaused) {
+                const delta = clock.getDelta() * speedMultiplier;
+                animationTime += delta;
+
+                const phase = getCurrentPhase(animationTime);
+
+                // Rotate orchestrator
+                orchestrator.rotation.x += 0.003;
+                orchestrator.rotation.y += 0.005;
+
+                // Rotate ring
+                ring.rotation.z += 0.01;
+
+                // Phase-specific animations
+                if (phase === PHASES.SPAWN) {
+                    const progress = (animationTime - PHASES.SPAWN.start) /
+                                   (PHASES.SPAWN.end - PHASES.SPAWN.start);
+                    const agentIndex = Math.floor(progress * 8);
+
+                    agents.forEach((agent, i) => {
+                        if (i <= agentIndex && !agent.userData.active) {
+                            agent.userData.active = true;
+                            particleSystems[i].visible = true;
+                        }
+                    });
+                }
+
+                if (phase === PHASES.PARALLEL) {
+                    const progress = (animationTime - PHASES.PARALLEL.start) /
+                                   (PHASES.PARALLEL.end - PHASES.PARALLEL.start);
+
+                    agents.forEach((agent, i) => {
+                        if (agent.userData.active) {
+                            // Orbital motion
+                            agent.userData.angle += 0.01;
+                            agent.position.x = Math.cos(agent.userData.angle) * agentRadius;
+                            agent.position.z = Math.sin(agent.userData.angle) * agentRadius;
+
+                            // Pulse
+                            const scale = 1 + Math.sin(animationTime * 3 + i) * 0.1;
+                            agent.scale.set(scale, scale, scale);
+
+                            // Generate proposal
+                            if (progress > 0.3 && !agent.userData.proposalGenerated) {
+                                agent.userData.proposalGenerated = true;
+                            }
+                        }
+                    });
+                }
+
+                if (phase === PHASES.CONVERGENCE) {
+                    const progress = (animationTime - PHASES.CONVERGENCE.start) /
+                                   (PHASES.CONVERGENCE.end - PHASES.CONVERGENCE.start);
+
+                    // Consensus sphere appears
+                    consensusSphere.material.opacity = Math.min(progress, 0.8);
+                    consensusSphere.rotation.x += 0.02;
+                    consensusSphere.rotation.y += 0.03;
+
+                    // Agents slow down
+                    agents.forEach(agent => {
+                        const slowFactor = 1 - progress * 0.7;
+                        agent.userData.angle += 0.01 * slowFactor;
+                        agent.position.x = Math.cos(agent.userData.angle) * agentRadius;
+                        agent.position.z = Math.sin(agent.userData.angle) * agentRadius;
+                    });
+                }
+
+                // Update particle systems
+                particleSystems.forEach((ps, i) => {
+                    if (ps.visible) {
+                        const positions = ps.geometry.attributes.position.array;
+                        const velocities = ps.userData.velocities;
+
+                        for (let j = 0; j < positions.length; j += 3) {
+                            positions[j] += velocities[j];
+                            positions[j + 1] += velocities[j + 1];
+                            positions[j + 2] += velocities[j + 2];
+
+                            // Reset particles that reach the end
+                            const dx = positions[j] - ps.userData.endPos.x;
+                            const dy = positions[j + 1] - ps.userData.endPos.y;
+                            const dz = positions[j + 2] - ps.userData.endPos.z;
+                            const dist = Math.sqrt(dx*dx + dy*dy + dz*dz);
+
+                            if (dist < 0.5) {
+                                positions[j] = ps.userData.startPos.x;
+                                positions[j + 1] = ps.userData.startPos.y;
+                                positions[j + 2] = ps.userData.startPos.z;
+                            }
+                        }
+
+                        ps.geometry.attributes.position.needsUpdate = true;
+                    }
+                });
+
+                updateHUD();
+            }
+
+            controls.update();
+            renderer.render(scene, camera);
+        }
+
+        // Controls
+        function resetAnimation() {
+            animationTime = 0;
+            agents.forEach(agent => {
+                agent.userData.active = false;
+                agent.userData.proposalGenerated = false;
+            });
+            particleSystems.forEach(ps => ps.visible = false);
+            consensusSphere.material.opacity = 0;
+        }
+
+        function togglePause() {
+            isPaused = !isPaused;
+            if (!isPaused) clock.start();
+        }
+
+        function toggleSpeed() {
+            speedMultiplier = speedMultiplier === 1 ? 2 : speedMultiplier === 2 ? 0.5 : 1;
+            document.getElementById('speed').textContent = speedMultiplier + 'x';
+        }
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // Double-click to reset view
+        renderer.domElement.addEventListener('dblclick', () => {
+            camera.position.set(0, 15, 30);
+            controls.target.set(0, 0, 0);
+            controls.update();
+        });
+
+        // Start animation
+        document.getElementById('loading').style.display = 'none';
+        animate();
+    </script>
+</body>
+</html>

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="The Matrix Demonstration Cathedral - Interactive showcases of autonomous orchestration at scale">
+  <title>The Matrix Cathedral | Orchestration Demonstrations</title>
+
+  <!-- Preconnect for performance (Performance Strategy) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+
+  <!-- Cathedral Styles -->
+  <link rel="stylesheet" href="styles/cathedral.css">
+
+  <!-- Favicon -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏛️</text></svg>">
+</head>
+<body>
+  <!-- Main Cathedral Container -->
+  <div id="cathedral-root"></div>
+
+  <!-- Loading State -->
+  <div class="loading" id="initial-loading">
+    Initializing Cathedral...
+  </div>
+
+  <!-- Error Boundary (Production-Ready Strategy) -->
+  <script>
+    window.addEventListener('error', (e) => {
+      console.error('Cathedral Error:', e.error);
+    });
+
+    window.addEventListener('unhandledrejection', (e) => {
+      console.error('Unhandled Promise Rejection:', e.reason);
+    });
+  </script>
+
+  <!-- Load Visualization Patterns (Scalability Strategy) -->
+  <script src="lib/cascade-flow-visualizer.js"></script>
+  <script src="lib/network-graph-visualizer.js"></script>
+  <script src="lib/timeline-visualizer.js"></script>
+  <script src="lib/hierarchy-tree-visualizer.js"></script>
+
+  <!-- Load Cathedral Router (Core System) -->
+  <script src="lib/cathedral-router.js"></script>
+
+  <script>
+    // Hide initial loading once cathedral initializes
+    document.addEventListener('DOMContentLoaded', () => {
+      setTimeout(() => {
+        const loading = document.getElementById('initial-loading');
+        if (loading) {
+          loading.style.opacity = '0';
+          setTimeout(() => loading.remove(), 300);
+        }
+      }, 1000);
+    });
+
+    // Performance monitoring (Performance Strategy)
+    if ('PerformanceObserver' in window) {
+      const observer = new PerformanceObserver((list) => {
+        for (const entry of list.getEntries()) {
+          if (entry.entryType === 'largest-contentful-paint') {
+            console.log('LCP:', entry.renderTime || entry.loadTime);
+          }
+        }
+      });
+
+      observer.observe({ entryTypes: ['largest-contentful-paint'] });
+    }
+
+    // Log initialization
+    console.log('%c🏛️ The Matrix Cathedral', 'font-size: 20px; font-weight: bold; color: #667eea;');
+    console.log('%cAutonomous Orchestration Demonstrations', 'color: #a0aec0;');
+    console.log('%cBuilt with consensus from 8 strategic approaches', 'color: #48bb78; font-style: italic;');
+  </script>
+</body>
+</html>
