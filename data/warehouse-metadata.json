@@ -1,0 +1,435 @@
+{
+  "generated_at": "2025-11-21T16:30:04.593320",
+  "database": {
+    "path": "data/matrix.db",
+    "size_bytes": 110592
+  },
+  "tables": {
+    "agent_changelog": {
+      "row_count": 13,
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER"
+        },
+        {
+          "name": "snapshot_id",
+          "type": "INTEGER"
+        },
+        {
+          "name": "phase_number",
+          "type": "INTEGER"
+        },
+        {
+          "name": "phase_name",
+          "type": "TEXT"
+        },
+        {
+          "name": "date",
+          "type": "TEXT"
+        },
+        {
+          "name": "agent_type",
+          "type": "TEXT"
+        },
+        {
+          "name": "task",
+          "type": "TEXT"
+        },
+        {
+          "name": "duration",
+          "type": "TEXT"
+        },
+        {
+          "name": "success_rate",
+          "type": "TEXT"
+        },
+        {
+          "name": "impact",
+          "type": "TEXT"
+        }
+      ]
+    },
+    "agents": {
+      "row_count": 10,
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER"
+        },
+        {
+          "name": "snapshot_id",
+          "type": "INTEGER"
+        },
+        {
+          "name": "name",
+          "type": "TEXT"
+        },
+        {
+          "name": "file_path",
+          "type": "TEXT"
+        },
+        {
+          "name": "description",
+          "type": "TEXT"
+        },
+        {
+          "name": "model",
+          "type": "TEXT"
+        },
+        {
+          "name": "tools",
+          "type": "TEXT"
+        }
+      ]
+    },
+    "documents": {
+      "row_count": 81,
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER"
+        },
+        {
+          "name": "snapshot_id",
+          "type": "INTEGER"
+        },
+        {
+          "name": "path",
+          "type": "TEXT"
+        },
+        {
+          "name": "title",
+          "type": "TEXT"
+        },
+        {
+          "name": "word_count",
+          "type": "INTEGER"
+        },
+        {
+          "name": "heading_count",
+          "type": "INTEGER"
+        },
+        {
+          "name": "code_block_count",
+          "type": "INTEGER"
+        },
+        {
+          "name": "link_count",
+          "type": "INTEGER"
+        }
+      ]
+    },
+    "files": {
+      "row_count": 307,
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER"
+        },
+        {
+          "name": "snapshot_id",
+          "type": "INTEGER"
+        },
+        {
+          "name": "path",
+          "type": "TEXT"
+        },
+        {
+          "name": "file_type",
+          "type": "TEXT"
+        },
+        {
+          "name": "size_bytes",
+          "type": "INTEGER"
+        },
+        {
+          "name": "line_count",
+          "type": "INTEGER"
+        },
+        {
+          "name": "hash",
+          "type": "TEXT"
+        },
+        {
+          "name": "created_at",
+          "type": "TEXT"
+        },
+        {
+          "name": "modified_at",
+          "type": "TEXT"
+        }
+      ]
+    },
+    "knowledge_base": {
+      "row_count": 0,
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER"
+        },
+        {
+          "name": "snapshot_id",
+          "type": "INTEGER"
+        },
+        {
+          "name": "category",
+          "type": "TEXT"
+        },
+        {
+          "name": "file_path",
+          "type": "TEXT"
+        },
+        {
+          "name": "title",
+          "type": "TEXT"
+        },
+        {
+          "name": "content_preview",
+          "type": "TEXT"
+        }
+      ]
+    },
+    "repo_snapshots": {
+      "row_count": 1,
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER"
+        },
+        {
+          "name": "timestamp",
+          "type": "TEXT"
+        },
+        {
+          "name": "commit_hash",
+          "type": "TEXT"
+        },
+        {
+          "name": "branch",
+          "type": "TEXT"
+        },
+        {
+          "name": "file_count",
+          "type": "INTEGER"
+        },
+        {
+          "name": "total_lines",
+          "type": "INTEGER"
+        },
+        {
+          "name": "agent_count",
+          "type": "INTEGER"
+        },
+        {
+          "name": "workflow_count",
+          "type": "INTEGER"
+        }
+      ]
+    },
+    "sqlite_sequence": {
+      "row_count": 6,
+      "columns": [
+        {
+          "name": "name",
+          "type": ""
+        },
+        {
+          "name": "seq",
+          "type": ""
+        }
+      ]
+    },
+    "workflows": {
+      "row_count": 3,
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER"
+        },
+        {
+          "name": "snapshot_id",
+          "type": "INTEGER"
+        },
+        {
+          "name": "name",
+          "type": "TEXT"
+        },
+        {
+          "name": "file_path",
+          "type": "TEXT"
+        },
+        {
+          "name": "description",
+          "type": "TEXT"
+        },
+        {
+          "name": "triggers",
+          "type": "TEXT"
+        },
+        {
+          "name": "jobs",
+          "type": "TEXT"
+        }
+      ]
+    }
+  },
+  "latest_snapshot": {
+    "id": 1,
+    "timestamp": "2025-11-21T16:29:53.425964",
+    "commit_hash": "b3fa7545bd75e64cb4d577983c375ada5a0dbae0",
+    "branch": "main",
+    "file_count": 307,
+    "total_lines": 362346,
+    "agent_count": 10,
+    "workflow_count": 3
+  },
+  "statistics": {
+    "file_types": [
+      {
+        "type": "html",
+        "count": 194,
+        "lines": 313866
+      },
+      {
+        "type": "md",
+        "count": 81,
+        "lines": 40754
+      },
+      {
+        "type": "json",
+        "count": 9,
+        "lines": 2838
+      },
+      {
+        "type": "js",
+        "count": 7,
+        "lines": 1890
+      },
+      {
+        "type": "py",
+        "count": 6,
+        "lines": 1532
+      },
+      {
+        "type": "yml",
+        "count": 3,
+        "lines": 238
+      },
+      {
+        "type": "backup",
+        "count": 1,
+        "lines": 538
+      },
+      {
+        "type": "backup-20251121-111919",
+        "count": 1,
+        "lines": 174
+      },
+      {
+        "type": "css",
+        "count": 1,
+        "lines": 429
+      },
+      {
+        "type": "db",
+        "count": 1,
+        "lines": 0
+      },
+      {
+        "type": "db-journal",
+        "count": 1,
+        "lines": 0
+      },
+      {
+        "type": "sh",
+        "count": 1,
+        "lines": 66
+      },
+      {
+        "type": "unknown",
+        "count": 1,
+        "lines": 21
+      }
+    ],
+    "documents": {
+      "count": 81,
+      "total_words": 147838,
+      "average_words": 1825.16,
+      "total_code_blocks": 693
+    },
+    "agents": [
+      {
+        "name": "cathedral-architect",
+        "model": "sonnet",
+        "tools": "- Read"
+      },
+      {
+        "name": "demo-builder",
+        "model": "sonnet",
+        "tools": "- Read"
+      },
+      {
+        "name": "ghostwriter-kody",
+        "model": "claude-sonnet-4-5-20250929",
+        "tools": "[Read, Write, WebFetch, Bash]"
+      },
+      {
+        "name": "integrator",
+        "model": "haiku",
+        "tools": "Read, Write, Edit, Glob, Grep, Bash"
+      },
+      {
+        "name": "mind-blower",
+        "model": "sonnet",
+        "tools": "- Read"
+      },
+      {
+        "name": "outcome-generator",
+        "model": "haiku",
+        "tools": "Read, Write, Bash, Task"
+      },
+      {
+        "name": "portfolio-steward",
+        "model": "sonnet",
+        "tools": "Read, Write, Edit, Glob, Grep, Bash, Task"
+      },
+      {
+        "name": "steward",
+        "model": "sonnet",
+        "tools": "Read, Write, Edit, Glob, Grep, Bash, Task"
+      },
+      {
+        "name": "steward-validator",
+        "model": "haiku",
+        "tools": "Read, Grep, Glob, Bash, Task"
+      },
+      {
+        "name": "strategy",
+        "model": "haiku",
+        "tools": "- Read"
+      }
+    ],
+    "workflows": [
+      {
+        "name": "Build Data Warehouse",
+        "triggers": "[\"push\", \"branches\", \"paths\", \"schedule\", \"00\", \"cron\", \"workflow_dispatch\"]",
+        "jobs": "[\"warehouse\", \"on\", \"steps\", \"name\", \"uses\", \"with\", \"depth\", \"name\", \"uses\", \"with\", \"version\", \"cache\", \"name\", \"run\", \"name\", \"run\", \"name\", \"run\", \"name\", \"run\", \"name\", \"run\", \"H\", \"M\", \"warehouse\", \"https\", \"By\", \"name\", \"uses\", \"with\", \"name\", \"path\", \"days\", \"name\", \"run\", \"Size\", \"row\", \"Tracked\", \"Lines\", \"Defined\", \"Workflows\", \"Time\"]"
+      },
+      {
+        "name": "Claude Code",
+        "triggers": "[\"issue_comment\", \"types\", \"pull_request_review_comment\", \"types\", \"issues\", \"types\", \"pull_request_review\", \"types\"]",
+        "jobs": "[\"claude\", \"if\", \"on\", \"permissions\", \"contents\", \"requests\", \"issues\", \"token\", \"actions\", \"steps\", \"name\", \"uses\", \"with\", \"depth\", \"name\", \"id\", \"uses\", \"with\", \"claude_code_oauth_token\", \"additional_permissions\", \"actions\", \"Optional\", \"prompt\", \"Optional\", \"https\", \"https\", \"claude_args\", \"pr\"]"
+      },
+      {
+        "name": "Claude Code Review",
+        "triggers": "[\"pull_request\", \"types\", \"Optional\", \"paths\"]",
+        "jobs": "[\"review\", \"Optional\", \"if\", \"on\", \"permissions\", \"contents\", \"requests\", \"issues\", \"token\", \"steps\", \"name\", \"uses\", \"with\", \"depth\", \"name\", \"id\", \"uses\", \"with\", \"claude_code_oauth_token\", \"prompt\", \"REPO\", \"NUMBER\", \"on\", \"https\", \"https\", \"claude_args\", \"view\", \"search\", \"list\", \"comment\", \"diff\", \"view\", \"list\"]"
+      }
+    ],
+    "knowledge_base": [],
+    "agent_changelog": {
+      "phase_count": 13
+    }
+  }
+}

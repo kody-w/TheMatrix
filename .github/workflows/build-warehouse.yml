@@ -1,0 +1,131 @@
+name: Build Data Warehouse
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '**.md'
+      - '**.py'
+      - '**.yml'
+      - '**.yaml'
+      - '.claude/**'
+      - '.github/workflows/**'
+  schedule:
+    # Run daily at 00:00 UTC
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-warehouse:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Fetch all history for git analysis
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          # No dependencies needed - pure stdlib!
+
+      - name: Build data warehouse
+        run: |
+          mkdir -p data
+          python scripts/build_warehouse.py --db data/matrix.db --verbose
+
+      - name: Generate warehouse metadata
+        run: |
+          python scripts/generate_warehouse_metadata.py
+
+      - name: Generate SQL queries
+        run: |
+          python scripts/generate_sample_queries.py > data/sample-queries.sql
+
+      - name: Commit and push if database changed
+        run: |
+          git config user.name "Matrix Warehouse Bot"
+          git config user.email "actions@github.com"
+          git add data/matrix.db data/warehouse-metadata.json data/sample-queries.sql
+
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            timestamp=$(date -u +"%Y-%m-%d %H:%M:%S UTC")
+            git commit -m "Update data warehouse: ${timestamp}
+
+            🤖 Generated with [Claude Code](https://claude.com/claude-code)
+
+            Co-Authored-By: Claude <noreply@anthropic.com>"
+            git push
+          fi
+
+      - name: Upload database artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: matrix-warehouse
+          path: data/matrix.db
+          retention-days: 30
+
+      - name: Generate database summary
+        run: |
+          echo "## Data Warehouse Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          # Get database size
+          db_size=$(du -h data/matrix.db | cut -f1)
+          echo "**Database Size:** ${db_size}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          # Query snapshot stats
+          python3 << 'EOF' >> $GITHUB_STEP_SUMMARY
+          import sqlite3
+          conn = sqlite3.connect('data/matrix.db')
+          cursor = conn.cursor()
+
+          # Get latest snapshot
+          cursor.execute("""
+              SELECT file_count, total_lines, agent_count, workflow_count, timestamp
+              FROM repo_snapshots
+              ORDER BY id DESC
+              LIMIT 1
+          """)
+          row = cursor.fetchone()
+
+          if row:
+              print(f"**Files Tracked:** {row[0]:,}")
+              print(f"**Total Lines:** {row[1]:,}")
+              print(f"**Agents Defined:** {row[2]}")
+              print(f"**Workflows:** {row[3]}")
+              print(f"**Snapshot Time:** {row[4]}")
+              print("")
+
+          # Get file type distribution
+          cursor.execute("""
+              SELECT file_type, COUNT(*) as count
+              FROM files
+              WHERE snapshot_id = (SELECT MAX(id) FROM repo_snapshots)
+              GROUP BY file_type
+              ORDER BY count DESC
+              LIMIT 10
+          """)
+
+          print("### File Type Distribution")
+          print("")
+          print("| Type | Count |")
+          print("|------|-------|")
+          for row in cursor.fetchall():
+              print(f"| {row[0]} | {row[1]:,} |")
+
+          conn.close()
+          EOF
