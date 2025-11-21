@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How to Run Mind-Blowing Prompts with Claude Code</title>
+    <meta name="description" content="Complete guide to running The Matrix's ultimate prompts using Claude Code for parallel orchestration">
+    <meta name="keywords" content="Claude Code, AI Orchestration, Tutorial, Guide, Matrix Framework">
+    <meta name="demo:id" content="how-to-run-prompts">
+    <meta name="demo:title" content="How to Run Prompts with Claude Code">
+    <meta name="demo:description" content="Complete guide to running The Matrix's ultimate prompts using Claude Code">
+    <meta name="demo:tags" content="Tutorial,Guide,Documentation,Interactive Demo">
+    <meta name="demo:status" content="ready">
+    <meta name="demo:statusLabel" content="LIVE">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+            color: #fff;
+            padding: 20px;
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            background: linear-gradient(45deg, #00d4ff, #00ff88);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .tagline {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .section {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        h2 {
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            color: #00ff88;
+        }
+
+        h3 {
+            font-size: 1.4em;
+            margin: 25px 0 15px 0;
+            color: #00d4ff;
+        }
+
+        .step {
+            background: rgba(0, 212, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 4px solid #00d4ff;
+        }
+
+        .step-number {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #00ff88;
+            margin-bottom: 10px;
+        }
+
+        code {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-family: 'Monaco', 'Courier New', monospace;
+            color: #00ff88;
+            font-size: 0.9em;
+        }
+
+        .code-block {
+            background: rgba(0, 0, 0, 0.4);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            overflow-x: auto;
+            border: 1px solid rgba(0, 255, 136, 0.3);
+        }
+
+        .code-block pre {
+            margin: 0;
+            color: #00ff88;
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 0.95em;
+            line-height: 1.5;
+        }
+
+        .warning {
+            background: rgba(255, 165, 0, 0.2);
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #ffa500;
+            margin: 15px 0;
+        }
+
+        .tip {
+            background: rgba(0, 255, 136, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #00ff88;
+            margin: 15px 0;
+        }
+
+        ul, ol {
+            margin-left: 25px;
+            margin-bottom: 15px;
+        }
+
+        li {
+            margin-bottom: 10px;
+        }
+
+        a {
+            color: #00d4ff;
+            text-decoration: none;
+            border-bottom: 1px solid rgba(0, 212, 255, 0.3);
+            transition: all 0.3s;
+        }
+
+        a:hover {
+            color: #00ff88;
+            border-bottom-color: #00ff88;
+        }
+
+        .example {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+        }
+
+        .example-title {
+            font-weight: bold;
+            color: #00ff88;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .prompt-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .prompt-card {
+            background: rgba(0, 255, 136, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .prompt-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 255, 136, 0.3);
+            border-color: #00ff88;
+        }
+
+        .prompt-title {
+            font-weight: bold;
+            color: #00ff88;
+            margin-bottom: 8px;
+        }
+
+        .prompt-desc {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .back-button {
+            display: inline-block;
+            padding: 12px 30px;
+            background: rgba(0, 212, 255, 0.2);
+            border: 2px solid #00d4ff;
+            border-radius: 10px;
+            color: #00d4ff;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s;
+            margin-top: 20px;
+        }
+
+        .back-button:hover {
+            background: rgba(0, 212, 255, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 212, 255, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🚀 How to Run Mind-Blowing Prompts</h1>
+            <p class="tagline">Complete Guide to Using Claude Code with The Matrix Framework</p>
+        </header>
+
+        <!-- Quick Start -->
+        <div class="section">
+            <h2>⚡ Quick Start (5 Minutes)</h2>
+
+            <div class="step">
+                <div class="step-number">Step 1: Install Claude Code</div>
+                <p>Claude Code is Anthropic's official CLI for working with Claude. Install it with:</p>
+                <div class="code-block">
+                    <pre># macOS/Linux
+curl https://claude.ai/download/cli | sh
+
+# Or via npm
+npm install -g @anthropic/claude-code
+
+# Verify installation
+claude --version</pre>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">Step 2: Clone The Matrix</div>
+                <p>Get The Matrix orchestration framework:</p>
+                <div class="code-block">
+                    <pre>git clone https://github.com/kody-w/TheMatrix.git
+cd TheMatrix</pre>
+                </div>
+                <div class="tip">
+                    💡 <strong>Tip:</strong> The Matrix contains pre-configured agents in <code>.claude/agents/</code> that orchestrate parallel work for you.
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">Step 3: Start Claude Code</div>
+                <p>Launch Claude Code in The Matrix directory:</p>
+                <div class="code-block">
+                    <pre>claude</pre>
+                </div>
+                <p>This opens an interactive session with Claude, who can read <code>.claude/CLAUDE.md</code> for orchestration instructions.</p>
+            </div>
+
+            <div class="step">
+                <div class="step-number">Step 4: Run a Mind-Blowing Prompt</div>
+                <p>Copy any prompt from the gallery below and paste it into Claude Code:</p>
+                <div class="code-block">
+                    <pre># Example: The Complete SaaS Factory
+Generate a production-ready B2B SaaS application: 200 React components,
+150 API endpoints, 75 database migrations, 100 test suites, complete
+CI/CD pipeline, monitoring dashboards, and documentation site. Include
+authentication, billing integration, admin panel, and multi-tenant
+architecture. Use The Matrix orchestration framework to spawn parallel
+agents for each domain.</pre>
+                </div>
+                <p>Claude will automatically:</p>
+                <ul>
+                    <li>Read The Matrix framework documentation</li>
+                    <li>Create a work breakdown structure (N packages × M items)</li>
+                    <li>Spawn N parallel outcome-generator agents</li>
+                    <li>Generate all artifacts simultaneously</li>
+                    <li>Invoke the integrator agent to synthesize results</li>
+                    <li>Report completion with full metrics</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- How It Works -->
+        <div class="section">
+            <h2>🔬 How The Matrix Orchestration Works</h2>
+
+            <h3>The Orchestration Pattern</h3>
+            <p>The Matrix uses a hierarchical agent architecture:</p>
+
+            <div class="code-block">
+                <pre>Orchestrator (200k context - Claude in your session)
+├── Discovery & Analysis (reads project context)
+├── Strategy Generation (creates work breakdown structure)
+├── System Analysis (extracts patterns, standards, schemas)
+└── Parallel Agent Spawning
+    ├── N × outcome-generator agents (parallel execution)
+    └── 1 × integrator agent (synthesizes results)</pre>
+            </div>
+
+            <h3>The 6-Step Workflow</h3>
+            <ol>
+                <li><strong>Discovery & Analysis:</strong> Claude scans your project files to understand context</li>
+                <li><strong>Work Breakdown:</strong> Creates N packages with M items each (N×M total outcomes)</li>
+                <li><strong>Agent Briefing:</strong> Prepares comprehensive instructions for all agents</li>
+                <li><strong>Parallel Spawning:</strong> Launches N agents simultaneously (NOT sequential)</li>
+                <li><strong>Integration:</strong> Integrator agent synthesizes all N×M outcomes</li>
+                <li><strong>Reporting:</strong> Complete documentation of what was built</li>
+            </ol>
+
+            <div class="tip">
+                💡 <strong>Key Insight:</strong> The orchestrator preserves its 200k context by delegating ALL implementation to subagents. This enables coordinating hundreds of parallel agents.
+            </div>
+        </div>
+
+        <!-- The 10 Ultimate Prompts -->
+        <div class="section">
+            <h2>🌟 The 10 Ultimate Mind-Blowing Prompts</h2>
+            <p>Each prompt demonstrates The Matrix's power across different domains:</p>
+
+            <div class="prompt-list">
+                <div class="prompt-card" onclick="showPromptDetails('saas')">
+                    <div class="prompt-title">1. The Complete SaaS Factory</div>
+                    <div class="prompt-desc">200 components, 150 APIs, full production SaaS in 2-3 days</div>
+                </div>
+
+                <div class="prompt-card" onclick="showPromptDetails('game-engine')">
+                    <div class="prompt-title">2. The Game Engine Genesis</div>
+                    <div class="prompt-desc">Complete 3D engine with physics, rendering, and 50 tools</div>
+                </div>
+
+                <div class="prompt-card" onclick="showPromptDetails('design-system')">
+                    <div class="prompt-title">3. The Living Design System</div>
+                    <div class="prompt-desc">300 components × 4 frameworks = 1,200 implementations</div>
+                </div>
+
+                <div class="prompt-card" onclick="showPromptDetails('polyglot')">
+                    <div class="prompt-title">4. The Polyglot Translator</div>
+                    <div class="prompt-desc">Same app in 20 languages, all idiomatic and tested</div>
+                </div>
+
+                <div class="prompt-card" onclick="showPromptDetails('startup')">
+                    <div class="prompt-title">5. The Startup-in-a-Box</div>
+                    <div class="prompt-desc">Complete startup from business plan to MVP to pitch deck</div>
+                </div>
+
+                <div class="prompt-card" onclick="showPromptDetails('compiler')">
+                    <div class="prompt-title">6. The Compiler Construction Kit</div>
+                    <div class="prompt-desc">Full compiler toolchain targeting x86, ARM, and WASM</div>
+                </div>
+
+                <div class="prompt-card" onclick="showPromptDetails('ml-pipeline')">
+                    <div class="prompt-title">7. The ML Pipeline Foundry</div>
+                    <div class="prompt-desc">End-to-end ML platform with 50 connectors and 20 algorithms</div>
+                </div>
+
+                <div class="prompt-card" onclick="showPromptDetails('knowledge')">
+                    <div class="prompt-title">8. The Knowledge Synthesizer Supreme</div>
+                    <div class="prompt-desc">500 papers → 200 articles + 5,000-node concept graph</div>
+                </div>
+
+                <div class="prompt-card" onclick="showPromptDetails('infrastructure')">
+                    <div class="prompt-title">9. The Infrastructure Architect</div>
+                    <div class="prompt-desc">Multi-cloud infrastructure across AWS, GCP, and Azure</div>
+                </div>
+
+                <div class="prompt-card" onclick="showPromptDetails('universe')">
+                    <div class="prompt-title">10. The Universe Simulator</div>
+                    <div class="prompt-desc">1,000 planets, 500 species, 10,000 years of history</div>
+                </div>
+            </div>
+
+            <div class="tip">
+                💡 <strong>Access All Prompts:</strong> Full prompts with exact commands are available in the <a href="../index.html#library">Prompt Library</a> section of the main gateway.
+            </div>
+        </div>
+
+        <!-- Advanced Usage -->
+        <div class="section">
+            <h2>⚙️ Advanced Usage</h2>
+
+            <h3>Customizing Agent Configuration</h3>
+            <p>The Matrix agents are defined in <code>.claude/agents/*.md</code> with YAML frontmatter:</p>
+
+            <div class="code-block">
+                <pre>---
+name: outcome-generator
+model: haiku
+tools: [Read, Write, Bash, Task]
+---
+
+# Your custom agent instructions here...</pre>
+            </div>
+
+            <h3>Monitoring Progress</h3>
+            <p>Claude Code provides real-time feedback as agents execute:</p>
+            <ul>
+                <li>Agent spawn notifications</li>
+                <li>Progress updates from each agent</li>
+                <li>File creation confirmations</li>
+                <li>Integration status</li>
+                <li>Final metrics report</li>
+            </ul>
+
+            <h3>Best Practices</h3>
+            <div class="tip">
+                <strong>For Best Results:</strong>
+                <ul>
+                    <li>✅ Be specific about scale (e.g., "200 components" not "many components")</li>
+                    <li>✅ Specify output formats (React, Vue, TypeScript, etc.)</li>
+                    <li>✅ Include testing and documentation requirements</li>
+                    <li>✅ Mention The Matrix framework in your prompt</li>
+                    <li>✅ Run in a dedicated project directory</li>
+                </ul>
+            </div>
+
+            <div class="warning">
+                <strong>⚠️ Important Notes:</strong>
+                <ul>
+                    <li>Large orchestrations (500+ outcomes) can take 30-60 minutes</li>
+                    <li>Ensure you have sufficient disk space for generated files</li>
+                    <li>The orchestrator preserves context—don't interrupt mid-run</li>
+                    <li>Review generated code before deploying to production</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Example Session -->
+        <div class="section">
+            <h2>📝 Example Session</h2>
+
+            <div class="example">
+                <div class="example-title">Complete Session Transcript:</div>
+                <div class="code-block">
+                    <pre>$ claude
+Claude Code v1.0 - Connected
+
+You: Generate a production-ready B2B SaaS application: 200 React
+     components, 150 API endpoints, 75 database migrations, 100 test
+     suites, complete CI/CD pipeline, monitoring dashboards, and
+     documentation site. Use The Matrix orchestration framework.
+
+Claude: I'll use The Matrix framework to orchestrate this SaaS
+        generation. Let me start with discovery...
+
+        [Reading project context...]
+        ✓ Read .claude/CLAUDE.md
+        ✓ Read .claude/agents/outcome-generator.md
+        ✓ Read .claude/agents/integrator.md
+
+        [Creating work breakdown...]
+        ✓ 10 work packages identified
+        ✓ 200 work items (20 per package)
+
+        [Spawning 10 outcome-generator agents in parallel...]
+        ✓ Agent 1: Frontend Components (20 components)
+        ✓ Agent 2: API Endpoints - Auth (15 endpoints)
+        ✓ Agent 3: API Endpoints - Core (15 endpoints)
+        ...
+        ✓ Agent 10: Documentation (20 pages)
+
+        [All agents executing in parallel...]
+        [Progress: 50%... 75%... 100%]
+
+        [Spawning integrator agent...]
+        ✓ Integration complete
+
+        ✅ SaaS Application Complete!
+
+        Generated:
+        - 200 React components (src/components/)
+        - 150 API endpoints (backend/api/)
+        - 75 database migrations (db/migrations/)
+        - 100 test suites (tests/)
+        - CI/CD pipeline (.github/workflows/)
+        - Monitoring (monitoring/)
+        - Documentation (docs/)
+
+        Time: 45 minutes
+        Success rate: 100%</pre>
+                </div>
+            </div>
+        </div>
+
+        <!-- Troubleshooting -->
+        <div class="section">
+            <h2>🔧 Troubleshooting</h2>
+
+            <h3>Common Issues</h3>
+
+            <div class="warning">
+                <strong>Issue:</strong> "Claude doesn't recognize The Matrix framework"<br>
+                <strong>Solution:</strong> Make sure you're in The Matrix directory and <code>.claude/CLAUDE.md</code> exists. Add "Use The Matrix orchestration framework" to your prompt.
+            </div>
+
+            <div class="warning">
+                <strong>Issue:</strong> "Agents running sequentially instead of parallel"<br>
+                <strong>Solution:</strong> Check that your prompt explicitly mentions scale (e.g., "200 components"). The orchestrator needs clear scale to spawn multiple agents.
+            </div>
+
+            <div class="warning">
+                <strong>Issue:</strong> "Generated code has errors"<br>
+                <strong>Solution:</strong> Include "with comprehensive testing" in your prompt. Test suites catch issues during generation.
+            </div>
+
+            <h3>Getting Help</h3>
+            <p>For issues or questions:</p>
+            <ul>
+                <li>📖 Read <code>.claude/CLAUDE.md</code> for detailed workflow</li>
+                <li>🐛 Report bugs at <a href="https://github.com/kody-w/TheMatrix/issues" target="_blank">GitHub Issues</a></li>
+                <li>💬 Join discussions in the repository</li>
+                <li>📧 Contact: <a href="mailto:kwildfeuer@me.com">kwildfeuer@me.com</a></li>
+            </ul>
+        </div>
+
+        <!-- Resources -->
+        <div class="section">
+            <h2>📚 Additional Resources</h2>
+
+            <ul>
+                <li><a href="../README.md">The Matrix Framework Documentation</a></li>
+                <li><a href="../.claude/CLAUDE.md">Complete Orchestration Workflow</a></li>
+                <li><a href="../AGENT_CHANGELOG.md">Autonomous Development History</a></li>
+                <li><a href="https://claude.ai/code" target="_blank">Claude Code Official Site</a></li>
+                <li><a href="../index.html#library">Prompt Library (Main Gateway)</a></li>
+            </ul>
+        </div>
+
+        <div style="text-align: center;">
+            <a href="../index.html" class="back-button">← Back to Matrix Gateway</a>
+        </div>
+    </div>
+
+    <script>
+        function showPromptDetails(promptId) {
+            // Navigate to main gateway prompt library
+            window.location.href = '../index.html#library';
+        }
+    </script>
+</body>
+</html>

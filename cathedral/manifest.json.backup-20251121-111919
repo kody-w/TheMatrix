@@ -1,0 +1,174 @@
+{
+  "version": "1.0.0",
+  "cathedral": {
+    "title": "The Matrix Demonstration Cathedral",
+    "subtitle": "Autonomous Orchestration in Action",
+    "description": "Interactive demonstrations showcasing parallel orchestration at scale"
+  },
+  "categories": [
+    {
+      "id": "transformation",
+      "label": "Data Transformation",
+      "description": "Large-scale data transformations and migrations",
+      "color": "#667eea"
+    },
+    {
+      "id": "synthesis",
+      "label": "Knowledge Synthesis",
+      "description": "Combining and analyzing information at scale",
+      "color": "#764ba2"
+    },
+    {
+      "id": "generation",
+      "label": "Content Generation",
+      "description": "Creating structured content from inputs",
+      "color": "#f093fb"
+    },
+    {
+      "id": "orchestration",
+      "label": "Process Orchestration",
+      "description": "Coordinating parallel and sequential operations",
+      "color": "#4facfe"
+    }
+  ],
+  "demonstrations": [
+    {
+      "id": "great-migration",
+      "title": "The Great Migration",
+      "category": "transformation",
+      "description": "2,500 PHP files transformed to React through parallel orchestration",
+      "shortDescription": "Parallel file transformation at scale",
+      "visualization": {
+        "type": "cascade-flow",
+        "config": {
+          "stages": ["2,500 PHP Files", "Transform", "2,500 React Files"],
+          "itemCount": 2500,
+          "duration": 8000
+        }
+      },
+      "metrics": {
+        "inputItems": 2500,
+        "outputItems": 2500,
+        "parallelProcesses": 50,
+        "speedup": 2.67
+      },
+      "order": 1,
+      "enabled": true
+    },
+    {
+      "id": "knowledge-synthesizer",
+      "title": "Knowledge Synthesizer",
+      "category": "synthesis",
+      "description": "75 research papers synthesized into 200 interconnected articles",
+      "shortDescription": "Semantic analysis and synthesis",
+      "visualization": {
+        "type": "network-graph",
+        "config": {
+          "inputNodes": 75,
+          "outputNodes": 200,
+          "connections": 450
+        }
+      },
+      "metrics": {
+        "inputItems": 75,
+        "outputItems": 200,
+        "relationships": 450,
+        "qualityScore": 94.2
+      },
+      "order": 2,
+      "enabled": true
+    },
+    {
+      "id": "documentation-engine",
+      "title": "Documentation Engine",
+      "category": "generation",
+      "description": "3,500 source files transformed into 400 comprehensive documentation pages",
+      "shortDescription": "Intelligent documentation generation",
+      "visualization": {
+        "type": "hierarchy-tree",
+        "config": {
+          "sourceFiles": 3500,
+          "outputDocs": 400,
+          "categories": 12
+        }
+      },
+      "metrics": {
+        "sourceFiles": 3500,
+        "outputPages": 400,
+        "coverage": 96.8,
+        "averageWordsPerPage": 800
+      },
+      "order": 3,
+      "enabled": true
+    },
+    {
+      "id": "automation-orchestrator",
+      "title": "Automation Orchestrator",
+      "category": "orchestration",
+      "description": "50 parallel processes coordinated with intelligent dependency resolution",
+      "shortDescription": "Distributed process coordination",
+      "visualization": {
+        "type": "timeline",
+        "config": {
+          "processes": 50,
+          "artifacts": 300,
+          "parallelism": 16
+        }
+      },
+      "metrics": {
+        "totalProcesses": 50,
+        "artifacts": 300,
+        "maxParallel": 16,
+        "successRate": 99.2
+      },
+      "order": 4,
+      "enabled": true
+    },
+    {
+      "id": "universe-architect",
+      "title": "Universe Architect",
+      "category": "generation",
+      "description": "Story premise expanded into 300+ coherent world-building elements",
+      "shortDescription": "Creative hierarchical generation",
+      "visualization": {
+        "type": "hierarchy-tree",
+        "config": {
+          "rootElement": 1,
+          "generatedElements": 300,
+          "depth": 5
+        }
+      },
+      "metrics": {
+        "generatedElements": 312,
+        "hierarchyDepth": 5,
+        "uniqueConcepts": 47,
+        "consistencyScore": 92.5
+      },
+      "order": 5,
+      "enabled": true
+    },
+    {
+      "id": "system-designer",
+      "title": "System Designer",
+      "category": "orchestration",
+      "description": "Requirements document transformed into complete system architecture",
+      "shortDescription": "Requirements to architecture transformation",
+      "visualization": {
+        "type": "network-graph",
+        "config": {
+          "requirements": 15,
+          "components": 47,
+          "dependencies": 83
+        }
+      },
+      "metrics": {
+        "inputRequirements": 15,
+        "architectureComponents": 47,
+        "dependencies": 83,
+        "validationScore": 91.3
+      },
+      "order": 6,
+      "enabled": true
+    }
+  ]
+}
